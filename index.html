@@ -45,10 +45,8 @@
   .card.done { border-color:rgba(74,222,128,.35); }
   .top { display:flex; gap:8px; align-items:flex-start; }
   .pic { width:72px; height:72px; border-radius:10px; overflow:hidden; flex:none; background:#0a0714; border:1px solid var(--line); position:relative; }
-  .pic img, .pic svg { width:100%; height:100%; display:block; object-fit:cover; }
-  .pic .glyph { position:absolute; inset:0; display:none; align-items:center; justify-content:center; padding:16px; background:#120d24; }
-  .pic.miss .glyph { display:flex; }
-  .pic.miss img { display:none; }
+  .pic img, .pic svg { width:100%; height:100%; display:block; object-fit:cover; object-position:center top; }
+  .pic svg.glyph { position:absolute; inset:0; }
   .name { font-weight:800; font-size:15px; }
   .meta { color:var(--muted); font-size:12px; margin-top:2px; }
   .grow { flex:1; min-width:0; }
@@ -362,14 +360,20 @@ function meets(n, min){ return bestTier(n) >= TIER_I[min]; }
 
 function hash(s){ let h=0; for(let i=0;i<s.length;i++) h=s.charCodeAt(i)+((h<<5)-h); return Math.abs(h); }
 const SHORT = {Basic:"BAS",Gold:"GLD",Diamond:"DIA",Rainbow:"RBW",Beskar:"BSK",Galactic:"GLC",Stellar:"STL"};
-function avatar(name, typ, rar){
-  if (typ==="Worker" || typ==="Fusion") {
-    return `<svg viewBox="0 0 24 24" fill="none"><path d="M7 8h10l1 3v7H6V11l1-3z" stroke="#4ade80" stroke-width="1.7"/><path d="M10 8V5h4v3M9 14h2m4 0h2" stroke="#4ade80" stroke-width="1.7" stroke-linecap="round"/></svg>`;
-  }
+function hexFrom(n,s){ const h=hash(n+s); return "#"+((h&0xffffff)|0x202020).toString(16).padStart(6,"0"); }
+function portrait(name, typ){
+  const h = hash(name);
+  const skin = typ==="Worker"||typ==="Fusion" ? "#4ade80" : (typ==="Astromech"||typ==="Iconic" ? "#c4b5fd" : "#fb7185");
+  const body = hexFrom(name,"b");
+  const acc = hexFrom(name,"a");
+  const eye = (h%5)+8;
   if (typ==="Astromech" || typ==="Iconic") {
-    return `<svg viewBox="0 0 24 24" fill="none"><path d="M7 12a5 5 0 0 1 10 0v6H7v-6z" stroke="#a78bfa" stroke-width="1.7"/><circle cx="12" cy="10" r="1.3" fill="#a78bfa"/><path d="M9 16h2m2 0h2" stroke="#a78bfa" stroke-width="1.7" stroke-linecap="round"/></svg>`;
+    return `<svg viewBox="0 0 80 80" class="glyph" style="display:none"><rect width="80" height="80" fill="#12081c"/><ellipse cx="40" cy="28" rx="22" ry="16" fill="${body}"/><rect x="18" y="28" width="44" height="36" rx="8" fill="${body}"/><rect x="22" y="34" width="36" height="8" rx="2" fill="${acc}"/><circle cx="40" cy="24" r="5" fill="${skin}"/><circle cx="40" cy="24" r="2" fill="#0b0818"/><rect x="${eye+10}" y="50" width="${48-eye}" height="4" rx="2" fill="#0b0818"/><rect x="34" y="62" width="12" height="8" fill="${acc}"/></svg>`;
   }
-  return `<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="7" stroke="#f43f5e" stroke-width="1.7"/><path d="M12 7v10M7 12h10" stroke="#f43f5e" stroke-width="1.7" stroke-linecap="round"/></svg>`;
+  if (typ==="Battle") {
+    return `<svg viewBox="0 0 80 80" class="glyph" style="display:none"><rect width="80" height="80" fill="#12081c"/><rect x="28" y="12" width="24" height="20" rx="6" fill="${body}"/><rect x="22" y="30" width="36" height="28" rx="6" fill="${body}"/><circle cx="34" cy="20" r="3" fill="${skin}"/><circle cx="46" cy="20" r="3" fill="${skin}"/><rect x="18" y="34" width="10" height="22" rx="4" fill="${acc}"/><rect x="52" y="34" width="10" height="22" rx="4" fill="${acc}"/><rect x="30" y="58" width="8" height="16" fill="${body}"/><rect x="42" y="58" width="8" height="16" fill="${body}"/></svg>`;
+  }
+  return `<svg viewBox="0 0 80 80" class="glyph" style="display:none"><rect width="80" height="80" fill="#12081c"/><rect x="16" y="22" width="48" height="40" rx="8" fill="${body}"/><circle cx="28" cy="38" r="6" fill="#0b0818"/><circle cx="52" cy="38" r="6" fill="#0b0818"/><circle cx="28" cy="38" r="2.5" fill="${skin}"/><circle cx="52" cy="38" r="2.5" fill="${skin}"/><rect x="24" y="50" width="32" height="6" rx="2" fill="${acc}"/><rect x="30" y="14" width="20" height="10" rx="3" fill="${acc}"/></svg>`;
 }
 
 function updateStats(){
@@ -394,28 +398,11 @@ function showCard(name, typ, extra){
 }
 
 function slug(name){
-  return name.replace(/\s+/g,"_");
-}
-function wikiFiles(name){
-  const pretty = name.replace(/\s+/g," ");
-  return [
-    `https://fortnite.fandom.com/wiki/Special:FilePath/${encodeURIComponent(pretty + " - Droid - Droid Tycoon.png")}`,
-    `https://fortnite.fandom.com/wiki/Special:FilePath/${encodeURIComponent(name + " - Droid - Droid Tycoon.png")}`,
-    `https://starwars.fandom.com/wiki/Special:FilePath/${encodeURIComponent(name.replace(/\s+/g,"-") + "-Fortnite.png")}`
-  ];
+  return name.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
 }
 function picWrap(name,typ,rar){
-  const srcs = wikiFiles(name);
-  const id = "p-"+slug(name).replace(/[^A-Za-z0-9_-]/g,"");
-  return `<div class="pic" id="${id}"><img alt="${name}" src="${srcs[0]}" onerror="picFail(this,'${esc(name)}')">${avatar(name,typ,rar).replace("<svg",'<svg class="glyph"')}</div>`;
-}
-const _picTry = {};
-function picFail(img, name){
-  const box = img.parentElement;
-  const tries = (_picTry[name] = (_picTry[name]||0)+1);
-  const srcs = wikiFiles(name);
-  if (tries < srcs.length) { img.src = srcs[tries]; return; }
-  box.classList.add("miss");
+  const file = "img/" + slug(name) + ".jpg";
+  return `<div class="pic"><img alt="" src="${file}" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">${portrait(name,typ)}</div>`;
 }
 
 function renderDroidCard(name,typ,rar,hideDone){
