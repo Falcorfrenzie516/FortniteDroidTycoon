@@ -11,18 +11,18 @@
 <title>Droidex Checklist · Droid Tycoon</title>
 <style>
   :root {
-    --bg:#0b1220; --bg2:#121a2b; --card:#172033; --line:#2a3754;
-    --ink:#eef3ff; --muted:#93a0bb; --gold:#e2b13c; --gold2:#f3d27a;
-    --green:#3dd68c; --green-bg:rgba(61,214,140,.14);
-    --common:#94a3b8; --rare:#60a5fa; --epic:#c084fc;
+    --bg:#0b0818; --bg2:#16122a; --card:#15122b; --line:#2b2550;
+    --ink:#ece8ff; --muted:#8b85b3; --gold:#c4b5fd; --gold2:#ddd6fe;
+    --green:#4ade80; --green-bg:rgba(74,222,128,.12);
+    --common:#a78bfa; --rare:#60a5fa; --epic:#c084fc;
     --legendary:#fbbf24; --mythic:#fb7185; --iconic:#f472b6; --fusion:#2dd4bf;
     --safe: env(safe-area-inset-bottom, 0px);
   }
   * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
   html,body { margin:0; background:var(--bg); color:var(--ink); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif; }
   body { padding-bottom: calc(92px + var(--safe)); }
-  header { position:sticky; top:0; z-index:20; background:linear-gradient(180deg,#0b1220 72%,rgba(11,18,32,.9)); border-bottom:1px solid var(--line); padding:12px 14px 10px; }
-  h1 { margin:0; font-size:18px; letter-spacing:.06em; color:var(--gold); }
+  header { position:sticky; top:0; z-index:20; background:linear-gradient(180deg,#0b0818 72%,rgba(11,8,24,.92)); border-bottom:1px solid var(--line); padding:12px 14px 10px; }
+  h1 { margin:0; font-size:18px; letter-spacing:.14em; color:#fff; }
   .sub { color:var(--muted); font-size:12px; margin-top:2px; }
   .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:7px; margin-top:10px; }
   .stat { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:7px 4px; text-align:center; }
@@ -33,16 +33,18 @@
     flex:1; background:var(--bg2); color:var(--ink); border:1px solid var(--line);
     border-radius:10px; padding:10px 12px; font-size:14px; outline:none;
   }
-  .tabs { position:fixed; left:0; right:0; bottom:0; z-index:30; display:grid; grid-template-columns:repeat(5,1fr); background:#0e1626; border-top:1px solid var(--line); padding-bottom:var(--safe); }
+  .tabs { position:fixed; left:0; right:0; bottom:0; z-index:30; display:grid; grid-template-columns:repeat(5,1fr); background:#100d1f; border-top:1px solid var(--line); padding-bottom:var(--safe); }
   .tabs button { background:none; border:0; color:var(--muted); padding:11px 2px 9px; font-size:11px; font-weight:700; }
   .tabs button.on { color:var(--gold); }
   main { padding:12px; }
   .hint { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px 14px; color:var(--muted); font-size:13px; line-height:1.45; margin-bottom:12px; }
   .rarity-h { position:sticky; top:148px; z-index:10; margin:14px 0 8px; font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); background:var(--bg); padding:6px 2px; }
-  .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:12px; margin-bottom:8px; }
-  .card.done { border-color:rgba(61,214,140,.4); }
-  .top { display:flex; gap:10px; align-items:flex-start; }
-  .pic { width:56px; height:56px; border-radius:12px; overflow:hidden; flex:none; background:var(--bg2); border:1px solid var(--line); }
+  .grid { display:grid; grid-template-columns:1fr; gap:8px; }
+  @media (min-width:720px){ .grid { grid-template-columns:1fr 1fr; } }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px; }
+  .card.done { border-color:rgba(74,222,128,.35); }
+  .top { display:flex; gap:8px; align-items:flex-start; }
+  .pic { width:22px; height:22px; border-radius:6px; overflow:hidden; flex:none; margin-top:1px; }
   .pic svg { width:100%; height:100%; display:block; }
   .name { font-weight:800; font-size:15px; }
   .meta { color:var(--muted); font-size:12px; margin-top:2px; }
@@ -50,13 +52,14 @@
   .badge { font-size:10px; font-weight:800; letter-spacing:.04em; text-transform:uppercase; padding:4px 7px; border-radius:999px; border:1px solid currentColor; white-space:nowrap; }
   .Common{color:var(--common)} .Rare{color:var(--rare)} .Epic{color:var(--epic)}
   .Legendary{color:var(--legendary)} .Mythic{color:var(--mythic)} .Iconic{color:var(--iconic)} .Fusion{color:var(--fusion)}
-  .vars { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; margin-top:10px; }
-  .chk { display:flex; align-items:center; gap:6px; font-size:11px; color:var(--muted); background:var(--bg2); border:1px solid var(--line); border-radius:8px; padding:7px 6px; }
+  .vars { display:grid; grid-template-columns:repeat(7,1fr); gap:5px; margin-top:10px; }
+  .chk { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; font-size:9px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); background:#100d22; border:1px solid var(--line); border-radius:8px; padding:7px 2px; min-height:44px; }
   .chk.on { color:var(--green); background:var(--green-bg); border-color:rgba(61,214,140,.4); }
   .chk input { accent-color:var(--green); width:15px; height:15px; }
   .tier { margin-top:10px; background:var(--bg2); border:1px solid var(--line); border-radius:10px; padding:8px; }
   .tier h3 { margin:0 0 6px; font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--gold2); display:flex; justify-content:space-between; align-items:center; }
   .ings { display:flex; flex-direction:column; gap:5px; }
+  .ings .chk { flex-direction:row; justify-content:flex-start; text-transform:none; letter-spacing:0; font-size:12px; min-height:0; padding:7px 8px; }
   .ready { margin-top:6px; font-size:11px; font-weight:800; color:var(--gold); }
   .empty { text-align:center; color:var(--muted); padding:36px 12px; }
   .cycles { display:flex; gap:6px; flex-wrap:wrap; margin:0 0 10px; }
@@ -355,30 +358,15 @@ function bestTier(n){
 function meets(n, min){ return bestTier(n) >= TIER_I[min]; }
 
 function hash(s){ let h=0; for(let i=0;i<s.length;i++) h=s.charCodeAt(i)+((h<<5)-h); return Math.abs(h); }
+const SHORT = {Basic:"BAS",Gold:"GLD",Diamond:"DIA",Rainbow:"RBW",Beskar:"BSK",Galactic:"GLC",Stellar:"STL"};
 function avatar(name, typ, rar){
-  const h = hash(name+typ);
-  const pal = {
-    Worker:["#f5d27a","#8b5a12","#3a2a12"],
-    Astromech:["#7dd3fc","#1d4ed8","#0b1220"],
-    Battle:["#fca5a5","#991b1b","#1c0b0b"],
-    Fusion:["#5eead4","#0f766e","#042f2e"],
-    Iconic:["#f9a8d4","#9d174d","#2a0b18"]
-  }[typ] || ["#cbd5e1","#334155","#0b1220"];
-  const body = pal[0], accent = pal[1], bg = pal[2];
-  const eye = (h%2) ? 18 : 22;
-  const dome = typ==="Astromech" || typ==="Iconic";
-  const initials = name.replace(/[^A-Za-z0-9]/g,"").slice(0,3).toUpperCase();
-  return `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-    <rect width="80" height="80" fill="${bg}"/>
-    <rect x="8" y="8" width="64" height="64" rx="14" fill="${accent}" opacity=".35"/>
-    ${dome
-      ? `<ellipse cx="40" cy="34" rx="22" ry="18" fill="${body}"/><rect x="18" y="34" width="44" height="28" rx="8" fill="${body}"/>`
-      : `<rect x="16" y="18" width="48" height="46" rx="10" fill="${body}"/>`}
-    <circle cx="30" cy="36" r="6" fill="#0b1220"/><circle cx="50" cy="36" r="6" fill="#0b1220"/>
-    <circle cx="30" cy="36" r="2.4" fill="#e2b13c"/><circle cx="50" cy="36" r="2.4" fill="#e2b13c"/>
-    <rect x="${eye}" y="50" width="${80-eye*2}" height="5" rx="2" fill="#0b1220"/>
-    <text x="40" y="74" text-anchor="middle" font-size="8" font-family="ui-sans-serif,system-ui" fill="#eef3ff">${initials}</text>
-  </svg>`;
+  if (typ==="Worker" || typ==="Fusion") {
+    return `<svg viewBox="0 0 24 24" fill="none"><path d="M7 8h10l1 3v7H6V11l1-3z" stroke="#4ade80" stroke-width="1.7"/><path d="M10 8V5h4v3M9 14h2m4 0h2" stroke="#4ade80" stroke-width="1.7" stroke-linecap="round"/></svg>`;
+  }
+  if (typ==="Astromech" || typ==="Iconic") {
+    return `<svg viewBox="0 0 24 24" fill="none"><path d="M7 12a5 5 0 0 1 10 0v6H7v-6z" stroke="#a78bfa" stroke-width="1.7"/><circle cx="12" cy="10" r="1.3" fill="#a78bfa"/><path d="M9 16h2m2 0h2" stroke="#a78bfa" stroke-width="1.7" stroke-linecap="round"/></svg>`;
+  }
+  return `<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="7" stroke="#f43f5e" stroke-width="1.7"/><path d="M12 7v10M7 12h10" stroke="#f43f5e" stroke-width="1.7" stroke-linecap="round"/></svg>`;
 }
 
 function updateStats(){
@@ -408,13 +396,13 @@ function renderDroidCard(name,typ,rar,hideDone){
   if (hideDone && droidDone(name)) return "";
   if (!showCard(name,typ,rar)) return "";
   const tiers = ownedTiers(name);
-  let html = `<article class="card ${tiers===7?"done":""}"><div class="top">${picWrap(name,typ,rar)}<div class="grow"><div class="name">${name}</div><div class="meta">${typ} · ${tiers}/7 variants</div></div><span class="badge ${rar}">${rar}</span></div><div class="vars">`;
+  let html = `<article class="card ${tiers===7?"done":""}"><div class="top">${picWrap(name,typ,rar)}<div class="grow"><div class="name">${name.toUpperCase()}</div><div class="meta">${typ.toUpperCase()} · ${tiers}/7</div></div></div><div class="vars">`;
   VARIANTS.forEach(v => {
     const on = has(name,v);
-    html += `<label class="chk ${on?"on":""}"><input type="checkbox" ${on?"checked":""} onchange="toggle('${esc(name)}','${v}')">${v}</label>`;
+    html += `<label class="chk ${on?"on":""}"><input type="checkbox" ${on?"checked":""} onchange="toggle('${esc(name)}','${v}')">${SHORT[v]}</label>`;
   });
   const fl = has(name,"Flawless");
-  html += `<label class="chk ${fl?"on":""}"><input type="checkbox" ${fl?"checked":""} onchange="toggle('${esc(name)}','Flawless')">Flawless</label></div></article>`;
+  html += `</div><div class="vars" style="grid-template-columns:1fr;margin-top:6px"><label class="chk ${fl?"on":""}" style="flex-direction:row;min-height:0;padding:6px 8px;text-transform:none;letter-spacing:0;font-size:11px"><input type="checkbox" ${fl?"checked":""} onchange="toggle('${esc(name)}','Flawless')">Flawless</label></div></article>`;
   return html;
 }
 
@@ -446,9 +434,10 @@ function render(){
     let last="", shown=0;
     DROIDS.forEach(([n,t,r]) => {
       if (droidDone(n) || !showCard(n,t,r)) return;
-      if (r!==last) { html += `<div class="rarity-h ${r}">${r}</div>`; last=r; }
+      if (r!==last) { if (last) html += `</div>`; html += `<div class="rarity-h ${r}">${r}</div><div class="grid">`; last=r; }
       html += renderDroidCard(n,t,r,true); shown++;
     });
+    if (last) html += `</div>`;
     if (!shown) html += `<div class="empty">Nothing left here. Check Done, or clear search.</div>`;
   }
   if (tab==="fusion") {
