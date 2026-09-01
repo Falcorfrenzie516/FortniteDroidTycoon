@@ -41,12 +41,55 @@
   .belt.stel { background:var(--stel-bg); border-color:var(--stel-line); }
   .belt.stel b { color:var(--stel-hi); }
   .belt.stel span { color:var(--stel); }
+  .chk.v-def { color:#9ca3af; background:#141416; border-color:#4b5563; }
+  .chk.v-def.on { color:#d1d5db; background:#1f2933; border-color:#6b7280; }
+  .chk.v-gld { color:#b45309; background:#120e08; border-color:#78350f; }
+  .chk.v-gld.on { color:#d97706; background:#1c140a; border-color:#a16207; }
+  .chk.v-dia {
+    color:#e0f2fe; border-color:#7dd3fc;
+    background:
+      radial-gradient(circle at 18% 22%, rgba(255,255,255,.45) 0 1px, transparent 2px),
+      radial-gradient(circle at 72% 38%, rgba(186,230,253,.5) 0 1px, transparent 2px),
+      radial-gradient(circle at 40% 78%, rgba(255,255,255,.28) 0 1px, transparent 2px),
+      #071018;
+  }
+  .chk.v-dia.on {
+    color:#f0f9ff; border-color:#bae6fd;
+    background:
+      radial-gradient(circle at 22% 18%, rgba(255,255,255,.6) 0 1px, transparent 2px),
+      radial-gradient(circle at 78% 42%, rgba(186,230,253,.55) 0 1px, transparent 2px),
+      radial-gradient(circle at 48% 82%, rgba(125,211,252,.4) 0 1px, transparent 2px),
+      #0b1a24;
+  }
+  .chk.v-rbw {
+    color:#fde68a;
+    border:1px solid transparent;
+    background-image: linear-gradient(#120c16,#120c16), linear-gradient(90deg,#f87171,#fbbf24,#4ade80,#38bdf8,#a78bfa,#f472b6);
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
+  }
+  .chk.v-rbw.on {
+    color:#fff;
+    background-image: linear-gradient(#1a1022,#1a1022), linear-gradient(90deg,#fb7185,#facc15,#34d399,#22d3ee,#c4b5fd,#f472b6);
+  }
+  .chk.v-bsk { color:#94a3b8; background:#10141a; border-color:#475569; }
+  .chk.v-bsk.on { color:#cbd5e1; background:#1e293b; border-color:#64748b; }
   .chk.v-gal { color:var(--gal); background:var(--gal-bg); border-color:var(--gal-line); }
   .chk.v-gal.on { color:var(--gal-hi); background:rgba(167,139,250,.2); border-color:var(--gal); }
   .chk.v-stel { color:var(--stel); background:var(--stel-bg); border-color:var(--stel-line); }
   .chk.v-stel.on { color:var(--stel-hi); background:rgba(250,204,21,.16); border-color:var(--stel); }
   .chk.v-myth { color:#f87171; background:var(--myth-bg); border-color:var(--myth-line); }
   .chk.v-myth.on { color:var(--myth-hi); background:rgba(239,68,68,.18); border-color:#ef4444; }
+  details.tier.v-def { border-color:#4b5563; background:#141416; }
+  details.tier.v-def > summary { color:#d1d5db; }
+  details.tier.v-gld { border-color:#78350f; background:#120e08; }
+  details.tier.v-gld > summary { color:#d97706; }
+  details.tier.v-dia { border-color:#7dd3fc; background:#071018; }
+  details.tier.v-dia > summary { color:#e0f2fe; }
+  details.tier.v-rbw { border-color:#a78bfa; background:#120c16; }
+  details.tier.v-rbw > summary { color:#fde68a; }
+  details.tier.v-bsk { border-color:#475569; background:#10141a; }
+  details.tier.v-bsk > summary { color:#cbd5e1; }
   details.tier.v-gal { border-color:var(--gal-line); background:var(--gal-bg); }
   details.tier.v-gal > summary { color:var(--gal-hi); }
   details.tier.v-stel { border-color:var(--stel-line); background:var(--stel-bg); }
@@ -631,6 +674,11 @@ const SHORT = {Basic:"DEF",Gold:"GLD",Diamond:"DIA",Rainbow:"RBW",Beskar:"BSK",G
 const VNAME = {Basic:"Default",Gold:"Gold",Diamond:"Diamond",Rainbow:"Rainbow",Beskar:"Beskar",Galactic:"Galactic",Stellar:"Stellar"};
 function vName(v){ return VNAME[v] || v; }
 function vTheme(v){
+  if (v==="Basic") return "v-def";
+  if (v==="Gold") return "v-gld";
+  if (v==="Diamond") return "v-dia";
+  if (v==="Rainbow") return "v-rbw";
+  if (v==="Beskar") return "v-bsk";
   if (v==="Galactic") return "v-gal";
   if (v==="Stellar") return "v-stel";
   return "";
