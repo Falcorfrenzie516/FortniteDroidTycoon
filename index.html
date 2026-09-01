@@ -143,14 +143,25 @@
   .tabrow { display:grid; gap:4px; }
   .tabrow.row1 { grid-template-columns:repeat(4,1fr); }
   .tabrow.row2 { grid-template-columns:repeat(4,1fr); }
-  .tabs button { background:rgba(12,10,24,.78); border:1px solid var(--line); border-radius:14px; color:var(--muted); padding:9px 2px; font-size:10px; font-weight:700; font-family:Orbitron,sans-serif; letter-spacing:.08em; text-transform:uppercase; }
-  .tabs button.on { color:#0b0818; background:var(--gold); border-color:var(--gold); }
+  .tabs button { position:relative; overflow:hidden; background:rgba(12,10,24,.78); border:1px solid var(--line); border-radius:14px; color:var(--muted); padding:9px 2px; font-size:10px; font-weight:700; font-family:Orbitron,sans-serif; letter-spacing:.08em; text-transform:uppercase; }
+  .tabs button .fill { position:absolute; left:0; top:0; bottom:0; width:0; opacity:.42; pointer-events:none; transition:width .25s ease; }
+  .tabs button span { position:relative; z-index:1; }
+  .tabs button.on { color:#fff; background:rgba(196,181,253,.12); border-color:#c4b5fd; }
+  .tabs button[data-tab="droidex"] .fill { background:linear-gradient(90deg,#0e7490,#67e8f9); }
+  .tabs button[data-tab="fusion"] .fill { background:linear-gradient(90deg,#0f766e,#2dd4bf); }
+  .tabs button[data-tab="srb"] .fill { background:linear-gradient(90deg,#c2410c,#fb923c); }
+  .tabs button[data-tab="done"] .fill { background:linear-gradient(90deg,#166534,#4ade80); }
+  .tabs button[data-tab="iconics"] .fill { background:linear-gradient(90deg,#9d174d,#f472b6); }
+  .tabs button[data-tab="cosmetics"] .fill { background:linear-gradient(90deg,#5b21b6,#c4b5fd); }
+  .tabs button[data-tab="saves"] .fill { background:linear-gradient(90deg,#334155,#94a3b8); }
+  .tabs button[data-tab="alarms"] .fill { background:linear-gradient(90deg,#a16207,#fbbf24); }
   main { padding:12px; }
   .hint { background:rgba(12,10,24,.72); border:1px solid var(--line); border-radius:16px; padding:12px 14px; color:var(--muted); font-size:13px; line-height:1.45; margin-bottom:12px; }
   .rarity-h { position:sticky; top:248px; z-index:10; margin:14px 0 8px; font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); background:rgba(5,3,12,.72); padding:6px 2px; font-family:Orbitron,sans-serif; }
   .grid { display:grid; grid-template-columns:1fr; gap:8px; }
   @media (min-width:720px){ .grid { grid-template-columns:1fr 1fr; } }
-  .card { background:rgba(12,10,24,.78); border:1px solid var(--line); border-radius:16px; padding:12px; }
+  .card { position:relative; overflow:hidden; background:rgba(12,10,24,.78); border:1px solid var(--line); border-radius:16px; padding:12px; }
+  .card > i.fill { position:absolute; left:0; top:0; bottom:0; width:0; background:linear-gradient(90deg,#365314,#84cc16 70%,#d9f99d); opacity:.28; pointer-events:none; }
   .card.done { border-color:rgba(74,222,128,.35); }
   .top { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
   .pic { width:52px; height:52px; border-radius:10px; overflow:hidden; flex:none; background:#000; border:1px solid var(--line); position:relative; }
@@ -252,16 +263,16 @@
   </div>
   <nav class="tabs">
     <div class="tabrow row1">
-      <button class="on" data-tab="droidex">Droidex</button>
-      <button data-tab="fusion">Fusion</button>
-      <button data-tab="srb">SRB</button>
-      <button data-tab="done">Done</button>
+      <button class="on" data-tab="droidex"><i class="fill" id="tabFill-droidex"></i><span>Droidex</span></button>
+      <button data-tab="fusion"><i class="fill" id="tabFill-fusion"></i><span>Fusion</span></button>
+      <button data-tab="srb"><i class="fill" id="tabFill-srb"></i><span>SRB</span></button>
+      <button data-tab="done"><i class="fill" id="tabFill-done"></i><span>Done</span></button>
     </div>
     <div class="tabrow row2">
-      <button data-tab="iconics">Iconic</button>
-      <button data-tab="cosmetics">Paint</button>
-      <button data-tab="saves">Profiles</button>
-      <button data-tab="alarms">Alarms</button>
+      <button data-tab="iconics"><i class="fill" id="tabFill-iconics"></i><span>Iconic</span></button>
+      <button data-tab="cosmetics"><i class="fill" id="tabFill-cosmetics"></i><span>Paint</span></button>
+      <button data-tab="saves"><i class="fill" id="tabFill-saves"></i><span>Profiles</span></button>
+      <button data-tab="alarms"><i class="fill" id="tabFill-alarms"></i><span>Alarms</span></button>
     </div>
   </nav>
 </header>
@@ -768,6 +779,21 @@ function updateStats(){
   bar("fillFuse", fuse, 17);
   bar("fillDone", done, maxDone);
   bar("fillFlaw", flaw, totalNames);
+  const droidVars = VARIANTS.reduce((a,v)=>a+DROIDS.filter(([n])=>has(n,v)).length,0);
+  const fuseVars = VARIANTS.reduce((a,v)=>a+FUSIONS.filter(([n])=>fuseHas(n,v)).length,0);
+  const rbCleared = Array.from({length:35},(_,i)=>i+1).filter(rb => state.rb && state.rb["c"+srbCycle+"r"+rb]).length;
+  const icOn = ICONICS.filter(([n])=>iconOwned(n)).length;
+  const paintOn = COSMETICS.filter((_,i)=>state.c && state.c[i]).length;
+  const alarmOn = ["Galactic","Mythic","Stellar"].filter(n => alarms[n] && alarms[n].on).length;
+  const saveN = (bank.saves||[]).length;
+  bar("tabFill-droidex", droidVars, DROIDS.length*7);
+  bar("tabFill-fusion", fuseVars, FUSIONS.length*7);
+  bar("tabFill-srb", rbCleared, 35);
+  bar("tabFill-done", done, maxDone);
+  bar("tabFill-iconics", icOn, ICONICS.length);
+  bar("tabFill-cosmetics", paintOn, COSMETICS.length);
+  bar("tabFill-saves", saveN, Math.max(saveN,1));
+  bar("tabFill-alarms", alarmOn, 3);
 }
 
 function norm(s){ return String(s||"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim(); }
@@ -802,7 +828,7 @@ function renderDroidCard(name,typ,rar,hideDone){
   const opened = openD[name] ? "open" : "";
   const fl = has(name,"Flawless");
   const allOn = tiers===7;
-  let html = `<details class="card drop ${tiers===7?"done":""} ${rarTheme(rar)}" ${opened} ontoggle="openD['${esc(name)}']=this.open"><summary><div class="top" style="flex:1">${picWrap(name,typ,rar)}<div class="grow"><div class="name">${name.toUpperCase()}</div><div class="meta">${typ.toUpperCase()} · ${tiers}/7</div></div><label class="fl-pill ${fl?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${fl?"checked":""} onchange="toggle('${esc(name)}','Flawless')">Flawless</label></div><span class="chev">▸</span></summary><div class="drop-body"><div class="vars">`;
+  let html = `<details class="card drop ${tiers===7?"done":""} ${rarTheme(rar)}" ${opened} ontoggle="openD['${esc(name)}']=this.open"><i class="fill" style="width:${(tiers/7*100).toFixed(1)}%"></i><summary><div class="top" style="flex:1">${picWrap(name,typ,rar)}<div class="grow"><div class="name">${name.toUpperCase()}</div><div class="meta">${typ.toUpperCase()} · ${tiers}/7</div></div><label class="fl-pill ${fl?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${fl?"checked":""} onchange="toggle('${esc(name)}','Flawless')">Flawless</label></div><span class="chev">▸</span></summary><div class="drop-body"><div class="vars">`;
   VARIANTS.forEach(v => {
     const on = has(name,v);
     html += `<label class="chk ${on?"on":""} ${vTheme(v)}"><input type="checkbox" ${on?"checked":""} onchange="toggle('${esc(name)}','${v}')">${SHORT[v]}</label>`;
@@ -822,7 +848,7 @@ function renderFusionCard(name,rar,typ,ings,hideDone){
   const opened = openF[name] ? "open" : "";
   const allOn = VARIANTS.every(v => fuseHas(name,v));
   const fl = fuseHas(name,"Flawless");
-  let html = `<details class="card drop ${tiers===7?"done":""} ${rarTheme(rar)}" ${opened} ontoggle="openF['${esc(name)}']=this.open"><summary><div class="top" style="flex:1">${picWrap(name,"Fusion",rar)}<div class="grow"><div class="name">${name}</div><div class="meta">${typ} · ${tiers}/7 variants</div></div><label class="fl-pill ${fl?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${fl?"checked":""} onchange="state.f['${esc(name)}|Flawless']=this.checked;save();render();">Flawless</label><label class="fl-pill ${allOn?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${allOn?"checked":""} onchange="completeFusion('${esc(name)}')">Complete All</label><span class="badge Fusion">${rar}</span></div><span class="chev">▸</span></summary><div class="drop-body">`;
+  let html = `<details class="card drop ${tiers===7?"done":""} ${rarTheme(rar)}" ${opened} ontoggle="openF['${esc(name)}']=this.open"><i class="fill" style="width:${(tiers/7*100).toFixed(1)}%"></i><summary><div class="top" style="flex:1">${picWrap(name,"Fusion",rar)}<div class="grow"><div class="name">${name}</div><div class="meta">${typ} · ${tiers}/7 variants</div></div><label class="fl-pill ${fl?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${fl?"checked":""} onchange="state.f['${esc(name)}|Flawless']=this.checked;save();render();">Flawless</label><label class="fl-pill ${allOn?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${allOn?"checked":""} onchange="completeFusion('${esc(name)}')">Complete All</label><span class="badge Fusion">${rar}</span></div><span class="chev">▸</span></summary><div class="drop-body">`;
   VARIANTS.forEach(v => {
     const own = fuseHas(name,v);
     const got = ings.map((_,i)=>fuseIng(name,v,i));
