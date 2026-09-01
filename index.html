@@ -872,7 +872,6 @@ function render(){
     return;
   }
   if (tab==="droidex") {
-    html += `<div class="hint">Regular Droidex names. Completed 7/7 droids move to the <b>Done</b> tab. Fusion recipes live on the Fusion tab — they are not missing, they are just a separate list.</div>`;
     let last="", shown=0;
     DROIDS.forEach(([n,t,r]) => {
       if (droidDone(n) || !showCard(n,t,r)) return;
