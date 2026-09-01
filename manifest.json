@@ -1,6 +1,6 @@
 {
-  "name": "Droidex · Droid Tycoon",
-  "short_name": "Droidex",
+  "name": "Pocket Droidex",
+  "short_name": "Pocket Droidex",
   "description": "Collection tracker for Star Wars: Droid Tycoon",
   "start_url": "./",
   "display": "standalone",
