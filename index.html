@@ -60,6 +60,9 @@
   .chk { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; font-size:9px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); background:#100d22; border:1px solid var(--line); border-radius:8px; padding:7px 2px; min-height:44px; }
   .chk.on { color:var(--green); background:var(--green-bg); border-color:rgba(61,214,140,.4); }
   .chk input { accent-color:var(--green); width:15px; height:15px; }
+  .fl-pill { display:flex; align-items:center; gap:6px; background:#100d22; border:1px solid var(--line); border-radius:10px; padding:8px 10px; font-size:12px; color:var(--muted); white-space:nowrap; flex:none; }
+  .fl-pill.on { color:var(--green); background:var(--green-bg); border-color:rgba(61,214,140,.4); }
+  .fl-pill input { accent-color:var(--green); width:15px; height:15px; }
   .tier { margin-top:8px; background:var(--bg2); border:1px solid var(--line); border-radius:10px; padding:0; }
   .tier h3 { margin:0 0 6px; font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--gold2); display:flex; justify-content:space-between; align-items:center; }
   .ings { display:flex; flex-direction:column; gap:5px; padding:0 8px 8px; }
@@ -494,6 +497,11 @@ function doSuperRebirth(){
 function dKey(n,v){ return n+"|"+v; }
 function has(n,v){ return !!state.d[dKey(n,v)]; }
 function toggle(n,v){ state.d[dKey(n,v)] = !state.d[dKey(n,v)]; save(); render(); }
+function completeAll(n){
+  const allOn = VARIANTS.every(v => has(n,v));
+  VARIANTS.forEach(v => { state.d[dKey(n,v)] = !allOn; });
+  save(); render();
+}
 function ownedTiers(n){ return VARIANTS.filter(v => has(n,v)).length; }
 function fuseHas(n,v){ return !!state.f[n+"|"+v]; }
 function fuseIng(n,v,i){ return !!state.f[n+"|"+v+"|i"+i]; }
@@ -569,13 +577,14 @@ function renderDroidCard(name,typ,rar,hideDone){
   if (!showCard(name,typ,rar)) return "";
   const tiers = ownedTiers(name);
   const opened = openD[name] ? "open" : "";
-  let html = `<details class="card drop ${tiers===7?"done":""}" ${opened} ontoggle="openD['${esc(name)}']=this.open"><summary><div class="top" style="flex:1">${picWrap(name,typ,rar)}<div class="grow"><div class="name">${name.toUpperCase()}</div><div class="meta">${typ.toUpperCase()} · ${tiers}/7</div></div></div><span class="chev">▸</span></summary><div class="drop-body"><div class="vars">`;
+  const fl = has(name,"Flawless");
+  const allOn = tiers===7;
+  let html = `<details class="card drop ${tiers===7?"done":""}" ${opened} ontoggle="openD['${esc(name)}']=this.open"><summary><div class="top" style="flex:1">${picWrap(name,typ,rar)}<div class="grow"><div class="name">${name.toUpperCase()}</div><div class="meta">${typ.toUpperCase()} · ${tiers}/7</div></div><label class="fl-pill ${fl?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${fl?"checked":""} onchange="toggle('${esc(name)}','Flawless')">Flawless</label></div><span class="chev">▸</span></summary><div class="drop-body"><div class="vars">`;
   VARIANTS.forEach(v => {
     const on = has(name,v);
     html += `<label class="chk ${on?"on":""}"><input type="checkbox" ${on?"checked":""} onchange="toggle('${esc(name)}','${v}')">${SHORT[v]}</label>`;
   });
-  const fl = has(name,"Flawless");
-  html += `</div><div class="vars" style="grid-template-columns:1fr;margin-top:6px"><label class="chk ${fl?"on":""}" style="flex-direction:row;min-height:0;padding:6px 8px;text-transform:none;letter-spacing:0;font-size:11px"><input type="checkbox" ${fl?"checked":""} onchange="toggle('${esc(name)}','Flawless')">Flawless</label></div></div></details>`;
+  html += `</div><div class="vars" style="grid-template-columns:1fr;margin-top:6px"><label class="chk ${allOn?"on":""}" style="flex-direction:row;min-height:0;padding:8px;text-transform:none;letter-spacing:0;font-size:12px"><input type="checkbox" ${allOn?"checked":""} onchange="completeAll('${esc(name)}')">Complete All</label></div></div></details>`;
   return html;
 }
 
