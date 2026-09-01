@@ -437,6 +437,8 @@ function renderDroidCard(name,typ,rar,hideDone){
 
 const openF = {};
 const openV = {};
+const openG = {};
+const openR = {};
 function renderFusionCard(name,rar,typ,ings,hideDone){
   if (hideDone && fuseDone(name)) return "";
   if (!showCard(name,typ,ings.join(" ")+" fusion")) return "";
@@ -486,29 +488,47 @@ function render(){
   }
   if (tab==="srb") {
     const cyc = CYCLES[srbCycle] || CYCLES[1];
-    html += `<div class="hint">Super Rebirth unlocks at <b>Rebirth 12</b> plus one Rainbow Legendary. Cash-out walks you Cycle 1→2→3→4→1. First SRB usually puts you on Cycle 2. Credits are the same every cycle. Confirm the live board if a mid-cycle row looks off after a patch.</div>`;
+    html += `<div class="hint">Tap a rebirth to see the droids it wants. Super Rebirth unlocks at <b>Rebirth 12</b> plus one Rainbow Legendary. Cash-out walks Cycle 1→2→3→4→1.</div>`;
     html += `<div class="cycles">`;
     [1,2,3,4].forEach(n => {
       html += `<button class="${srbCycle===n?"on":""}" onclick="srbCycle=${n};state.rb.cycle=${n};save();render();">Cycle ${n}</button>`;
     });
     html += `</div>`;
-    cyc.forEach((need, idx) => {
-      const rb = idx+1;
-      const blob = need.map(x=>x.join(" ")).join(" ");
-      const qq = document.getElementById("q").value.trim().toLowerCase();
-      if (qq && !("rebirth "+rb+" "+blob+" "+CREDITS[idx]).toLowerCase().includes(qq)) return;
-      const key = "c"+srbCycle+"r"+rb;
-      const done = !!state.rb[key];
-      const ready = need.every(([n,t]) => meets(n,t));
-      const nova = NOVA[rb] ? ` · SRB ${NOVA[rb]} Nova` : "";
-      html += `<article class="card ${done?"done":""}"><div class="rb-row"><div class="rb-head"><div><div class="name">Rebirth ${rb}</div><div class="meta">${ready?"Collection covers this row":"Need these in base at min tier"}</div></div><div class="rb-cost">${CREDITS[idx]}${nova}</div></div><div class="ings">`;
-      need.forEach(([n,t]) => {
-        const ok = meets(n,t);
-        html += `<label class="chk ${ok?"on":""}">${ok?"✓":"○"} ${t} ${n}</label>`;
+    const qq = document.getElementById("q").value.trim().toLowerCase();
+    const groups = [
+      {id:"early", title:"Rebirths 1–11", from:1, to:11},
+      {id:"srb", title:"Super Rebirth 12–35", from:12, to:35}
+    ];
+    groups.forEach(g => {
+      const slice = [];
+      for (let rb=g.from; rb<=g.to; rb++){
+        const need = cyc[rb-1];
+        if (!need) continue;
+        const blob = "rebirth "+rb+" "+need.map(x=>x.join(" ")).join(" ")+" "+(CREDITS[rb-1]||"");
+        if (qq && !blob.toLowerCase().includes(qq)) continue;
+        slice.push(rb);
+      }
+      if (!slice.length) return;
+      const cleared = slice.filter(rb => state.rb["c"+srbCycle+"r"+rb]).length;
+      const gopen = openG[g.id+"-"+srbCycle] ? "open" : (qq ? "open" : "");
+      html += `<details class="card drop" ${gopen} ontoggle="openG['${g.id}-${srbCycle}']=this.open"><summary><div class="grow"><div class="name">${g.title}</div><div class="meta">${cleared}/${slice.length} cleared · Cycle ${srbCycle}</div></div><span class="chev">▸</span></summary><div class="drop-body">`;
+      slice.forEach(rb => {
+        const need = cyc[rb-1];
+        const key = "c"+srbCycle+"r"+rb;
+        const done = !!state.rb[key];
+        const have = need.filter(([n,t]) => meets(n,t)).length;
+        const ready = have===need.length;
+        const nova = NOVA[rb] ? ` · ${NOVA[rb]} Nova` : "";
+        const ropen = openR[key] ? "open" : "";
+        html += `<details class="tier ${done?"done":""}" ${ropen} ontoggle="openR['${key}']=this.open"><summary><span>Rebirth ${rb}</span><span style="color:var(--muted);font-weight:600;letter-spacing:0;text-transform:none">${have}/${need.length}</span><span class="rb-cost">${CREDITS[rb-1]||""}${nova}</span>${ready&&!done?'<span class="ready" style="margin:0">READY</span>':''}${done?'<span style="color:var(--green);font-size:10px">DONE</span>':''}${rb>=12?'<span class="srb">SRB</span>':''}<span class="chev">▸</span></summary><div class="ings">`;
+        need.forEach(([n,t]) => {
+          const ok = meets(n,t);
+          html += `<label class="chk ${ok?"on":""}">${ok?"✓":"○"} ${t.toUpperCase()} ${n.toUpperCase()}</label>`;
+        });
+        html += `<label class="chk ${done?"on":""}"><input type="checkbox" ${done?"checked":""} onchange="state.rb['${key}']=this.checked;save();render();">Cleared this rebirth</label>`;
+        html += `</div></details>`;
       });
-      html += `<label class="chk ${done?"on":""}"><input type="checkbox" ${done?"checked":""} onchange="state.rb['${key}']=!state.rb['${key}'];save();render();">Cleared this rebirth</label>`;
-      if (rb>=12) html += `<div class="srb">CAN SUPER REBIRTH HERE</div>`;
-      html += `</div></div></article>`;
+      html += `</div></details>`;
     });
   }
   if (tab==="more") {
