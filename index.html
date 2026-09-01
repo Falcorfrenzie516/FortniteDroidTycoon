@@ -506,30 +506,42 @@ function markTier(n,v,on){
   if (on) state.d[dKey(n,v)] = true;
   else delete state.d[dKey(n,v)];
 }
-function setFusionVariant(name,v,ings,on){
-  state.f[name+"|"+v] = on;
+function fusionIngs(name){
+  const row = FUSIONS.find(([n]) => n===name);
+  return row ? row[3] : [];
+}
+function setFusionVariant(name,v,on){
+  const ings = fusionIngs(name);
+  state.f[name+"|"+v] = !!on;
   ings.forEach((ing,i) => {
-    state.f[name+"|"+v+"|i"+i] = on;
+    state.f[name+"|"+v+"|i"+i] = !!on;
     if (on) state.d[dKey(ing,v)] = true;
   });
 }
-function toggleFusionVariant(name,v,ings,on){
-  setFusionVariant(name,v,ings,on);
+function toggleFusionVariant(name,v,on){
+  setFusionVariant(name,v,on);
   save(); render();
 }
 function toggleFusionIng(name,v,i,ing,on){
-  state.f[name+"|"+v+"|i"+i] = on;
+  state.f[name+"|"+v+"|i"+i] = !!on;
   if (on) state.d[dKey(ing,v)] = true;
   save(); render();
 }
-function completeFusion(name,ings){
+function completeFusion(name){
+  const ings = fusionIngs(name);
   const allOn = VARIANTS.every(v => fuseHas(name,v) && ings.every((_,i)=>fuseIng(name,v,i)));
-  VARIANTS.forEach(v => setFusionVariant(name,v,ings,!allOn));
+  VARIANTS.forEach(v => setFusionVariant(name,v,!allOn));
   save(); render();
 }
-function toggleRebirth(key,need,on){
-  state.rb[key] = on;
-  if (on) need.forEach(([n,t]) => { state.d[dKey(n,t)] = true; });
+function rebirthNeeds(key){
+  const m = /^c(\d+)r(\d+)$/.exec(key);
+  if (!m) return [];
+  const cyc = CYCLES[Number(m[1])] || [];
+  return cyc[Number(m[2])-1] || [];
+}
+function toggleRebirth(key,on){
+  state.rb[key] = !!on;
+  if (on) rebirthNeeds(key).forEach(([n,t]) => { state.d[dKey(n,t)] = true; });
   save(); render();
 }
 function ownedTiers(n){ return VARIANTS.filter(v => has(n,v)).length; }
@@ -628,14 +640,14 @@ function renderFusionCard(name,rar,typ,ings,hideDone){
   const tiers = fuseTiers(name);
   const opened = openF[name] ? "open" : "";
   const allOn = VARIANTS.every(v => fuseHas(name,v));
-  let html = `<details class="card drop ${tiers===7?"done":""}" ${opened} ontoggle="openF['${esc(name)}']=this.open"><summary><div class="top" style="flex:1">${picWrap(name,"Fusion",rar)}<div class="grow"><div class="name">${name}</div><div class="meta">${typ} · ${tiers}/7 variants</div></div><label class="fl-pill ${allOn?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${allOn?"checked":""} onchange="completeFusion('${esc(name)}',${JSON.stringify(ings)})">Complete All</label><span class="badge Fusion">${rar}</span></div><span class="chev">▸</span></summary><div class="drop-body">`;
+  let html = `<details class="card drop ${tiers===7?"done":""}" ${opened} ontoggle="openF['${esc(name)}']=this.open"><summary><div class="top" style="flex:1">${picWrap(name,"Fusion",rar)}<div class="grow"><div class="name">${name}</div><div class="meta">${typ} · ${tiers}/7 variants</div></div><label class="fl-pill ${allOn?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${allOn?"checked":""} onchange="completeFusion('${esc(name)}')">Complete All</label><span class="badge Fusion">${rar}</span></div><span class="chev">▸</span></summary><div class="drop-body">`;
   VARIANTS.forEach(v => {
     const own = fuseHas(name,v);
     const got = ings.map((_,i)=>fuseIng(name,v,i));
     const ready = got.every(Boolean) && !own;
     const have = got.filter(Boolean).length;
     const vopen = openV[name+"|"+v] ? "open" : "";
-    html += `<details class="tier" ${vopen} ontoggle="openV['${esc(name)}|${v}']=this.open"><summary><label class="chk ${own?"on":""}" style="background:transparent;border:0;padding:0;min-height:0;flex-direction:row;text-transform:none" onclick="event.stopPropagation()"><input type="checkbox" ${own?"checked":""} onchange="toggleFusionVariant('${esc(name)}','${v}',${JSON.stringify(ings)},this.checked)"></label><span>${vName(v)}</span><span style="color:var(--muted);font-weight:600;letter-spacing:0;text-transform:none">${have}/${ings.length}</span>${ready?'<span class="ready" style="margin:0">READY</span>':''}${own?'<span style="color:var(--green);font-size:10px">OWNED</span>':''}<span class="chev">▸</span></summary><div class="ings">`;
+    html += `<details class="tier" ${vopen} ontoggle="openV['${esc(name)}|${v}']=this.open"><summary><label class="chk ${own?"on":""}" style="background:transparent;border:0;padding:0;min-height:0;flex-direction:row;text-transform:none" onclick="event.stopPropagation()"><input type="checkbox" ${own?"checked":""} onchange="toggleFusionVariant('${esc(name)}','${v}',this.checked)"></label><span>${vName(v)}</span><span style="color:var(--muted);font-weight:600;letter-spacing:0;text-transform:none">${have}/${ings.length}</span>${ready?'<span class="ready" style="margin:0">READY</span>':''}${own?'<span style="color:var(--green);font-size:10px">OWNED</span>':''}<span class="chev">▸</span></summary><div class="ings">`;
     ings.forEach((ing,i) => {
       const on = got[i];
       html += `<label class="chk ${on?"on":""}"><input type="checkbox" ${on?"checked":""} onchange="toggleFusionIng('${esc(name)}','${v}',${i},'${esc(ing)}',this.checked)">${vName(v).toUpperCase()} ${ing.toUpperCase()}</label>`;
@@ -704,7 +716,7 @@ function render(){
         const ready = have===need.length;
         const nova = NOVA[rb] ? ` · ${NOVA[rb]} Nova` : "";
         const ropen = openR[key] ? "open" : "";
-        html += `<details class="tier ${done?"done":""}" ${ropen} ontoggle="openR['${key}']=this.open"><summary><label class="fl-pill ${done?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${done?"checked":""} onchange="toggleRebirth('${key}',${JSON.stringify(need)},this.checked)"></label><span>Rebirth ${rb}</span><span style="color:var(--muted);font-weight:600;letter-spacing:0;text-transform:none">${have}/${need.length}</span><span class="rb-cost">${CREDITS[rb-1]||""}${nova}</span>${ready&&!done?'<span class="ready" style="margin:0">READY</span>':''}${done?'<span style="color:var(--green);font-size:10px">DONE</span>':''}${rb>=12?'<span class="srb">SRB</span>':''}<span class="chev">▸</span></summary><div class="ings">`;
+        html += `<details class="tier ${done?"done":""}" ${ropen} ontoggle="openR['${key}']=this.open"><summary><label class="fl-pill ${done?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${done?"checked":""} onchange="toggleRebirth('${key}',this.checked)"></label><span>Rebirth ${rb}</span><span style="color:var(--muted);font-weight:600;letter-spacing:0;text-transform:none">${have}/${need.length}</span><span class="rb-cost">${CREDITS[rb-1]||""}${nova}</span>${ready&&!done?'<span class="ready" style="margin:0">READY</span>':''}${done?'<span style="color:var(--green);font-size:10px">DONE</span>':''}${rb>=12?'<span class="srb">SRB</span>':''}<span class="chev">▸</span></summary><div class="ings">`;
         need.forEach(([n,t]) => {
           const ok = meets(n,t);
           html += `<label class="chk ${ok?"on":""}">${ok?"✓":"○"} ${vName(t).toUpperCase()} ${n.toUpperCase()}</label>`;
