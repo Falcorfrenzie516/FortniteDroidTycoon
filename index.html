@@ -190,7 +190,8 @@
   details.drop .drop-body { padding:0 12px 12px; }
   .chev { margin-left:auto; color:var(--muted); font-size:16px; transition:transform .15s; }
   details[open] > summary .chev { transform:rotate(90deg); }
-  details.tier { margin-top:6px; }
+  details.tier { margin-top:6px; position:relative; overflow:hidden; }
+  details.tier > i.fill { position:absolute; left:0; top:0; bottom:0; width:0; background:linear-gradient(90deg,#9a3412,#fb923c 70%,#fed7aa); opacity:.32; pointer-events:none; }
   details.tier > summary { list-style:none; cursor:pointer; padding:9px 10px; display:flex; align-items:center; gap:8px; font-size:11px; font-weight:800; letter-spacing:.12em; text-transform:uppercase; color:var(--gold2); font-family:Orbitron,sans-serif; }
   details.tier > summary::-webkit-details-marker { display:none; }
   details.tier > summary .chev { font-size:13px; }
@@ -942,7 +943,7 @@ function render(){
       if (!slice.length) return;
       const cleared = slice.filter(rb => state.rb["c"+srbCycle+"r"+rb]).length;
       const gopen = openG[g.id+"-"+srbCycle] ? "open" : (qq ? "open" : "");
-      html += `<details class="card drop" ${gopen} ontoggle="openG['${g.id}-${srbCycle}']=this.open"><summary><div class="grow"><div class="name">${g.title}</div><div class="meta">${cleared}/${slice.length} cleared · Cycle ${srbCycle}</div></div><span class="chev">▸</span></summary><div class="drop-body">`;
+      html += `<details class="card drop" ${gopen} ontoggle="openG['${g.id}-${srbCycle}']=this.open"><i class="fill" style="width:${(slice.length?cleared/slice.length*100:0).toFixed(1)}%;background:linear-gradient(90deg,#9a3412,#fb923c 70%,#fed7aa)"></i><summary><div class="grow"><div class="name">${g.title}</div><div class="meta">${cleared}/${slice.length} cleared · Cycle ${srbCycle}</div></div><span class="chev">▸</span></summary><div class="drop-body">`;
       slice.forEach(rb => {
         const need = cyc[rb-1];
         const key = "c"+srbCycle+"r"+rb;
@@ -951,7 +952,7 @@ function render(){
         const ready = have===need.length;
         const nova = NOVA[rb] ? ` · ${NOVA[rb]} Nova` : "";
         const ropen = openR[key] ? "open" : "";
-        html += `<details class="tier ${done?"done":""}" ${ropen} ontoggle="openR['${key}']=this.open"><summary><label class="fl-pill ${done?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${done?"checked":""} onchange="toggleRebirth('${key}',this.checked)"></label><span>Rebirth ${rb}</span><span style="color:var(--muted);font-weight:600;letter-spacing:0;text-transform:none">${have}/${need.length}</span><span class="rb-cost">${CREDITS[rb-1]||""}${nova}</span>${ready&&!done?'<span class="ready" style="margin:0">READY</span>':''}${done?'<span style="color:var(--green);font-size:10px">DONE</span>':''}${rb>=12?'<span class="srb">SRB</span>':''}<span class="chev">▸</span></summary><div class="ings">`;
+        html += `<details class="tier ${done?"done":""}" ${ropen} ontoggle="openR['${key}']=this.open"><i class="fill" style="width:${done?100:(need.length?have/need.length*100:0)}%"></i><summary><label class="fl-pill ${done?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${done?"checked":""} onchange="toggleRebirth('${key}',this.checked)"></label><span>Rebirth ${rb}</span><span style="color:var(--muted);font-weight:600;letter-spacing:0;text-transform:none">${have}/${need.length}</span><span class="rb-cost">${CREDITS[rb-1]||""}${nova}</span>${ready&&!done?'<span class="ready" style="margin:0">READY</span>':''}${done?'<span style="color:var(--green);font-size:10px">DONE</span>':''}${rb>=12?'<span class="srb">SRB</span>':''}<span class="chev">▸</span></summary><div class="ings">`;
         need.forEach(([n,t]) => {
           const ok = meets(n,t);
           html += `<label class="chk ${ok?"on":""} ${vTheme(t)}">${ok?"✓":"○"} ${vName(t).toUpperCase()} ${n.toUpperCase()}</label>`;
