@@ -44,8 +44,8 @@
   .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px; }
   .card.done { border-color:rgba(74,222,128,.35); }
   .top { display:flex; gap:8px; align-items:flex-start; }
-  .pic { width:72px; height:72px; border-radius:10px; overflow:hidden; flex:none; background:#0a0714; border:1px solid var(--line); position:relative; }
-  .pic img, .pic svg { width:100%; height:100%; display:block; object-fit:cover; object-position:center top; }
+  .pic { width:72px; height:72px; border-radius:10px; overflow:hidden; flex:none; background:#000; border:1px solid var(--line); position:relative; }
+  .pic img, .pic svg { width:100%; height:100%; display:block; object-fit:contain; background:#000; }
   .pic svg.glyph { position:absolute; inset:0; }
   .name { font-weight:800; font-size:15px; }
   .meta { color:var(--muted); font-size:12px; margin-top:2px; }
@@ -400,9 +400,13 @@ function showCard(name, typ, extra){
 function slug(name){
   return name.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
 }
+function assetName(name){
+  return name.toUpperCase().replace(/\s+/g,"_");
+}
 function picWrap(name,typ,rar){
-  const file = "img/" + slug(name) + ".jpg";
-  return `<div class="pic"><img alt="" src="${file}" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">${portrait(name,typ)}</div>`;
+  const a = "img/" + assetName(name) + "_DEFAULT.png";
+  const b = "img/" + slug(name) + ".jpg";
+  return `<div class="pic"><img alt="${name}" src="${a}" onerror="if(this.dataset.n!=='1'){this.dataset.n='1';this.src='${b}';}else{this.style.display='none';this.nextElementSibling.style.display='block';}">${portrait(name,typ)}</div>`;
 }
 
 function renderDroidCard(name,typ,rar,hideDone){
