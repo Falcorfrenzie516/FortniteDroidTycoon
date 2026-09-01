@@ -127,7 +127,9 @@
   .card.theme-stel { background:radial-gradient(circle at 12% 110%, #7c4a08, #0a0804 58%); border-color:#f59e0b; }
   .rarity-h.Mythic { color:var(--myth-hi); }
   .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:7px; margin-top:10px; }
-  .stat { background:rgba(12,10,24,.78); border:1px solid var(--line); border-radius:16px; padding:8px 4px; text-align:center; }
+  .stat { position:relative; overflow:hidden; background:rgba(12,10,24,.78); border:1px solid var(--line); border-radius:16px; padding:8px 4px; text-align:center; }
+  .stat .fill { position:absolute; left:0; top:0; bottom:0; width:0; background:linear-gradient(90deg,#3f6212,#84cc16 55%,#d9f99d); opacity:.42; pointer-events:none; transition:width .25s ease; }
+  .stat b, .stat span { position:relative; z-index:1; }
   .stat b { display:block; font-size:15px; color:var(--gold2); font-family:Orbitron,sans-serif; letter-spacing:.06em; }
   .stat span { font-size:9px; color:var(--muted); font-family:Orbitron,sans-serif; letter-spacing:.14em; text-transform:uppercase; }
   .toolbar { display:flex; gap:8px; margin-top:10px; }
@@ -224,17 +226,17 @@
 <header>
   <h1>Pocket Droidex</h1>
   <img class="brand" src="img/pocket-droidex.jpg" alt="Pocket Droidex" />
-  <div class="sub">Droid Tycoon tracker · profile <span id="saveLabel">Main</span></div>
+  <div class="sub">Profile: <span id="saveLabel">Main</span></div>
   <div class="belts">
     <div class="belt gal" id="beltGal"><b>--</b><span>Galactic</span></div>
     <div class="belt myth" id="beltMyth"><b>--</b><span>Mythic</span></div>
     <div class="belt stel" id="beltStel"><b>--</b><span>Stellar</span></div>
   </div>
   <div class="stats">
-    <div class="stat"><b id="sNames">0</b><span>Names</span></div>
-    <div class="stat"><b id="sVars">0</b><span>Variants</span></div>
-    <div class="stat"><b id="sFuse">0/17</b><span>Fusion</span></div>
-    <div class="stat"><b id="sDone">0</b><span>Completed</span></div>
+    <div class="stat"><i class="fill" id="fillNames"></i><b id="sNames">0</b><span>Droids</span></div>
+    <div class="stat"><i class="fill" id="fillVars"></i><b id="sVars">0</b><span>Variants</span></div>
+    <div class="stat"><i class="fill" id="fillFuse"></i><b id="sFuse">0/17</b><span>Fusion</span></div>
+    <div class="stat"><i class="fill" id="fillDone"></i><b id="sDone">0</b><span>Completed</span></div>
   </div>
   <div class="toolbar">
     <input id="q" type="search" placeholder="Search droids…" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" name="droidex-search" />
@@ -754,6 +756,13 @@ function updateStats(){
   document.getElementById("sVars").textContent = vars;
   document.getElementById("sFuse").textContent = fuse + "/17";
   document.getElementById("sDone").textContent = done;
+  const maxVars = (DROIDS.length + FUSIONS.length) * 7;
+  const maxDone = DROIDS.length + FUSIONS.length + ICONICS.length;
+  function bar(id, n, d){ const el=document.getElementById(id); if(el) el.style.width = (d?Math.max(0,Math.min(100,n/d*100)):0)+"%"; }
+  bar("fillNames", names, totalNames);
+  bar("fillVars", vars, maxVars);
+  bar("fillFuse", fuse, 17);
+  bar("fillDone", done, maxDone);
 }
 
 function norm(s){ return String(s||"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim(); }
