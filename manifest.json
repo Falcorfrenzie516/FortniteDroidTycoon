@@ -1,0 +1,9 @@
+{
+  "name": "Droidex · Droid Tycoon",
+  "short_name": "Droidex",
+  "description": "Collection tracker for Star Wars: Droid Tycoon",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#0b1220",
+  "theme_color": "#0b1220"
+}
