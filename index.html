@@ -24,6 +24,12 @@
   header { position:sticky; top:0; z-index:20; background:linear-gradient(180deg,#0b0818 72%,rgba(11,8,24,.92)); border-bottom:1px solid var(--line); padding:12px 14px 10px; }
   h1 { margin:0; font-size:18px; letter-spacing:.14em; color:#fff; }
   .sub { color:var(--muted); font-size:12px; margin-top:2px; }
+  .belts { display:grid; grid-template-columns:repeat(3,1fr); gap:7px; margin-top:10px; }
+  .belt { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:8px 6px; text-align:center; }
+  .belt b { display:block; font-size:16px; font-variant-numeric:tabular-nums; color:var(--gold2); }
+  .belt span { font-size:10px; color:var(--muted); letter-spacing:.04em; text-transform:uppercase; }
+  .belt.soon { border-color:var(--gold); }
+  .belt.soon b { color:#fff; }
   .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:7px; margin-top:10px; }
   .stat { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:7px 4px; text-align:center; }
   .stat b { display:block; font-size:15px; color:var(--gold2); }
@@ -107,6 +113,11 @@
 <header>
   <h1>DROIDEX</h1>
   <div class="sub">Droid Tycoon tracker · profile <span id="saveLabel">Main</span></div>
+  <div class="belts">
+    <div class="belt" id="beltGal"><b>--</b><span>Galactic</span></div>
+    <div class="belt" id="beltMyth"><b>--</b><span>Mythic</span></div>
+    <div class="belt" id="beltStel"><b>--</b><span>Stellar</span></div>
+  </div>
   <div class="stats">
     <div class="stat"><b id="sNames">0</b><span>Names</span></div>
     <div class="stat"><b id="sVars">0</b><span>Variants</span></div>
@@ -837,6 +848,45 @@ document.getElementById("loadFile").addEventListener("change", e => {
   if (file) importSave(file);
 });
 document.getElementById("modal").addEventListener("click", e => { if (e.target.id==="modal") closeModal(); });
+function nextHourly(minMark){
+  const now = new Date();
+  const t = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), minMark, 0, 0);
+  if (t <= now) t.setHours(t.getHours()+1);
+  return t;
+}
+function nextGalactic(){
+  const now = new Date();
+  const t = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), 0, 0, 0);
+  const m = now.getMinutes() + now.getSeconds()/60;
+  if (m < 15) t.setMinutes(15);
+  else if (m < 45) t.setMinutes(45);
+  else { t.setHours(t.getHours()+1); t.setMinutes(15); }
+  return t;
+}
+function fmtLeft(ms){
+  if (ms < 0) ms = 0;
+  const s = Math.floor(ms/1000);
+  const mm = Math.floor(s/60);
+  const ss = String(s%60).padStart(2,"0");
+  return mm+":"+ss;
+}
+function tickBelts(){
+  const now = Date.now();
+  const rows = [
+    ["beltGal", nextGalactic()],
+    ["beltMyth", nextHourly(55)],
+    ["beltStel", nextHourly(0)]
+  ];
+  rows.forEach(([id, at]) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const left = at - now;
+    el.classList.toggle("soon", left <= 60000);
+    el.querySelector("b").textContent = fmtLeft(left);
+  });
+}
+tickBelts();
+setInterval(tickBelts, 1000);
 render();
 </script>
 </body>
