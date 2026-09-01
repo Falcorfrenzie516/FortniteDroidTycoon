@@ -126,7 +126,8 @@
   .card.theme-myth { background:linear-gradient(180deg,#2a0c10,#16080a); border-color:var(--myth-line); }
   .card.theme-stel { background:radial-gradient(circle at 12% 110%, #7c4a08, #0a0804 58%); border-color:#f59e0b; }
   .rarity-h.Mythic { color:var(--myth-hi); }
-  .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:7px; margin-top:10px; }
+  .stats { display:grid; grid-template-columns:repeat(5,1fr); gap:7px; margin-top:10px; }
+  @media (max-width:560px){ .stats { grid-template-columns:repeat(3,1fr); } }
   .stat { position:relative; overflow:hidden; background:rgba(12,10,24,.78); border:1px solid var(--line); border-radius:16px; padding:8px 4px; text-align:center; }
   .stat .fill { position:absolute; left:0; top:0; bottom:0; width:0; background:linear-gradient(90deg,#3f6212,#84cc16 55%,#d9f99d); opacity:.42; pointer-events:none; transition:width .25s ease; }
   .stat b, .stat span { position:relative; z-index:1; }
@@ -237,6 +238,7 @@
     <div class="stat"><i class="fill" id="fillVars"></i><b id="sVars">0</b><span>Variants</span></div>
     <div class="stat"><i class="fill" id="fillFuse"></i><b id="sFuse">0/17</b><span>Fusion</span></div>
     <div class="stat"><i class="fill" id="fillDone"></i><b id="sDone">0</b><span>Completed</span></div>
+    <div class="stat"><i class="fill" id="fillFlaw"></i><b id="sFlaw">0</b><span>Flawless</span></div>
   </div>
   <div class="toolbar">
     <input id="q" type="search" placeholder="Search droids…" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" name="droidex-search" />
@@ -759,10 +761,13 @@ function updateStats(){
   const maxVars = (DROIDS.length + FUSIONS.length) * 7;
   const maxDone = DROIDS.length + FUSIONS.length + ICONICS.length;
   function bar(id, n, d){ const el=document.getElementById(id); if(el) el.style.width = (d?Math.max(0,Math.min(100,n/d*100)):0)+"%"; }
+  const flaw = DROIDS.filter(([n])=>has(n,"Flawless")).length + FUSIONS.filter(([n])=>fuseHas(n,"Flawless")).length;
+  document.getElementById("sFlaw").textContent = flaw + "/" + totalNames;
   bar("fillNames", names, totalNames);
   bar("fillVars", vars, maxVars);
   bar("fillFuse", fuse, 17);
   bar("fillDone", done, maxDone);
+  bar("fillFlaw", flaw, totalNames);
 }
 
 function norm(s){ return String(s||"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim(); }
