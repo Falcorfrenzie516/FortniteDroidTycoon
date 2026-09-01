@@ -15,7 +15,10 @@
     --ink:#ece8ff; --muted:#8b85b3; --gold:#c4b5fd; --gold2:#ddd6fe;
     --green:#4ade80; --green-bg:rgba(74,222,128,.12);
     --common:#a78bfa; --rare:#60a5fa; --epic:#c084fc;
-    --legendary:#fbbf24; --mythic:#fb7185; --iconic:#f472b6; --fusion:#2dd4bf;
+    --legendary:#fbbf24; --mythic:#fecaca; --iconic:#f472b6; --fusion:#2dd4bf;
+    --gal:#c4b5fd; --gal-hi:#e9d5ff; --gal-line:#6d28d9; --gal-bg:#12081c;
+    --myth-hi:#fecaca; --myth-line:#7f1d1d; --myth-bg:#16080a;
+    --stel:#facc15; --stel-hi:#fef3c7; --stel-line:#a16207; --stel-bg:#141008;
     --safe: env(safe-area-inset-bottom, 0px);
   }
   * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
@@ -28,8 +31,32 @@
   .belt { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:8px 6px; text-align:center; }
   .belt b { display:block; font-size:16px; font-variant-numeric:tabular-nums; color:var(--gold2); }
   .belt span { font-size:10px; color:var(--muted); letter-spacing:.04em; text-transform:uppercase; }
-  .belt.soon { border-color:var(--gold); }
-  .belt.soon b { color:#fff; }
+  .belt.soon { box-shadow:0 0 14px rgba(255,255,255,.12); }
+  .belt.gal { background:var(--gal-bg); border-color:var(--gal-line); }
+  .belt.gal b { color:var(--gal-hi); }
+  .belt.gal span { color:var(--gal); }
+  .belt.myth { background:var(--myth-bg); border-color:var(--myth-line); }
+  .belt.myth b { color:var(--myth-hi); }
+  .belt.myth span { color:#f87171; }
+  .belt.stel { background:var(--stel-bg); border-color:var(--stel-line); }
+  .belt.stel b { color:var(--stel-hi); }
+  .belt.stel span { color:var(--stel); }
+  .chk.v-gal { color:var(--gal); background:var(--gal-bg); border-color:var(--gal-line); }
+  .chk.v-gal.on { color:var(--gal-hi); background:rgba(167,139,250,.2); border-color:var(--gal); }
+  .chk.v-stel { color:var(--stel); background:var(--stel-bg); border-color:var(--stel-line); }
+  .chk.v-stel.on { color:var(--stel-hi); background:rgba(250,204,21,.16); border-color:var(--stel); }
+  .chk.v-myth { color:#f87171; background:var(--myth-bg); border-color:var(--myth-line); }
+  .chk.v-myth.on { color:var(--myth-hi); background:rgba(239,68,68,.18); border-color:#ef4444; }
+  details.tier.v-gal { border-color:var(--gal-line); background:var(--gal-bg); }
+  details.tier.v-gal > summary { color:var(--gal-hi); }
+  details.tier.v-stel { border-color:var(--stel-line); background:var(--stel-bg); }
+  details.tier.v-stel > summary { color:var(--stel-hi); }
+  details.tier.v-myth { border-color:var(--myth-line); background:var(--myth-bg); }
+  details.tier.v-myth > summary { color:var(--myth-hi); }
+  .card.theme-gal { background:linear-gradient(180deg,#1a0e2a,#12081c); border-color:var(--gal-line); }
+  .card.theme-myth { background:linear-gradient(180deg,#2a0c10,#16080a); border-color:var(--myth-line); }
+  .card.theme-stel { background:linear-gradient(180deg,#2a220c,#141008); border-color:var(--stel-line); }
+  .rarity-h.Mythic { color:var(--myth-hi); }
   .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:7px; margin-top:10px; }
   .stat { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:7px 4px; text-align:center; }
   .stat b { display:block; font-size:15px; color:var(--gold2); }
@@ -114,9 +141,9 @@
   <h1>DROIDEX</h1>
   <div class="sub">Droid Tycoon tracker · profile <span id="saveLabel">Main</span></div>
   <div class="belts">
-    <div class="belt" id="beltGal"><b>--</b><span>Galactic</span></div>
-    <div class="belt" id="beltMyth"><b>--</b><span>Mythic</span></div>
-    <div class="belt" id="beltStel"><b>--</b><span>Stellar</span></div>
+    <div class="belt gal" id="beltGal"><b>--</b><span>Galactic</span></div>
+    <div class="belt myth" id="beltMyth"><b>--</b><span>Mythic</span></div>
+    <div class="belt stel" id="beltStel"><b>--</b><span>Stellar</span></div>
   </div>
   <div class="stats">
     <div class="stat"><b id="sNames">0</b><span>Names</span></div>
@@ -603,6 +630,12 @@ function hash(s){ let h=0; for(let i=0;i<s.length;i++) h=s.charCodeAt(i)+((h<<5)
 const SHORT = {Basic:"DEF",Gold:"GLD",Diamond:"DIA",Rainbow:"RBW",Beskar:"BSK",Galactic:"GLC",Stellar:"STL"};
 const VNAME = {Basic:"Default",Gold:"Gold",Diamond:"Diamond",Rainbow:"Rainbow",Beskar:"Beskar",Galactic:"Galactic",Stellar:"Stellar"};
 function vName(v){ return VNAME[v] || v; }
+function vTheme(v){
+  if (v==="Galactic") return "v-gal";
+  if (v==="Stellar") return "v-stel";
+  return "";
+}
+function rarTheme(r){ return r==="Mythic" ? "theme-myth" : ""; }
 function hexFrom(n,s){ const h=hash(n+s); return "#"+((h&0xffffff)|0x202020).toString(16).padStart(6,"0"); }
 function portrait(name, typ){
   const h = hash(name);
@@ -660,10 +693,10 @@ function renderDroidCard(name,typ,rar,hideDone){
   const opened = openD[name] ? "open" : "";
   const fl = has(name,"Flawless");
   const allOn = tiers===7;
-  let html = `<details class="card drop ${tiers===7?"done":""}" ${opened} ontoggle="openD['${esc(name)}']=this.open"><summary><div class="top" style="flex:1">${picWrap(name,typ,rar)}<div class="grow"><div class="name">${name.toUpperCase()}</div><div class="meta">${typ.toUpperCase()} · ${tiers}/7</div></div><label class="fl-pill ${fl?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${fl?"checked":""} onchange="toggle('${esc(name)}','Flawless')">Flawless</label></div><span class="chev">▸</span></summary><div class="drop-body"><div class="vars">`;
+  let html = `<details class="card drop ${tiers===7?"done":""} ${rarTheme(rar)}" ${opened} ontoggle="openD['${esc(name)}']=this.open"><summary><div class="top" style="flex:1">${picWrap(name,typ,rar)}<div class="grow"><div class="name">${name.toUpperCase()}</div><div class="meta">${typ.toUpperCase()} · ${tiers}/7</div></div><label class="fl-pill ${fl?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${fl?"checked":""} onchange="toggle('${esc(name)}','Flawless')">Flawless</label></div><span class="chev">▸</span></summary><div class="drop-body"><div class="vars">`;
   VARIANTS.forEach(v => {
     const on = has(name,v);
-    html += `<label class="chk ${on?"on":""}"><input type="checkbox" ${on?"checked":""} onchange="toggle('${esc(name)}','${v}')">${SHORT[v]}</label>`;
+    html += `<label class="chk ${on?"on":""} ${vTheme(v)}"><input type="checkbox" ${on?"checked":""} onchange="toggle('${esc(name)}','${v}')">${SHORT[v]}</label>`;
   });
   html += `</div><div class="vars" style="grid-template-columns:1fr;margin-top:6px"><label class="chk ${allOn?"on":""}" style="flex-direction:row;min-height:0;padding:8px;text-transform:none;letter-spacing:0;font-size:12px"><input type="checkbox" ${allOn?"checked":""} onchange="completeAll('${esc(name)}')">Complete All</label></div></div></details>`;
   return html;
@@ -680,17 +713,17 @@ function renderFusionCard(name,rar,typ,ings,hideDone){
   const opened = openF[name] ? "open" : "";
   const allOn = VARIANTS.every(v => fuseHas(name,v));
   const fl = fuseHas(name,"Flawless");
-  let html = `<details class="card drop ${tiers===7?"done":""}" ${opened} ontoggle="openF['${esc(name)}']=this.open"><summary><div class="top" style="flex:1">${picWrap(name,"Fusion",rar)}<div class="grow"><div class="name">${name}</div><div class="meta">${typ} · ${tiers}/7 variants</div></div><label class="fl-pill ${fl?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${fl?"checked":""} onchange="state.f['${esc(name)}|Flawless']=this.checked;save();render();">Flawless</label><label class="fl-pill ${allOn?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${allOn?"checked":""} onchange="completeFusion('${esc(name)}')">Complete All</label><span class="badge Fusion">${rar}</span></div><span class="chev">▸</span></summary><div class="drop-body">`;
+  let html = `<details class="card drop ${tiers===7?"done":""} ${rarTheme(rar)}" ${opened} ontoggle="openF['${esc(name)}']=this.open"><summary><div class="top" style="flex:1">${picWrap(name,"Fusion",rar)}<div class="grow"><div class="name">${name}</div><div class="meta">${typ} · ${tiers}/7 variants</div></div><label class="fl-pill ${fl?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${fl?"checked":""} onchange="state.f['${esc(name)}|Flawless']=this.checked;save();render();">Flawless</label><label class="fl-pill ${allOn?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${allOn?"checked":""} onchange="completeFusion('${esc(name)}')">Complete All</label><span class="badge Fusion">${rar}</span></div><span class="chev">▸</span></summary><div class="drop-body">`;
   VARIANTS.forEach(v => {
     const own = fuseHas(name,v);
     const got = ings.map((_,i)=>fuseIng(name,v,i));
     const ready = got.every(Boolean) && !own;
     const have = got.filter(Boolean).length;
     const vopen = openV[name+"|"+v] ? "open" : "";
-    html += `<details class="tier" ${vopen} ontoggle="openV['${esc(name)}|${v}']=this.open"><summary><label class="chk ${own?"on":""}" style="background:transparent;border:0;padding:0;min-height:0;flex-direction:row;text-transform:none" onclick="event.stopPropagation()"><input type="checkbox" ${own?"checked":""} onchange="toggleFusionVariant('${esc(name)}','${v}',this.checked)"></label><span>${vName(v)}</span><span style="color:var(--muted);font-weight:600;letter-spacing:0;text-transform:none">${have}/${ings.length}</span>${ready?'<span class="ready" style="margin:0">READY</span>':''}${own?'<span style="color:var(--green);font-size:10px">OWNED</span>':''}<span class="chev">▸</span></summary><div class="ings">`;
+    html += `<details class="tier ${vTheme(v)}" ${vopen} ontoggle="openV['${esc(name)}|${v}']=this.open"><summary><label class="chk ${own?"on":""}" style="background:transparent;border:0;padding:0;min-height:0;flex-direction:row;text-transform:none" onclick="event.stopPropagation()"><input type="checkbox" ${own?"checked":""} onchange="toggleFusionVariant('${esc(name)}','${v}',this.checked)"></label><span>${vName(v)}</span><span style="color:var(--muted);font-weight:600;letter-spacing:0;text-transform:none">${have}/${ings.length}</span>${ready?'<span class="ready" style="margin:0">READY</span>':''}${own?'<span style="color:var(--green);font-size:10px">OWNED</span>':''}<span class="chev">▸</span></summary><div class="ings">`;
     ings.forEach((ing,i) => {
       const on = got[i];
-      html += `<label class="chk ${on?"on":""}"><input type="checkbox" ${on?"checked":""} onchange="toggleFusionIng('${esc(name)}','${v}',${i},'${esc(ing)}',this.checked)">${vName(v).toUpperCase()} ${ing.toUpperCase()}</label>`;
+      html += `<label class="chk ${on?"on":""} ${vTheme(v)}"><input type="checkbox" ${on?"checked":""} onchange="toggleFusionIng('${esc(name)}','${v}',${i},'${esc(ing)}',this.checked)">${vName(v).toUpperCase()} ${ing.toUpperCase()}</label>`;
     });
     html += `</div></details>`;
   });
@@ -759,7 +792,7 @@ function render(){
         html += `<details class="tier ${done?"done":""}" ${ropen} ontoggle="openR['${key}']=this.open"><summary><label class="fl-pill ${done?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${done?"checked":""} onchange="toggleRebirth('${key}',this.checked)"></label><span>Rebirth ${rb}</span><span style="color:var(--muted);font-weight:600;letter-spacing:0;text-transform:none">${have}/${need.length}</span><span class="rb-cost">${CREDITS[rb-1]||""}${nova}</span>${ready&&!done?'<span class="ready" style="margin:0">READY</span>':''}${done?'<span style="color:var(--green);font-size:10px">DONE</span>':''}${rb>=12?'<span class="srb">SRB</span>':''}<span class="chev">▸</span></summary><div class="ings">`;
         need.forEach(([n,t]) => {
           const ok = meets(n,t);
-          html += `<label class="chk ${ok?"on":""}">${ok?"✓":"○"} ${vName(t).toUpperCase()} ${n.toUpperCase()}</label>`;
+          html += `<label class="chk ${ok?"on":""} ${vTheme(t)}">${ok?"✓":"○"} ${vName(t).toUpperCase()} ${n.toUpperCase()}</label>`;
         });
         html += `</div></details>`;
       });
@@ -824,7 +857,8 @@ function render(){
     [["Galactic","Every :15 and :45"],["Mythic","Hourly at :55"],["Stellar","Hourly at :00"]].forEach(([name,when]) => {
       const a = alarms[name];
       const at = name==="Galactic" ? nextGalactic() : nextHourly(name==="Mythic"?55:0);
-      html += `<article class="card"><div class="name">${name}</div><div class="meta">${when} · next ${fmtLeft(at-Date.now())}</div>`;
+      const theme = name==="Galactic"?"theme-gal":name==="Mythic"?"theme-myth":"theme-stel";
+      html += `<article class="card ${theme}"><div class="name">${name}</div><div class="meta">${when} · next ${fmtLeft(at-Date.now())}</div>`;
       html += `<div class="vars" style="grid-template-columns:1fr;margin-top:10px"><label class="chk ${a.on?"on":""}" style="flex-direction:row;text-transform:none;letter-spacing:0"><input type="checkbox" ${a.on?"checked":""} onchange="setAlarm('${name}','on',this.checked)">Alarm on</label></div>`;
       html += `<div class="meta" style="margin:10px 0 6px">Warn this many minutes before</div><div class="vars">`;
       [1,2,3,4,5].forEach(n => {
