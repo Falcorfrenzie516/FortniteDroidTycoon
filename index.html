@@ -180,6 +180,12 @@
   .sheet .row { display:flex; gap:8px; }
   .sheet .row button { flex:1; border-radius:10px; padding:12px; font-weight:800; border:1px solid var(--line); background:var(--bg2); color:var(--ink); }
   .sheet .row .danger { background:#3b1020; color:#fb7185; border-color:#7f1d3a; }
+  #alarmToast {
+    position:fixed; left:12px; right:12px; top:12px; z-index:90; display:none;
+    text-align:center; font-weight:800; letter-spacing:.06em; text-transform:uppercase;
+    padding:12px 14px; border-radius:12px; border:1px solid #fbbf24; background:#1a1206; color:#fef3c7;
+  }
+  #alarmToast.show { display:block; }
 </style>
 </head>
 <body>
@@ -225,6 +231,7 @@
 <main id="app"></main>
 <input id="loadFile" type="file" accept="application/json,.json" hidden />
 <div id="modal" class="modal hidden"></div>
+<div id="alarmToast"></div>
 <script>
 const VARIANTS = ["Basic","Gold","Diamond","Rainbow","Beskar","Galactic","Stellar"];
 const DROIDS = [
@@ -979,33 +986,56 @@ function unlockAudio(){
 function playAlarmSound(){
   unlockAudio();
   if (!audioCtx) return;
-  const t0 = audioCtx.currentTime;
-  [0,0.22,0.44,0.88,1.1].forEach(off => {
+  const t0 = Math.max(audioCtx.currentTime, 0) + 0.02;
+  [0,0.28,0.56,1.0,1.28].forEach((off,i) => {
     const o = audioCtx.createOscillator();
     const g = audioCtx.createGain();
     o.type = "square";
-    o.frequency.value = off>=0.8 ? 1174 : 880;
-    g.gain.setValueAtTime(0.0001, t0+off);
-    g.gain.exponentialRampToValueAtTime(0.14, t0+off+0.02);
-    g.gain.exponentialRampToValueAtTime(0.0001, t0+off+0.18);
+    o.frequency.setValueAtTime(i>=3 ? 1320 : 880, t0+off);
+    g.gain.setValueAtTime(0, t0+off);
+    g.gain.linearRampToValueAtTime(0.22, t0+off+0.03);
+    g.gain.linearRampToValueAtTime(0, t0+off+0.22);
     o.connect(g); g.connect(audioCtx.destination);
-    o.start(t0+off); o.stop(t0+off+0.2);
+    o.start(t0+off); o.stop(t0+off+0.24);
   });
 }
 function buzz(){
-  if (navigator.vibrate) navigator.vibrate([180,70,180,70,320,90,420]);
+  try { if (navigator.vibrate) navigator.vibrate([180,70,180,70,320,90,420]); } catch(e){}
+}
+function flashAlert(name){
+  const el = document.getElementById("alarmToast");
+  if (!el) return;
+  el.className = "show " + (name==="Galactic"?"theme-gal":name==="Mythic"?"theme-myth":"theme-stel");
+  el.textContent = name.toUpperCase() + " drop warning";
+  el.style.display = "block";
+  clearTimeout(flashAlert._t);
+  flashAlert._t = setTimeout(() => { el.style.display="none"; el.className=""; }, 2500);
+  try {
+    if (window.Notification && Notification.permission==="granted") {
+      new Notification(name+" belt drop", { body:"Timer warning", silent:false });
+    }
+  } catch(e){}
+}
+function runAlarm(name, force){
+  const a = alarms[name] || {mode:"both"};
+  const mode = force ? "both" : a.mode;
+  if (mode !== "sound") buzz();
+  if (mode !== "vibrate") playAlarmSound();
+  flashAlert(name);
 }
 function fireAlarm(name){
   const a = alarms[name];
   if (!a || !a.on) return;
-  if (a.mode !== "sound") buzz();
-  if (a.mode !== "vibrate") playAlarmSound();
+  runAlarm(name, false);
 }
 function testAlarm(name){
-  unlockAudio();
-  const a = alarms[name];
-  if (a.mode !== "sound") buzz();
-  if (a.mode !== "vibrate") playAlarmSound();
+  try {
+    unlockAudio();
+    if (window.Notification && Notification.permission==="default") Notification.requestPermission();
+    const go = () => runAlarm(name, true);
+    if (audioCtx && audioCtx.state==="suspended") audioCtx.resume().then(go).catch(go);
+    else go();
+  } catch(e) { flashAlert(name); }
 }
 function beltTarget(name){
   if (name==="Galactic") return nextGalactic();
