@@ -20,7 +20,7 @@
   }
   * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
   html,body { margin:0; background:var(--bg); color:var(--ink); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif; }
-  body { padding-bottom: calc(92px + var(--safe)); }
+  body { padding-bottom: 24px; }
   header { position:sticky; top:0; z-index:20; background:linear-gradient(180deg,#0b0818 72%,rgba(11,8,24,.92)); border-bottom:1px solid var(--line); padding:12px 14px 10px; }
   h1 { margin:0; font-size:18px; letter-spacing:.14em; color:#fff; }
   .sub { color:var(--muted); font-size:12px; margin-top:2px; }
@@ -33,12 +33,12 @@
     flex:1; background:var(--bg2); color:var(--ink); border:1px solid var(--line);
     border-radius:10px; padding:10px 12px; font-size:14px; outline:none;
   }
-  .tabs { position:fixed; left:0; right:0; bottom:0; z-index:30; display:grid; grid-template-columns:repeat(5,1fr); background:#100d1f; border-top:1px solid var(--line); padding-bottom:var(--safe); }
-  .tabs button { background:none; border:0; color:var(--muted); padding:11px 2px 9px; font-size:11px; font-weight:700; }
-  .tabs button.on { color:var(--gold); }
+  .tabs { display:grid; grid-template-columns:repeat(5,1fr); gap:4px; margin-top:10px; }
+  .tabs button { background:var(--bg2); border:1px solid var(--line); border-radius:10px; color:var(--muted); padding:9px 2px; font-size:11px; font-weight:700; }
+  .tabs button.on { color:#0b0818; background:var(--gold); border-color:var(--gold); }
   main { padding:12px; }
   .hint { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px 14px; color:var(--muted); font-size:13px; line-height:1.45; margin-bottom:12px; }
-  .rarity-h { position:sticky; top:148px; z-index:10; margin:14px 0 8px; font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); background:var(--bg); padding:6px 2px; }
+  .rarity-h { position:sticky; top:210px; z-index:10; margin:14px 0 8px; font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); background:var(--bg); padding:6px 2px; }
   .grid { display:grid; grid-template-columns:1fr; gap:8px; }
   @media (min-width:720px){ .grid { grid-template-columns:1fr 1fr; } }
   .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px; }
@@ -116,17 +116,17 @@
       <option value="Battle">Battle</option>
     </select>
   </div>
+  <nav class="tabs">
+    <button class="on" data-tab="droidex">Droidex</button>
+    <button data-tab="fusion">Fusion</button>
+    <button data-tab="srb">SRB</button>
+    <button data-tab="done">Done</button>
+    <button data-tab="more">More</button>
+  </nav>
 </header>
 <main id="app"></main>
 <input id="loadFile" type="file" accept="application/json,.json" hidden />
 <div id="modal" class="modal hidden"></div>
-<nav class="tabs">
-  <button class="on" data-tab="droidex">Droidex</button>
-  <button data-tab="fusion">Fusion</button>
-  <button data-tab="srb">SRB</button>
-  <button data-tab="done">Done</button>
-  <button data-tab="more">More</button>
-</nav>
 <script>
 const VARIANTS = ["Basic","Gold","Diamond","Rainbow","Beskar","Galactic","Stellar"];
 const DROIDS = [
@@ -503,7 +503,9 @@ function bestTier(n){
 function meets(n, min){ return bestTier(n) >= TIER_I[min]; }
 
 function hash(s){ let h=0; for(let i=0;i<s.length;i++) h=s.charCodeAt(i)+((h<<5)-h); return Math.abs(h); }
-const SHORT = {Basic:"BAS",Gold:"GLD",Diamond:"DIA",Rainbow:"RBW",Beskar:"BSK",Galactic:"GLC",Stellar:"STL"};
+const SHORT = {Basic:"DEF",Gold:"GLD",Diamond:"DIA",Rainbow:"RBW",Beskar:"BSK",Galactic:"GLC",Stellar:"STL"};
+const VNAME = {Basic:"Default",Gold:"Gold",Diamond:"Diamond",Rainbow:"Rainbow",Beskar:"Beskar",Galactic:"Galactic",Stellar:"Stellar"};
+function vName(v){ return VNAME[v] || v; }
 function hexFrom(n,s){ const h=hash(n+s); return "#"+((h&0xffffff)|0x202020).toString(16).padStart(6,"0"); }
 function portrait(name, typ){
   const h = hash(name);
@@ -585,10 +587,10 @@ function renderFusionCard(name,rar,typ,ings,hideDone){
     const ready = got.every(Boolean) && !own;
     const have = got.filter(Boolean).length;
     const vopen = openV[name+"|"+v] ? "open" : "";
-    html += `<details class="tier" ${vopen} ontoggle="openV['${esc(name)}|${v}']=this.open"><summary><label class="chk ${own?"on":""}" style="background:transparent;border:0;padding:0;min-height:0;flex-direction:row;text-transform:none" onclick="event.stopPropagation()"><input type="checkbox" ${own?"checked":""} onchange="state.f['${esc(name)}|${v}']=this.checked;save();render();"></label><span>${v}</span><span style="color:var(--muted);font-weight:600;letter-spacing:0;text-transform:none">${have}/${ings.length}</span>${ready?'<span class="ready" style="margin:0">READY</span>':''}${own?'<span style="color:var(--green);font-size:10px">OWNED</span>':''}<span class="chev">▸</span></summary><div class="ings">`;
+    html += `<details class="tier" ${vopen} ontoggle="openV['${esc(name)}|${v}']=this.open"><summary><label class="chk ${own?"on":""}" style="background:transparent;border:0;padding:0;min-height:0;flex-direction:row;text-transform:none" onclick="event.stopPropagation()"><input type="checkbox" ${own?"checked":""} onchange="state.f['${esc(name)}|${v}']=this.checked;save();render();"></label><span>${vName(v)}</span><span style="color:var(--muted);font-weight:600;letter-spacing:0;text-transform:none">${have}/${ings.length}</span>${ready?'<span class="ready" style="margin:0">READY</span>':''}${own?'<span style="color:var(--green);font-size:10px">OWNED</span>':''}<span class="chev">▸</span></summary><div class="ings">`;
     ings.forEach((ing,i) => {
       const on = got[i];
-      html += `<label class="chk ${on?"on":""}"><input type="checkbox" ${on?"checked":""} onchange="state.f['${esc(name)}|${v}|i${i}']=this.checked;save();render();">${v.toUpperCase()} ${ing.toUpperCase()}</label>`;
+      html += `<label class="chk ${on?"on":""}"><input type="checkbox" ${on?"checked":""} onchange="state.f['${esc(name)}|${v}|i${i}']=this.checked;save();render();">${vName(v).toUpperCase()} ${ing.toUpperCase()}</label>`;
     });
     html += `</div></details>`;
   });
@@ -657,7 +659,7 @@ function render(){
         html += `<details class="tier ${done?"done":""}" ${ropen} ontoggle="openR['${key}']=this.open"><summary><span>Rebirth ${rb}</span><span style="color:var(--muted);font-weight:600;letter-spacing:0;text-transform:none">${have}/${need.length}</span><span class="rb-cost">${CREDITS[rb-1]||""}${nova}</span>${ready&&!done?'<span class="ready" style="margin:0">READY</span>':''}${done?'<span style="color:var(--green);font-size:10px">DONE</span>':''}${rb>=12?'<span class="srb">SRB</span>':''}<span class="chev">▸</span></summary><div class="ings">`;
         need.forEach(([n,t]) => {
           const ok = meets(n,t);
-          html += `<label class="chk ${ok?"on":""}">${ok?"✓":"○"} ${t.toUpperCase()} ${n.toUpperCase()}</label>`;
+          html += `<label class="chk ${ok?"on":""}">${ok?"✓":"○"} ${vName(t).toUpperCase()} ${n.toUpperCase()}</label>`;
         });
         html += `<label class="chk ${done?"on":""}"><input type="checkbox" ${done?"checked":""} onchange="state.rb['${key}']=this.checked;save();render();">Cleared this rebirth</label>`;
         html += `</div></details>`;
