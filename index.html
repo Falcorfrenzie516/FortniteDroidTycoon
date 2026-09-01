@@ -33,12 +33,15 @@
     flex:1; background:var(--bg2); color:var(--ink); border:1px solid var(--line);
     border-radius:10px; padding:10px 12px; font-size:14px; outline:none;
   }
-  .tabs { display:grid; grid-template-columns:repeat(5,1fr); gap:4px; margin-top:10px; }
+  .tabs { display:flex; flex-direction:column; gap:4px; margin-top:10px; }
+  .tabrow { display:grid; gap:4px; }
+  .tabrow.row1 { grid-template-columns:repeat(4,1fr); }
+  .tabrow.row2 { grid-template-columns:repeat(2,1fr); }
   .tabs button { background:var(--bg2); border:1px solid var(--line); border-radius:10px; color:var(--muted); padding:9px 2px; font-size:11px; font-weight:700; }
   .tabs button.on { color:#0b0818; background:var(--gold); border-color:var(--gold); }
   main { padding:12px; }
   .hint { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px 14px; color:var(--muted); font-size:13px; line-height:1.45; margin-bottom:12px; }
-  .rarity-h { position:sticky; top:210px; z-index:10; margin:14px 0 8px; font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); background:var(--bg); padding:6px 2px; }
+  .rarity-h { position:sticky; top:248px; z-index:10; margin:14px 0 8px; font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); background:var(--bg); padding:6px 2px; }
   .grid { display:grid; grid-template-columns:1fr; gap:8px; }
   @media (min-width:720px){ .grid { grid-template-columns:1fr 1fr; } }
   .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px; }
@@ -117,11 +120,16 @@
     </select>
   </div>
   <nav class="tabs">
-    <button class="on" data-tab="droidex">Droidex</button>
-    <button data-tab="fusion">Fusion</button>
-    <button data-tab="srb">SRB</button>
-    <button data-tab="done">Done</button>
-    <button data-tab="more">More</button>
+    <div class="tabrow row1">
+      <button class="on" data-tab="droidex">Droidex</button>
+      <button data-tab="fusion">Fusion</button>
+      <button data-tab="srb">SRB</button>
+      <button data-tab="done">Done</button>
+    </div>
+    <div class="tabrow row2">
+      <button data-tab="iconics">Iconic</button>
+      <button data-tab="cosmetics">Paint</button>
+    </div>
   </nav>
 </header>
 <main id="app"></main>
@@ -668,7 +676,7 @@ function render(){
     });
   }
   if (tab==="more") {
-    html += `<div class="hint">Iconics and workshop fashion.</div><div class="rarity-h Iconic">Iconics</div>`;
+    html += `<div class="hint">Iconics and workshop paint.</div><div class="rarity-h Iconic">Iconics</div>`;
     ICONICS.forEach(([n,t,ev,how]) => {
       if (iconDone(n) || !showCard(n,t,ev+" "+how)) return;
       const base = !!state.i[n+"|base"];
@@ -677,7 +685,7 @@ function render(){
         <label class="chk ${base?"on":""}"><input type="checkbox" ${base?"checked":""} onchange="state.i['${esc(n)}|base']=!state.i['${esc(n)}|base'];save();render();">In base</label>
       </div></article>`;
     });
-    html += `<div class="rarity-h">Fashion</div>`;
+    html += `<div class="rarity-h">Paint</div>`;
     COSMETICS.forEach(([cat,item,how,cost],idx) => {
       if (!showCard(item,cat,how+" "+cost)) return;
       const on = !!state.c[idx];
@@ -732,7 +740,7 @@ function render(){
     if (!shown) html += `<div class="empty">Nothing completed yet. Finish all 7 variants on a droid, or own an iconic.</div>`;
   }
   if (tab==="cosmetics") {
-    html += `<div class="hint">Workshop fashion. These are not Droidex entries.</div>`;
+    html += `<div class="hint">Workshop paints. These are not Droidex entries.</div>`;
     COSMETICS.forEach(([cat,item,how,cost],idx) => {
       if (!showCard(item,cat,how+" "+cost)) return;
       const on = !!state.c[idx];
