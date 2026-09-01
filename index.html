@@ -11,115 +11,65 @@
 <title>Droidex Checklist · Droid Tycoon</title>
 <style>
   :root {
-    --bg: #0b1220;
-    --bg2: #121a2b;
-    --card: #172033;
-    --line: #2a3754;
-    --ink: #eef3ff;
-    --muted: #93a0bb;
-    --gold: #e2b13c;
-    --gold2: #f3d27a;
-    --green: #3dd68c;
-    --green-bg: rgba(61,214,140,.14);
-    --common: #94a3b8;
-    --rare: #60a5fa;
-    --epic: #c084fc;
-    --legendary: #fbbf24;
-    --mythic: #fb7185;
-    --iconic: #f472b6;
-    --fusion: #2dd4bf;
+    --bg:#0b1220; --bg2:#121a2b; --card:#172033; --line:#2a3754;
+    --ink:#eef3ff; --muted:#93a0bb; --gold:#e2b13c; --gold2:#f3d27a;
+    --green:#3dd68c; --green-bg:rgba(61,214,140,.14);
+    --common:#94a3b8; --rare:#60a5fa; --epic:#c084fc;
+    --legendary:#fbbf24; --mythic:#fb7185; --iconic:#f472b6; --fusion:#2dd4bf;
     --safe: env(safe-area-inset-bottom, 0px);
   }
-  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif; }
-  body { padding-bottom: calc(88px + var(--safe)); }
-  header {
-    position: sticky; top: 0; z-index: 20;
-    background: linear-gradient(180deg, #0b1220 70%, rgba(11,18,32,.86));
-    border-bottom: 1px solid var(--line);
-    padding: 14px 16px 10px;
-  }
-  h1 { margin: 0; font-size: 18px; letter-spacing: .04em; color: var(--gold); }
-  .sub { color: var(--muted); font-size: 12px; margin-top: 3px; }
-  .stats {
-    display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 12px;
-  }
-  .stat {
-    background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 8px 6px; text-align: center;
-  }
-  .stat b { display: block; font-size: 16px; color: var(--gold2); }
-  .stat span { font-size: 10px; color: var(--muted); }
-  .toolbar { display: flex; gap: 8px; margin-top: 10px; }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body { margin:0; background:var(--bg); color:var(--ink); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif; }
+  body { padding-bottom: calc(92px + var(--safe)); }
+  header { position:sticky; top:0; z-index:20; background:linear-gradient(180deg,#0b1220 72%,rgba(11,18,32,.9)); border-bottom:1px solid var(--line); padding:12px 14px 10px; }
+  h1 { margin:0; font-size:18px; letter-spacing:.06em; color:var(--gold); }
+  .sub { color:var(--muted); font-size:12px; margin-top:2px; }
+  .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:7px; margin-top:10px; }
+  .stat { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:7px 4px; text-align:center; }
+  .stat b { display:block; font-size:15px; color:var(--gold2); }
+  .stat span { font-size:10px; color:var(--muted); }
+  .toolbar { display:flex; gap:8px; margin-top:10px; }
   input[type="search"], select {
-    flex: 1; background: var(--bg2); color: var(--ink); border: 1px solid var(--line);
-    border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none;
+    flex:1; background:var(--bg2); color:var(--ink); border:1px solid var(--line);
+    border-radius:10px; padding:10px 12px; font-size:14px; outline:none;
   }
-  .tabs {
-    position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
-    display: grid; grid-template-columns: repeat(4, 1fr);
-    background: #0e1626; border-top: 1px solid var(--line);
-    padding-bottom: var(--safe);
-  }
-  .tabs button {
-    background: none; border: 0; color: var(--muted); padding: 12px 4px 10px; font-size: 11px; font-weight: 600;
-  }
-  .tabs button.on { color: var(--gold); }
-  main { padding: 12px 12px 20px; }
-  .hint {
-    background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px;
-    color: var(--muted); font-size: 13px; line-height: 1.45; margin-bottom: 12px;
-  }
-  .rarity-h {
-    position: sticky; top: 126px; z-index: 10; margin: 16px 0 8px;
-    font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted);
-    background: var(--bg); padding: 6px 2px;
-  }
-  .card {
-    background: var(--card); border: 1px solid var(--line); border-radius: 14px;
-    padding: 12px; margin-bottom: 8px;
-  }
-  .card.done { border-color: rgba(61,214,140,.35); }
-  .top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
-  .name { font-weight: 700; font-size: 15px; }
-  .meta { color: var(--muted); font-size: 12px; margin-top: 2px; }
-  .badge {
-    font-size: 10px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
-    padding: 4px 7px; border-radius: 999px; border: 1px solid currentColor; white-space: nowrap;
-  }
-  .Common { color: var(--common); }
-  .Rare { color: var(--rare); }
-  .Epic { color: var(--epic); }
-  .Legendary { color: var(--legendary); }
-  .Mythic { color: var(--mythic); }
-  .Iconic { color: var(--iconic); }
-  .Fusion { color: var(--fusion); }
-  .vars { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 10px; }
-  .chk {
-    display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--muted);
-    background: var(--bg2); border: 1px solid var(--line); border-radius: 8px; padding: 7px 6px;
-  }
-  .chk.on { color: var(--green); background: var(--green-bg); border-color: rgba(61,214,140,.4); }
-  .chk input { accent-color: var(--green); width: 16px; height: 16px; }
-  .recipe { font-size: 13px; color: var(--ink); margin-top: 8px; }
-  .ready { display: inline-block; margin-top: 8px; font-size: 11px; font-weight: 700; color: var(--gold); }
-  .actions { display: flex; gap: 8px; margin-top: 8px; }
-  .ghost {
-    background: transparent; color: var(--muted); border: 1px solid var(--line);
-    border-radius: 8px; padding: 8px 10px; font-size: 12px;
-  }
-  .empty { text-align: center; color: var(--muted); padding: 40px 12px; }
-  footer-note { display:block; color: var(--muted); font-size: 11px; text-align: center; padding: 8px; }
+  .tabs { position:fixed; left:0; right:0; bottom:0; z-index:30; display:grid; grid-template-columns:repeat(5,1fr); background:#0e1626; border-top:1px solid var(--line); padding-bottom:var(--safe); }
+  .tabs button { background:none; border:0; color:var(--muted); padding:11px 2px 9px; font-size:11px; font-weight:700; }
+  .tabs button.on { color:var(--gold); }
+  main { padding:12px; }
+  .hint { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px 14px; color:var(--muted); font-size:13px; line-height:1.45; margin-bottom:12px; }
+  .rarity-h { position:sticky; top:148px; z-index:10; margin:14px 0 8px; font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); background:var(--bg); padding:6px 2px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:12px; margin-bottom:8px; }
+  .card.done { border-color:rgba(61,214,140,.4); }
+  .top { display:flex; gap:10px; align-items:flex-start; }
+  .pic { width:56px; height:56px; border-radius:12px; overflow:hidden; flex:none; background:var(--bg2); border:1px solid var(--line); }
+  .pic svg { width:100%; height:100%; display:block; }
+  .name { font-weight:800; font-size:15px; }
+  .meta { color:var(--muted); font-size:12px; margin-top:2px; }
+  .grow { flex:1; min-width:0; }
+  .badge { font-size:10px; font-weight:800; letter-spacing:.04em; text-transform:uppercase; padding:4px 7px; border-radius:999px; border:1px solid currentColor; white-space:nowrap; }
+  .Common{color:var(--common)} .Rare{color:var(--rare)} .Epic{color:var(--epic)}
+  .Legendary{color:var(--legendary)} .Mythic{color:var(--mythic)} .Iconic{color:var(--iconic)} .Fusion{color:var(--fusion)}
+  .vars { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; margin-top:10px; }
+  .chk { display:flex; align-items:center; gap:6px; font-size:11px; color:var(--muted); background:var(--bg2); border:1px solid var(--line); border-radius:8px; padding:7px 6px; }
+  .chk.on { color:var(--green); background:var(--green-bg); border-color:rgba(61,214,140,.4); }
+  .chk input { accent-color:var(--green); width:15px; height:15px; }
+  .tier { margin-top:10px; background:var(--bg2); border:1px solid var(--line); border-radius:10px; padding:8px; }
+  .tier h3 { margin:0 0 6px; font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--gold2); display:flex; justify-content:space-between; align-items:center; }
+  .ings { display:flex; flex-direction:column; gap:5px; }
+  .ready { margin-top:6px; font-size:11px; font-weight:800; color:var(--gold); }
+  .empty { text-align:center; color:var(--muted); padding:36px 12px; }
 </style>
 </head>
 <body>
 <header>
   <h1>DROIDEX</h1>
-  <div class="sub">Droid Tycoon collection tracker · saves on this device</div>
+  <div class="sub">Droid Tycoon tracker · saves on this device</div>
   <div class="stats">
     <div class="stat"><b id="sNames">0</b><span>Names</span></div>
     <div class="stat"><b id="sVars">0</b><span>Variants</span></div>
     <div class="stat"><b id="sFuse">0/17</b><span>Fusion</span></div>
-    <div class="stat"><b id="sIcon">0</b><span>Iconics</span></div>
+    <div class="stat"><b id="sDone">0</b><span>Completed</span></div>
   </div>
   <div class="toolbar">
     <input id="q" type="search" placeholder="Search droids…" />
@@ -136,6 +86,7 @@
   <button class="on" data-tab="droidex">Droidex</button>
   <button data-tab="fusion">Fusion</button>
   <button data-tab="iconics">Iconics</button>
+  <button data-tab="done">Done</button>
   <button data-tab="cosmetics">Fashion</button>
 </nav>
 <script>
@@ -161,23 +112,23 @@ const DROIDS = [
   ["TRI-TEK","Astromech","Mythic"],["CYCLENS","Astromech","Mythic"],["KX","Battle","Mythic"],["IG","Battle","Mythic"]
 ];
 const FUSIONS = [
-  ["WHL-EX","Rare","Worker",["Mouse","Mouse","ARG"],"2× Mouse + ARG"],
-  ["ZRO-TEC","Rare","Astromech",["ID10","ID10","2BB"],"2× ID10 + 2BB"],
-  ["BTL-R","Rare","Battle",["B1 Battle","R9","BDX Explorer"],"B1 Battle + R9 + BDX Explorer"],
-  ["N-UL","Epic","Worker",["B1 Heavy","Gunrunner","BB"],"B1 Heavy + Gunrunner + BB"],
-  ["SCRP-R","Epic","Astromech",["Gonk","Groundmech","R6"],"Gonk + Groundmech + R6"],
-  ["ARM-CORE","Epic","Battle",["ARG","ARG","B2 Heavy"],"2× ARG + B2 Heavy"],
-  ["OPT-AR","Epic","Battle",["R2","R2","B2 Super"],"2× R2 + B2 Super"],
-  ["RO-TOR","Legendary","Worker",["BB9","Pit","B1 Battle"],"BB9 + Pit + B1 Battle"],
-  ["FUS-3","Legendary","Worker",["R7","BU-4D","BU-4D"],"R7 + 2× BU-4D"],
-  ["QIK-BIT","Legendary","Astromech",["Groundmech","Groundmech","BB9"],"2× Groundmech + BB9"],
-  ["ORB-XL","Legendary","Battle",["CB","Gunrunner","B2-RP"],"CB + Gunrunner + B2-RP"],
-  ["RIV-3T","Mythic","Worker",["KX","IG","RIC"],"KX + IG + RIC"],
-  ["LUG-G","Mythic","Worker",["Loadlifter","ID10","R5"],"Loadlifter + ID10 + R5"],
-  ["LOW-MO","Mythic","Astromech",["A-LT","A-LT","Loadlifter"],"2× A-LT + Loadlifter"],
-  ["AXL-POD","Mythic","Astromech",["RIC","BDX Explorer","R7"],"RIC + BDX Explorer + R7"],
-  ["SRV-0","Mythic","Battle",["RIC-1200","B1 Heavy","B1 Heavy"],"RIC-1200 + 2× B1 Heavy"],
-  ["X-ONK","Mythic","Battle",["KX","KX","Gonk"],"2× KX + Gonk"]
+  ["WHL-EX","Rare","Worker",["Mouse","Mouse","ARG"]],
+  ["ZRO-TEC","Rare","Astromech",["ID10","ID10","2BB"]],
+  ["BTL-R","Rare","Battle",["B1 Battle","R9","BDX Explorer"]],
+  ["N-UL","Epic","Worker",["B1 Heavy","Gunrunner","BB"]],
+  ["SCRP-R","Epic","Astromech",["Gonk","Groundmech","R6"]],
+  ["ARM-CORE","Epic","Battle",["ARG","ARG","B2 Heavy"]],
+  ["OPT-AR","Epic","Battle",["R2","R2","B2 Super"]],
+  ["RO-TOR","Legendary","Worker",["BB9","Pit","B1 Battle"]],
+  ["FUS-3","Legendary","Worker",["R7","BU-4D","BU-4D"]],
+  ["QIK-BIT","Legendary","Astromech",["Groundmech","Groundmech","BB9"]],
+  ["ORB-XL","Legendary","Battle",["CB","Gunrunner","B2-RP"]],
+  ["RIV-3T","Mythic","Worker",["KX","IG","RIC"]],
+  ["LUG-G","Mythic","Worker",["Loadlifter","ID10","R5"]],
+  ["LOW-MO","Mythic","Astromech",["A-LT","A-LT","Loadlifter"]],
+  ["AXL-POD","Mythic","Astromech",["RIC","BDX Explorer","R7"]],
+  ["SRV-0","Mythic","Battle",["RIC-1200","B1 Heavy","B1 Heavy"]],
+  ["X-ONK","Mythic","Battle",["KX","KX","Gonk"]]
 ];
 const ICONICS = [
   ["BB-8","Astromech","BB-8 Event","Log in / finish the BB-8 event track"],
@@ -216,124 +167,171 @@ const COSMETICS = [
   ["Hat","Event hats","Finish the matching event grind","Event window"]
 ];
 
-const KEY = "droidex-v1";
-let state = JSON.parse(localStorage.getItem(KEY) || '{"d":{},"f":{},"i":{},"c":{}}');
+const KEY = "droidex-v2";
+let state = JSON.parse(localStorage.getItem(KEY) || localStorage.getItem("droidex-v1") || '{"d":{},"f":{},"i":{},"c":{}}');
 let tab = "droidex";
 
 function save(){ localStorage.setItem(KEY, JSON.stringify(state)); updateStats(); }
-function dKey(name, v){ return name + "|" + v; }
-function has(name, v){ return !!state.d[dKey(name,v)]; }
-function toggle(name, v){ const k = dKey(name,v); state.d[k] = !state.d[k]; save(); render(); }
-function ownedTiers(name){ return VARIANTS.filter(v => has(name,v)).length; }
-function fuseOwned(name){ return !!state.f[name]; }
-function iconOwned(name){ return !!state.i[name]; }
+function dKey(n,v){ return n+"|"+v; }
+function has(n,v){ return !!state.d[dKey(n,v)]; }
+function toggle(n,v){ state.d[dKey(n,v)] = !state.d[dKey(n,v)]; save(); render(); }
+function ownedTiers(n){ return VARIANTS.filter(v => has(n,v)).length; }
+function fuseHas(n,v){ return !!state.f[n+"|"+v]; }
+function fuseIng(n,v,i){ return !!state.f[n+"|"+v+"|i"+i]; }
+function fuseTiers(n){ return VARIANTS.filter(v => fuseHas(n,v)).length; }
+function iconOwned(n){ return !!state.i[n]; }
+function droidDone(n){ return ownedTiers(n)===7; }
+function fuseDone(n){ return fuseTiers(n)===7; }
+function iconDone(n){ return iconOwned(n); }
+function esc(s){ return String(s).replace(/\\/g,"\\\\").replace(/'/g,"\\'"); }
 
-function updateStats(){
-  const names = DROIDS.filter(([n]) => ownedTiers(n) > 0).length;
-  const vars = Object.values(state.d).filter(Boolean).length;
-  const fuse = FUSIONS.filter(([n]) => fuseOwned(n)).length;
-  const icon = ICONICS.filter(([n]) => iconOwned(n)).length;
-  document.getElementById("sNames").textContent = names + "/" + DROIDS.length;
-  document.getElementById("sVars").textContent = vars;
-  document.getElementById("sFuse").textContent = fuse + "/17";
-  document.getElementById("sIcon").textContent = icon + "/" + ICONICS.length;
+function hash(s){ let h=0; for(let i=0;i<s.length;i++) h=s.charCodeAt(i)+((h<<5)-h); return Math.abs(h); }
+function avatar(name, typ, rar){
+  const h = hash(name+typ);
+  const pal = {
+    Worker:["#f5d27a","#8b5a12","#3a2a12"],
+    Astromech:["#7dd3fc","#1d4ed8","#0b1220"],
+    Battle:["#fca5a5","#991b1b","#1c0b0b"],
+    Fusion:["#5eead4","#0f766e","#042f2e"],
+    Iconic:["#f9a8d4","#9d174d","#2a0b18"]
+  }[typ] || ["#cbd5e1","#334155","#0b1220"];
+  const body = pal[0], accent = pal[1], bg = pal[2];
+  const eye = (h%2) ? 18 : 22;
+  const dome = typ==="Astromech" || typ==="Iconic";
+  const initials = name.replace(/[^A-Za-z0-9]/g,"").slice(0,3).toUpperCase();
+  return `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <rect width="80" height="80" fill="${bg}"/>
+    <rect x="8" y="8" width="64" height="64" rx="14" fill="${accent}" opacity=".35"/>
+    ${dome
+      ? `<ellipse cx="40" cy="34" rx="22" ry="18" fill="${body}"/><rect x="18" y="34" width="44" height="28" rx="8" fill="${body}"/>`
+      : `<rect x="16" y="18" width="48" height="46" rx="10" fill="${body}"/>`}
+    <circle cx="30" cy="36" r="6" fill="#0b1220"/><circle cx="50" cy="36" r="6" fill="#0b1220"/>
+    <circle cx="30" cy="36" r="2.4" fill="#e2b13c"/><circle cx="50" cy="36" r="2.4" fill="#e2b13c"/>
+    <rect x="${eye}" y="50" width="${80-eye*2}" height="5" rx="2" fill="#0b1220"/>
+    <text x="40" y="74" text-anchor="middle" font-size="8" font-family="ui-sans-serif,system-ui" fill="#eef3ff">${initials}</text>
+  </svg>`;
 }
 
-function matchQ(text){
+function updateStats(){
+  const names = DROIDS.filter(([n]) => ownedTiers(n)>0).length + FUSIONS.filter(([n]) => fuseTiers(n)>0).length;
+  const totalNames = DROIDS.length + FUSIONS.length;
+  const vars = VARIANTS.reduce((a,v)=>a+DROIDS.filter(([n])=>has(n,v)).length,0)
+             + VARIANTS.reduce((a,v)=>a+FUSIONS.filter(([n])=>fuseHas(n,v)).length,0);
+  const fuse = FUSIONS.filter(([n]) => fuseTiers(n)>0).length;
+  const done = DROIDS.filter(([n])=>droidDone(n)).length + FUSIONS.filter(([n])=>fuseDone(n)).length + ICONICS.filter(([n])=>iconDone(n)).length;
+  document.getElementById("sNames").textContent = names + "/" + totalNames;
+  document.getElementById("sVars").textContent = vars;
+  document.getElementById("sFuse").textContent = fuse + "/17";
+  document.getElementById("sDone").textContent = done;
+}
+
+function showCard(name, typ, extra){
   const q = document.getElementById("q").value.trim().toLowerCase();
   const t = document.getElementById("filter").value;
-  if (q && !text.toLowerCase().includes(q)) return false;
-  if (t !== "all" && !text.includes(t)) return false;
+  if (q && ![name,typ,extra||""].join(" ").toLowerCase().includes(q)) return false;
+  if (t!=="all" && typ!==t) return false;
   return true;
+}
+
+function picWrap(name,typ,rar){ return `<div class="pic">${avatar(name,typ,rar)}</div>`; }
+
+function renderDroidCard(name,typ,rar,hideDone){
+  if (hideDone && droidDone(name)) return "";
+  if (!showCard(name,typ,rar)) return "";
+  const tiers = ownedTiers(name);
+  let html = `<article class="card ${tiers===7?"done":""}"><div class="top">${picWrap(name,typ,rar)}<div class="grow"><div class="name">${name}</div><div class="meta">${typ} · ${tiers}/7 variants</div></div><span class="badge ${rar}">${rar}</span></div><div class="vars">`;
+  VARIANTS.forEach(v => {
+    const on = has(name,v);
+    html += `<label class="chk ${on?"on":""}"><input type="checkbox" ${on?"checked":""} onchange="toggle('${esc(name)}','${v}')">${v}</label>`;
+  });
+  const fl = has(name,"Flawless");
+  html += `<label class="chk ${fl?"on":""}"><input type="checkbox" ${fl?"checked":""} onchange="toggle('${esc(name)}','Flawless')">Flawless</label></div></article>`;
+  return html;
+}
+
+function renderFusionCard(name,rar,typ,ings,hideDone){
+  if (hideDone && fuseDone(name)) return "";
+  if (!showCard(name,typ,ings.join(" ")+" fusion")) return "";
+  const tiers = fuseTiers(name);
+  let html = `<article class="card ${tiers===7?"done":""}"><div class="top">${picWrap(name,"Fusion",rar)}<div class="grow"><div class="name">${name}</div><div class="meta">${typ} · fusion · ${tiers}/7 variants</div></div><span class="badge Fusion">${rar} fusion</span></div>`;
+  VARIANTS.forEach(v => {
+    const own = fuseHas(name,v);
+    const got = ings.map((_,i)=>fuseIng(name,v,i));
+    const ready = got.every(Boolean) && !own;
+    html += `<div class="tier"><h3><label class="chk ${own?"on":""}" style="background:transparent;border:0;padding:0"><input type="checkbox" ${own?"checked":""} onchange="state.f['${esc(name)}|${v}']=!state.f['${esc(name)}|${v}'];save();render();">${v} ${name}</label>${ready?'<span>READY</span>':''}</h3><div class="ings">`;
+    ings.forEach((ing,i) => {
+      const on = got[i];
+      html += `<label class="chk ${on?"on":""}"><input type="checkbox" ${on?"checked":""} onchange="state.f['${esc(name)}|${v}|i${i}']=!state.f['${esc(name)}|${v}|i${i}'];save();render();">${v} ${ing}</label>`;
+    });
+    html += `</div></div>`;
+  });
+  html += `</article>`;
+  return html;
 }
 
 function render(){
   const app = document.getElementById("app");
-  const q = document.getElementById("q").value.trim().toLowerCase();
-  const type = document.getElementById("filter").value;
   let html = "";
-
-  if (tab === "droidex") {
-    html += `<div class="hint">Tap a variant when that form is in your in-game Droidex. A higher variant covers a lower rebirth requirement. Flawless is a separate permanent shiny unlock.</div>`;
-    let last = "";
-    let shown = 0;
-    DROIDS.forEach(([name, typ, rar]) => {
-      if (q && !name.toLowerCase().includes(q) && !typ.toLowerCase().includes(q) && !rar.toLowerCase().includes(q)) return;
-      if (type !== "all" && typ !== type) return;
-      if (rar !== last) { html += `<div class="rarity-h ${rar}">${rar}</div>`; last = rar; }
-      const tiers = ownedTiers(name);
-      html += `<article class="card ${tiers===7?"done":""}">
-        <div class="top"><div><div class="name">${name}</div><div class="meta">${typ} · ${tiers}/7 variants</div></div>
-        <span class="badge ${rar}">${rar}</span></div>
-        <div class="vars">`;
-      VARIANTS.forEach(v => {
-        const on = has(name,v);
-        html += `<label class="chk ${on?"on":""}"><input type="checkbox" ${on?"checked":""} onchange="toggle('${name.replace(/'/g,"\\'")}','${v}')">${v}</label>`;
-      });
-      const fl = has(name,"Flawless");
-      html += `<label class="chk ${fl?"on":""}"><input type="checkbox" ${fl?"checked":""} onchange="toggle('${name.replace(/'/g,"\\'")}','Flawless')">Flawless</label>`;
-      html += `</div></article>`;
+  if (tab==="droidex") {
+    html += `<div class="hint">Regular Droidex names. Completed 7/7 droids move to the <b>Done</b> tab. Fusion recipes live on the Fusion tab — they are not missing, they are just a separate list.</div>`;
+    let last="", shown=0;
+    DROIDS.forEach(([n,t,r]) => {
+      if (droidDone(n) || !showCard(n,t,r)) return;
+      if (r!==last) { html += `<div class="rarity-h ${r}">${r}</div>`; last=r; }
+      html += renderDroidCard(n,t,r,true); shown++;
+    });
+    if (!shown) html += `<div class="empty">Nothing left here. Check Done, or clear search.</div>`;
+  }
+  if (tab==="fusion") {
+    html += `<div class="hint">17 fusion-only names. Each variant needs the <b>same-tier ingredients</b>. Example: Gold N-UL wants Gold B1 Heavy + Gold Gunrunner + Gold BB. Check the three parts, then check the result. 7/7 moves to Done.</div>`;
+    let last="", shown=0;
+    FUSIONS.forEach(([n,r,t,ings]) => {
+      if (fuseDone(n) || !showCard(n,t,ings.join(" "))) return;
+      if (r!==last) { html += `<div class="rarity-h ${r}">${r} fusion</div>`; last=r; }
+      html += renderFusionCard(n,r,t,ings,true); shown++;
+    });
+    if (!shown) html += `<div class="empty">All fusion droids are complete, or none match the filter.</div>`;
+  }
+  if (tab==="iconics") {
+    html += `<div class="hint">Event-only named droids. Owned iconics move to Done.</div>`;
+    let shown=0;
+    ICONICS.forEach(([n,t,ev,how]) => {
+      if (iconDone(n) || !showCard(n,t,ev+" "+how)) return;
+      const base = !!state.i[n+"|base"];
+      html += `<article class="card"><div class="top">${picWrap(n,"Iconic","Iconic")}<div class="grow"><div class="name">${n}</div><div class="meta">${t} · ${ev}</div></div><span class="badge Iconic">Iconic</span></div><div class="meta" style="margin-top:8px">${how}</div><div class="vars">
+        <label class="chk"><input type="checkbox" onchange="state.i['${esc(n)}']=!state.i['${esc(n)}'];save();render();">Owned</label>
+        <label class="chk ${base?"on":""}"><input type="checkbox" ${base?"checked":""} onchange="state.i['${esc(n)}|base']=!state.i['${esc(n)}|base'];save();render();">In base</label>
+      </div></article>`;
       shown++;
     });
-    if (!shown) html += `<div class="empty">No droids match that search.</div>`;
+    if (!shown) html += `<div class="empty">All iconics owned, or none match the filter.</div>`;
   }
-
-  if (tab === "fusion") {
-    html += `<div class="hint">These 17 names only come from the Fusion Machine (Rebirth 3, 400,000 credits). Place the three ingredients, wait for <b>FUSION READY</b>, then pay. Three identical copies of one droid also fuse into the next variant.</div>`;
-    FUSIONS.forEach(([name, rar, typ, ings, recipe]) => {
-      const blob = [name, rar, typ, recipe].join(" ");
-      if (q && !blob.toLowerCase().includes(q)) return;
-      if (type !== "all" && typ !== type) return;
-      const got = ings.map((ing, idx) => !!state.f[name+"|i"+idx]);
-      const ready = got.every(Boolean);
-      const owned = fuseOwned(name);
-      html += `<article class="card ${owned?"done":""}">
-        <div class="top"><div><div class="name">${name}</div><div class="meta">${typ}</div></div>
-        <span class="badge ${rar}">${rar}</span></div>
-        <div class="recipe">${recipe}</div>
-        <div class="vars">`;
-      ings.forEach((ing, idx) => {
-        const on = got[idx];
-        html += `<label class="chk ${on?"on":""}"><input type="checkbox" ${on?"checked":""} onchange="state.f['${name}|i${idx}']=!state.f['${name}|i${idx}'];save();render();">${ing}</label>`;
+  if (tab==="done") {
+    html += `<div class="hint">Finished names only. Uncheck a variant on a card to send it back to its main tab.</div>`;
+    let shown=0;
+    const doneD = DROIDS.filter(([n])=>droidDone(n));
+    const doneF = FUSIONS.filter(([n])=>fuseDone(n));
+    const doneI = ICONICS.filter(([n])=>iconDone(n));
+    if (doneD.length){ html += `<div class="rarity-h">Regular</div>`; doneD.forEach(([n,t,r]) => { html += renderDroidCard(n,t,r,false); shown++; }); }
+    if (doneF.length){ html += `<div class="rarity-h Fusion">Fusion</div>`; doneF.forEach(([n,r,t,ings]) => { html += renderFusionCard(n,r,t,ings,false); shown++; }); }
+    if (doneI.length){
+      html += `<div class="rarity-h Iconic">Iconic</div>`;
+      doneI.forEach(([n,t,ev,how]) => {
+        if (!showCard(n,t,ev)) return;
+        html += `<article class="card done"><div class="top">${picWrap(n,"Iconic","Iconic")}<div class="grow"><div class="name">${n}</div><div class="meta">${t} · ${ev}</div></div><span class="badge Iconic">Iconic</span></div><div class="vars"><label class="chk on"><input type="checkbox" checked onchange="state.i['${esc(n)}']=false;save();render();">Owned</label></div></article>`;
+        shown++;
       });
-      html += `<label class="chk ${owned?"on":""}"><input type="checkbox" ${owned?"checked":""} onchange="state.f['${name}']=!state.f['${name}'];save();render();">In Droidex</label></div>`;
-      if (ready && !owned) html += `<div class="ready">READY TO FUSE</div>`;
-      html += `</article>`;
-    });
+    }
+    if (!shown) html += `<div class="empty">Nothing completed yet. Finish all 7 variants on a droid, or own an iconic.</div>`;
   }
-
-  if (tab === "iconics") {
-    html += `<div class="hint">Event-only named droids. No Basic → Stellar ladder — just owned or not. Most return when their event reruns.</div>`;
-    ICONICS.forEach(([name, typ, ev, how]) => {
-      if (q && ![name,typ,ev,how].join(" ").toLowerCase().includes(q)) return;
-      if (type !== "all" && typ !== type) return;
-      const on = iconOwned(name);
-      const base = !!state.i[name+"|base"];
-      html += `<article class="card ${on?"done":""}">
-        <div class="top"><div><div class="name">${name}</div><div class="meta">${typ} · ${ev}</div></div>
-        <span class="badge Iconic">Iconic</span></div>
-        <div class="recipe">${how}</div>
-        <div class="vars">
-          <label class="chk ${on?"on":""}"><input type="checkbox" ${on?"checked":""} onchange="state.i['${name}']=!state.i['${name}'];save();render();">Owned</label>
-          <label class="chk ${base?"on":""}"><input type="checkbox" ${base?"checked":""} onchange="state.i['${name}|base']=!state.i['${name}|base'];save();render();">In base</label>
-        </div>
-      </article>`;
-    });
-  }
-
-  if (tab === "cosmetics") {
-    html += `<div class="hint">Workshop fashion: paints, hats, and auras. These are not Droidex entries, but several paints are gated on collection milestones — including Fusion Paint for all 17 fusion names.</div>`;
-    COSMETICS.forEach(([cat, item, how, cost], idx) => {
-      if (q && ![cat,item,how,cost].join(" ").toLowerCase().includes(q)) return;
+  if (tab==="cosmetics") {
+    html += `<div class="hint">Workshop fashion. These are not Droidex entries.</div>`;
+    COSMETICS.forEach(([cat,item,how,cost],idx) => {
+      if (!showCard(item,cat,how+" "+cost)) return;
       const on = !!state.c[idx];
-      html += `<article class="card ${on?"done":""}">
-        <div class="top"><div><div class="name">${item}</div><div class="meta">${cat} · ${cost}</div></div></div>
-        <div class="recipe">${how}</div>
-        <div class="vars"><label class="chk ${on?"on":""}"><input type="checkbox" ${on?"checked":""} onchange="state.c[${idx}]=!state.c[${idx}];save();render();">Have it</label></div>
-      </article>`;
+      html += `<article class="card ${on?"done":""}"><div class="top"><div class="grow"><div class="name">${item}</div><div class="meta">${cat} · ${cost}</div></div></div><div class="meta" style="margin-top:8px">${how}</div><div class="vars"><label class="chk ${on?"on":""}"><input type="checkbox" ${on?"checked":""} onchange="state.c[${idx}]=!state.c[${idx}];save();render();">Have it</label></div></article>`;
     });
   }
-
   app.innerHTML = html;
   updateStats();
 }
