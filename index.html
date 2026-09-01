@@ -926,6 +926,10 @@ function render(){
       [["vibrate","Vibrate"],["sound","Sound"],["both","Both"]].forEach(([k,lab]) => {
         html += `<label class="chk ${a.mode===k?"on":""}" style="text-transform:none;letter-spacing:0"><input type="radio" name="mode-${name}" ${a.mode===k?"checked":""} onchange="setAlarm('${name}','mode','${k}')">${lab}</label>`;
       });
+      html += `</div><div class="meta" style="margin:10px 0 6px">Alarm sound</div><div class="vars">`;
+      SOUNDS.forEach(s => {
+        html += `<label class="chk ${a.tone===s.id?"on":""}" style="text-transform:none;letter-spacing:0;font-size:10px"><input type="radio" name="tone-${name}" ${a.tone===s.id?"checked":""} onchange="setAlarm('${name}','tone','${s.id}')">${s.label}</label>`;
+      });
       html += `</div><div class="act" style="margin-top:10px"><button onclick="testAlarm('${name}')">Test ${name}</button></div></article>`;
     });
   }
@@ -960,14 +964,22 @@ document.getElementById("loadFile").addEventListener("change", e => {
 });
 document.getElementById("modal").addEventListener("click", e => { if (e.target.id==="modal") closeModal(); });
 const ALARM_KEY = "droidex-alarms";
+const SOUNDS = [
+  {id:"beep",label:"Beep"},
+  {id:"chirp",label:"Chirp"},
+  {id:"siren",label:"Siren"},
+  {id:"pulse",label:"Pulse"},
+  {id:"chime",label:"Chime"}
+];
 function defaultAlarms(){
   return {
-    Galactic:{on:false,lead:1,mode:"both"},
-    Mythic:{on:false,lead:1,mode:"both"},
-    Stellar:{on:false,lead:1,mode:"both"}
+    Galactic:{on:false,lead:1,mode:"both",tone:"beep"},
+    Mythic:{on:false,lead:1,mode:"both",tone:"siren"},
+    Stellar:{on:false,lead:1,mode:"both",tone:"chime"}
   };
 }
-let alarms = Object.assign(defaultAlarms(), JSON.parse(localStorage.getItem(ALARM_KEY) || "{}"));
+let alarms = JSON.parse(localStorage.getItem(ALARM_KEY) || "{}");
+["Galactic","Mythic","Stellar"].forEach(k => { alarms[k] = Object.assign(defaultAlarms()[k], alarms[k]||{}); });
 const lastFired = {Galactic:0,Mythic:0,Stellar:0};
 let audioCtx = null;
 function saveAlarms(){ localStorage.setItem(ALARM_KEY, JSON.stringify(alarms)); }
@@ -975,6 +987,7 @@ function setAlarm(name, field, value){
   unlockAudio();
   alarms[name][field] = value;
   saveAlarms();
+  if (field==="tone") playAlarmSound(value);
   render();
 }
 function unlockAudio(){
@@ -983,21 +996,38 @@ function unlockAudio(){
     if (audioCtx.state === "suspended") audioCtx.resume();
   } catch(e){}
 }
-function playAlarmSound(){
+function tone(type, freq, start, dur, peak){
+  const o = audioCtx.createOscillator();
+  const g = audioCtx.createGain();
+  o.type = type;
+  if (typeof freq === "number") o.frequency.setValueAtTime(freq, start);
+  else freq(o.frequency, start);
+  g.gain.setValueAtTime(0, start);
+  g.gain.linearRampToValueAtTime(peak||0.2, start+0.02);
+  g.gain.linearRampToValueAtTime(0, start+dur);
+  o.connect(g); g.connect(audioCtx.destination);
+  o.start(start); o.stop(start+dur+0.02);
+}
+function playAlarmSound(kind){
   unlockAudio();
   if (!audioCtx) return;
-  const t0 = Math.max(audioCtx.currentTime, 0) + 0.02;
-  [0,0.28,0.56,1.0,1.28].forEach((off,i) => {
-    const o = audioCtx.createOscillator();
-    const g = audioCtx.createGain();
-    o.type = "square";
-    o.frequency.setValueAtTime(i>=3 ? 1320 : 880, t0+off);
-    g.gain.setValueAtTime(0, t0+off);
-    g.gain.linearRampToValueAtTime(0.22, t0+off+0.03);
-    g.gain.linearRampToValueAtTime(0, t0+off+0.22);
-    o.connect(g); g.connect(audioCtx.destination);
-    o.start(t0+off); o.stop(t0+off+0.24);
-  });
+  const t0 = Math.max(audioCtx.currentTime, 0) + 0.03;
+  const k = kind || "beep";
+  if (k==="chirp"){
+    tone("sine", (f,s)=>{ f.setValueAtTime(520,s); f.linearRampToValueAtTime(1480,s+0.22); }, t0, 0.24, 0.2);
+    tone("sine", (f,s)=>{ f.setValueAtTime(520,s); f.linearRampToValueAtTime(1480,s+0.22); }, t0+0.28, 0.24, 0.2);
+    tone("sine", (f,s)=>{ f.setValueAtTime(640,s); f.linearRampToValueAtTime(1760,s+0.28); }, t0+0.58, 0.3, 0.22);
+  } else if (k==="siren"){
+    [0,0.36,0.72,1.08].forEach((off,i) => tone("square", i%2?980:620, t0+off, 0.32, 0.18));
+  } else if (k==="pulse"){
+    [0,0.4,0.8,1.2].forEach(off => tone("square", 220, t0+off, 0.16, 0.24));
+  } else if (k==="chime"){
+    tone("sine", 659, t0, 0.35, 0.2);
+    tone("sine", 880, t0+0.18, 0.4, 0.18);
+    tone("sine", 1319, t0+0.42, 0.55, 0.16);
+  } else {
+    [0,0.28,0.56,1.0,1.28].forEach((off,i) => tone("square", i>=3?1320:880, t0+off, 0.2, 0.22));
+  }
 }
 function buzz(){
   try { if (navigator.vibrate) navigator.vibrate([180,70,180,70,320,90,420]); } catch(e){}
@@ -1020,7 +1050,7 @@ function runAlarm(name, force){
   const a = alarms[name] || {mode:"both"};
   const mode = force ? "both" : a.mode;
   if (mode !== "sound") buzz();
-  if (mode !== "vibrate") playAlarmSound();
+  if (mode !== "vibrate") playAlarmSound(a.tone || "beep");
   flashAlert(name);
 }
 function fireAlarm(name){
