@@ -965,17 +965,17 @@ document.getElementById("loadFile").addEventListener("change", e => {
 document.getElementById("modal").addEventListener("click", e => { if (e.target.id==="modal") closeModal(); });
 const ALARM_KEY = "droidex-alarms";
 const SOUNDS = [
-  {id:"beep",label:"Beep"},
-  {id:"chirp",label:"Chirp"},
-  {id:"siren",label:"Siren"},
-  {id:"pulse",label:"Pulse"},
-  {id:"chime",label:"Chime"}
+  {id:"r2",label:"R2 chirp"},
+  {id:"probe",label:"Probe scan"},
+  {id:"blaster",label:"Blaster"},
+  {id:"binary",label:"Droid speak"},
+  {id:"holocron",label:"Holocron"}
 ];
 function defaultAlarms(){
   return {
-    Galactic:{on:false,lead:1,mode:"both",tone:"beep"},
-    Mythic:{on:false,lead:1,mode:"both",tone:"siren"},
-    Stellar:{on:false,lead:1,mode:"both",tone:"chime"}
+    Galactic:{on:false,lead:1,mode:"both",tone:"r2"},
+    Mythic:{on:false,lead:1,mode:"both",tone:"blaster"},
+    Stellar:{on:false,lead:1,mode:"both",tone:"holocron"}
   };
 }
 let alarms = JSON.parse(localStorage.getItem(ALARM_KEY) || "{}");
@@ -1012,21 +1012,32 @@ function playAlarmSound(kind){
   unlockAudio();
   if (!audioCtx) return;
   const t0 = Math.max(audioCtx.currentTime, 0) + 0.03;
-  const k = kind || "beep";
-  if (k==="chirp"){
-    tone("sine", (f,s)=>{ f.setValueAtTime(520,s); f.linearRampToValueAtTime(1480,s+0.22); }, t0, 0.24, 0.2);
-    tone("sine", (f,s)=>{ f.setValueAtTime(520,s); f.linearRampToValueAtTime(1480,s+0.22); }, t0+0.28, 0.24, 0.2);
-    tone("sine", (f,s)=>{ f.setValueAtTime(640,s); f.linearRampToValueAtTime(1760,s+0.28); }, t0+0.58, 0.3, 0.22);
-  } else if (k==="siren"){
-    [0,0.36,0.72,1.08].forEach((off,i) => tone("square", i%2?980:620, t0+off, 0.32, 0.18));
-  } else if (k==="pulse"){
-    [0,0.4,0.8,1.2].forEach(off => tone("square", 220, t0+off, 0.16, 0.24));
-  } else if (k==="chime"){
-    tone("sine", 659, t0, 0.35, 0.2);
-    tone("sine", 880, t0+0.18, 0.4, 0.18);
-    tone("sine", 1319, t0+0.42, 0.55, 0.16);
+  let k = kind || "r2";
+  if (k==="beep"||k==="chirp") k="r2";
+  if (k==="siren") k="probe";
+  if (k==="pulse") k="blaster";
+  if (k==="chime") k="holocron";
+  if (k==="r2"){
+    const tweets = [[0,920,1480,0.09],[0.11,1600,780,0.1],[0.24,700,1900,0.12],[0.4,1200,900,0.08],[0.52,1800,2400,0.14],[0.7,640,1100,0.1]];
+    tweets.forEach(([off,a,b,dur]) => tone("sine", (f,s)=>{ f.setValueAtTime(a,s); f.linearRampToValueAtTime(b,s+dur); }, t0+off, dur, 0.2));
+  } else if (k==="probe"){
+    [0,0.42,0.84,1.26].forEach((off,i) => {
+      tone("triangle", i%2?1480:420, t0+off, 0.38, 0.16);
+      tone("sine", i%2?740:210, t0+off, 0.38, 0.08);
+    });
+  } else if (k==="blaster"){
+    [0,0.22,0.44].forEach(off => {
+      tone("sawtooth", (f,s)=>{ f.setValueAtTime(980,s); f.linearRampToValueAtTime(140,s+0.16); }, t0+off, 0.16, 0.2);
+      tone("square", (f,s)=>{ f.setValueAtTime(420,s); f.linearRampToValueAtTime(90,s+0.12); }, t0+off, 0.12, 0.08);
+    });
+  } else if (k==="binary"){
+    const bits = [0,0.07,0.14,0.28,0.35,0.42,0.56,0.63,0.78,0.85,0.92];
+    bits.forEach((off,i) => tone("square", i%3===0?310:i%2?880:1240, t0+off, 0.05, 0.16));
   } else {
-    [0,0.28,0.56,1.0,1.28].forEach((off,i) => tone("square", i>=3?1320:880, t0+off, 0.2, 0.22));
+    tone("sine", 523, t0, 0.55, 0.16);
+    tone("sine", 784, t0+0.12, 0.6, 0.14);
+    tone("sine", 1046, t0+0.28, 0.75, 0.12);
+    tone("triangle", 392, t0, 0.8, 0.06);
   }
 }
 function buzz(){
