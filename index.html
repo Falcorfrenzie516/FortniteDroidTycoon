@@ -44,7 +44,7 @@
   .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px; }
   .card.done { border-color:rgba(74,222,128,.35); }
   .top { display:flex; gap:8px; align-items:flex-start; }
-  .pic { width:72px; height:72px; border-radius:10px; overflow:hidden; flex:none; background:#000; border:1px solid var(--line); position:relative; }
+  .pic { width:52px; height:52px; border-radius:10px; overflow:hidden; flex:none; background:#000; border:1px solid var(--line); position:relative; }
   .pic img, .pic svg { width:100%; height:100%; display:block; object-fit:contain; background:#000; }
   .pic svg.glyph { position:absolute; inset:0; }
   .name { font-weight:800; font-size:15px; }
@@ -57,10 +57,20 @@
   .chk { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; font-size:9px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); background:#100d22; border:1px solid var(--line); border-radius:8px; padding:7px 2px; min-height:44px; }
   .chk.on { color:var(--green); background:var(--green-bg); border-color:rgba(61,214,140,.4); }
   .chk input { accent-color:var(--green); width:15px; height:15px; }
-  .tier { margin-top:10px; background:var(--bg2); border:1px solid var(--line); border-radius:10px; padding:8px; }
+  .tier { margin-top:8px; background:var(--bg2); border:1px solid var(--line); border-radius:10px; padding:0; }
   .tier h3 { margin:0 0 6px; font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--gold2); display:flex; justify-content:space-between; align-items:center; }
-  .ings { display:flex; flex-direction:column; gap:5px; }
+  .ings { display:flex; flex-direction:column; gap:5px; padding:0 8px 8px; }
   .ings .chk { flex-direction:row; justify-content:flex-start; text-transform:none; letter-spacing:0; font-size:12px; min-height:0; padding:7px 8px; }
+  details.drop { padding:0; }
+  details.drop > summary { list-style:none; cursor:pointer; padding:12px; display:flex; gap:8px; align-items:center; }
+  details.drop > summary::-webkit-details-marker { display:none; }
+  details.drop .drop-body { padding:0 12px 12px; }
+  .chev { margin-left:auto; color:var(--muted); font-size:16px; transition:transform .15s; }
+  details[open] > summary .chev { transform:rotate(90deg); }
+  details.tier { margin-top:6px; }
+  details.tier > summary { list-style:none; cursor:pointer; padding:9px 10px; display:flex; align-items:center; gap:8px; font-size:12px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:var(--gold2); }
+  details.tier > summary::-webkit-details-marker { display:none; }
+  details.tier > summary .chev { font-size:13px; }
   .ready { margin-top:6px; font-size:11px; font-weight:800; color:var(--gold); }
   .empty { text-align:center; color:var(--muted); padding:36px 12px; }
   .cycles { display:flex; gap:6px; flex-wrap:wrap; margin:0 0 10px; }
@@ -409,37 +419,44 @@ function picWrap(name,typ,rar){
   return `<div class="pic"><img alt="${name}" src="${a}" onerror="if(this.dataset.n!=='1'){this.dataset.n='1';this.src='${b}';}else{this.style.display='none';this.nextElementSibling.style.display='block';}">${portrait(name,typ)}</div>`;
 }
 
+const openD = {};
 function renderDroidCard(name,typ,rar,hideDone){
   if (hideDone && droidDone(name)) return "";
   if (!showCard(name,typ,rar)) return "";
   const tiers = ownedTiers(name);
-  let html = `<article class="card ${tiers===7?"done":""}"><div class="top">${picWrap(name,typ,rar)}<div class="grow"><div class="name">${name.toUpperCase()}</div><div class="meta">${typ.toUpperCase()} · ${tiers}/7</div></div></div><div class="vars">`;
+  const opened = openD[name] ? "open" : "";
+  let html = `<details class="card drop ${tiers===7?"done":""}" ${opened} ontoggle="openD['${esc(name)}']=this.open"><summary><div class="top" style="flex:1">${picWrap(name,typ,rar)}<div class="grow"><div class="name">${name.toUpperCase()}</div><div class="meta">${typ.toUpperCase()} · ${tiers}/7</div></div></div><span class="chev">▸</span></summary><div class="drop-body"><div class="vars">`;
   VARIANTS.forEach(v => {
     const on = has(name,v);
     html += `<label class="chk ${on?"on":""}"><input type="checkbox" ${on?"checked":""} onchange="toggle('${esc(name)}','${v}')">${SHORT[v]}</label>`;
   });
   const fl = has(name,"Flawless");
-  html += `</div><div class="vars" style="grid-template-columns:1fr;margin-top:6px"><label class="chk ${fl?"on":""}" style="flex-direction:row;min-height:0;padding:6px 8px;text-transform:none;letter-spacing:0;font-size:11px"><input type="checkbox" ${fl?"checked":""} onchange="toggle('${esc(name)}','Flawless')">Flawless</label></div></article>`;
+  html += `</div><div class="vars" style="grid-template-columns:1fr;margin-top:6px"><label class="chk ${fl?"on":""}" style="flex-direction:row;min-height:0;padding:6px 8px;text-transform:none;letter-spacing:0;font-size:11px"><input type="checkbox" ${fl?"checked":""} onchange="toggle('${esc(name)}','Flawless')">Flawless</label></div></div></details>`;
   return html;
 }
 
+const openF = {};
+const openV = {};
 function renderFusionCard(name,rar,typ,ings,hideDone){
   if (hideDone && fuseDone(name)) return "";
   if (!showCard(name,typ,ings.join(" ")+" fusion")) return "";
   const tiers = fuseTiers(name);
-  let html = `<article class="card ${tiers===7?"done":""}"><div class="top">${picWrap(name,"Fusion",rar)}<div class="grow"><div class="name">${name}</div><div class="meta">${typ} · fusion · ${tiers}/7 variants</div></div><span class="badge Fusion">${rar} fusion</span></div>`;
+  const opened = openF[name] ? "open" : "";
+  let html = `<details class="card drop ${tiers===7?"done":""}" ${opened} ontoggle="openF['${esc(name)}']=this.open"><summary><div class="top" style="flex:1">${picWrap(name,"Fusion",rar)}<div class="grow"><div class="name">${name}</div><div class="meta">${typ} · ${tiers}/7 variants</div></div><span class="badge Fusion">${rar}</span></div><span class="chev">▸</span></summary><div class="drop-body">`;
   VARIANTS.forEach(v => {
     const own = fuseHas(name,v);
     const got = ings.map((_,i)=>fuseIng(name,v,i));
     const ready = got.every(Boolean) && !own;
-    html += `<div class="tier"><h3><label class="chk ${own?"on":""}" style="background:transparent;border:0;padding:0"><input type="checkbox" ${own?"checked":""} onchange="state.f['${esc(name)}|${v}']=!state.f['${esc(name)}|${v}'];save();render();">${v} ${name}</label>${ready?'<span>READY</span>':''}</h3><div class="ings">`;
+    const have = got.filter(Boolean).length;
+    const vopen = openV[name+"|"+v] ? "open" : "";
+    html += `<details class="tier" ${vopen} ontoggle="openV['${esc(name)}|${v}']=this.open"><summary><label class="chk ${own?"on":""}" style="background:transparent;border:0;padding:0;min-height:0;flex-direction:row;text-transform:none" onclick="event.stopPropagation()"><input type="checkbox" ${own?"checked":""} onchange="state.f['${esc(name)}|${v}']=this.checked;save();render();"></label><span>${v}</span><span style="color:var(--muted);font-weight:600;letter-spacing:0;text-transform:none">${have}/${ings.length}</span>${ready?'<span class="ready" style="margin:0">READY</span>':''}${own?'<span style="color:var(--green);font-size:10px">OWNED</span>':''}<span class="chev">▸</span></summary><div class="ings">`;
     ings.forEach((ing,i) => {
       const on = got[i];
-      html += `<label class="chk ${on?"on":""}"><input type="checkbox" ${on?"checked":""} onchange="state.f['${esc(name)}|${v}|i${i}']=!state.f['${esc(name)}|${v}|i${i}'];save();render();">${v} ${ing}</label>`;
+      html += `<label class="chk ${on?"on":""}"><input type="checkbox" ${on?"checked":""} onchange="state.f['${esc(name)}|${v}|i${i}']=this.checked;save();render();">${v.toUpperCase()} ${ing.toUpperCase()}</label>`;
     });
-    html += `</div></div>`;
+    html += `</div></details>`;
   });
-  html += `</article>`;
+  html += `</div></details>`;
   return html;
 }
 
