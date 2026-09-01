@@ -36,7 +36,7 @@
   .tabs { display:flex; flex-direction:column; gap:4px; margin-top:10px; }
   .tabrow { display:grid; gap:4px; }
   .tabrow.row1 { grid-template-columns:repeat(4,1fr); }
-  .tabrow.row2 { grid-template-columns:repeat(2,1fr); }
+  .tabrow.row2 { grid-template-columns:repeat(3,1fr); }
   .tabs button { background:var(--bg2); border:1px solid var(--line); border-radius:10px; color:var(--muted); padding:9px 2px; font-size:11px; font-weight:700; }
   .tabs button.on { color:#0b0818; background:var(--gold); border-color:var(--gold); }
   main { padding:12px; }
@@ -106,7 +106,7 @@
 <body>
 <header>
   <h1>DROIDEX</h1>
-  <div class="sub">Droid Tycoon tracker · <span id="saveLabel">Main</span></div>
+  <div class="sub">Droid Tycoon tracker · profile <span id="saveLabel">Main</span></div>
   <div class="stats">
     <div class="stat"><b id="sNames">0</b><span>Names</span></div>
     <div class="stat"><b id="sVars">0</b><span>Variants</span></div>
@@ -121,6 +121,7 @@
       <option value="Astromech">Astromech</option>
       <option value="Battle">Battle</option>
     </select>
+    <select id="savePick" title="Switch profile" onchange="switchSave(this.value)"></select>
   </div>
   <nav class="tabs">
     <div class="tabrow row1">
@@ -132,6 +133,7 @@
     <div class="tabrow row2">
       <button data-tab="iconics">Iconic</button>
       <button data-tab="cosmetics">Paint</button>
+      <button data-tab="saves">Profiles</button>
     </div>
   </nav>
 </header>
@@ -411,6 +413,31 @@ function currentName(){ return (bank.slots[bank.current]||{}).name || "Main"; }
 function updateSaveLabel(){
   const el = document.getElementById("saveLabel");
   if (el) el.textContent = currentName();
+  const pick = document.getElementById("savePick");
+  if (pick){
+    pick.innerHTML = Object.keys(bank.slots).map(id => {
+      const s = bank.slots[id];
+      return `<option value="${id}" ${id===bank.current?"selected":""}>${s.name}</option>`;
+    }).join("");
+  }
+}
+function savePanel(){
+  let html = `<div class="hint">Each profile is a separate checklist. Download a file to keep a copy. Load a file to come back to that point.</div>`;
+  html += `<div class="card"><div class="name">${currentName()}</div><div class="meta" style="margin:4px 0 8px">Active profile on this device</div><div class="saves">`;
+  html += `<select onchange="switchSave(this.value)">`;
+  Object.keys(bank.slots).forEach(id => {
+    const s = bank.slots[id];
+    html += `<option value="${id}" ${id===bank.current?"selected":""}>${s.name}</option>`;
+  });
+  html += `</select></div><div class="act">`;
+  html += `<button onclick="newSave(true)">Save as new</button>`;
+  html += `<button onclick="newSave(false)">New blank</button>`;
+  html += `<button onclick="renameSave()">Rename</button>`;
+  html += `<button onclick="downloadSave()">Download file</button>`;
+  html += `<button onclick="document.getElementById('loadFile').click()">Load file</button>`;
+  html += `<button onclick="deleteSave()">Delete profile</button>`;
+  html += `</div></div>`;
+  return html;
 }
 function switchSave(id){
   if (!bank.slots[id]) return;
@@ -758,22 +785,11 @@ function render(){
     });
     if (!shown) html += `<div class="empty">All iconics owned, or none match the filter.</div>`;
   }
+  if (tab==="saves") {
+    html += savePanel();
+  }
   if (tab==="done") {
-    html += `<div class="hint">Finished names, save files, and Super Rebirth. Switching saves reloads that file’s checkmarks.</div>`;
-    html += `<div class="card"><div class="name">Saves</div><div class="meta" style="margin:4px 0 8px">Current file: ${currentName()}</div><div class="saves">`;
-    html += `<select id="savePick" onchange="switchSave(this.value)">`;
-    Object.keys(bank.slots).forEach(id => {
-      const s = bank.slots[id];
-      html += `<option value="${id}" ${id===bank.current?"selected":""}>${s.name}</option>`;
-    });
-    html += `</select></div><div class="act">`;
-    html += `<button onclick="newSave(true)">Save as new</button>`;
-    html += `<button onclick="newSave(false)">New blank</button>`;
-    html += `<button onclick="renameSave()">Rename</button>`;
-    html += `<button onclick="downloadSave()">Download file</button>`;
-    html += `<button onclick="document.getElementById('loadFile').click()">Reload file</button>`;
-    html += `<button onclick="deleteSave()">Delete save</button>`;
-    html += `</div></div>`;
+    html += `<div class="hint">Finished names only. Profiles and file load live on the <b>Profiles</b> tab. Super Rebirth is here.</div>`;
     html += `<div class="card" style="border-color:#7f1d3a"><div class="name">Super Rebirth</div><div class="meta" style="margin:6px 0 10px">Clears all droid / fusion / iconic / rebirth checks on this save. Keeps a backup so you can reload where you were. Fashion paints stay. Cycle advances ${srbCycle} → ${(srbCycle%4)+1}.</div><div class="act"><button class="danger" onclick="askSuperRebirth()">Super Rebirth</button></div></div>`;
     let shown=0;
     const doneD = DROIDS.filter(([n])=>droidDone(n));
