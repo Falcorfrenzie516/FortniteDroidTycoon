@@ -59,6 +59,13 @@
   .ings { display:flex; flex-direction:column; gap:5px; }
   .ready { margin-top:6px; font-size:11px; font-weight:800; color:var(--gold); }
   .empty { text-align:center; color:var(--muted); padding:36px 12px; }
+  .cycles { display:flex; gap:6px; flex-wrap:wrap; margin:0 0 10px; }
+  .cycles button { background:var(--card); color:var(--muted); border:1px solid var(--line); border-radius:999px; padding:7px 10px; font-size:11px; font-weight:700; }
+  .cycles button.on { color:#0b1220; background:var(--gold); border-color:var(--gold); }
+  .rb-row { display:flex; flex-direction:column; gap:6px; }
+  .rb-head { display:flex; justify-content:space-between; align-items:center; gap:8px; }
+  .rb-cost { color:var(--gold2); font-size:12px; font-weight:700; }
+  .srb { font-size:10px; color:var(--gold); font-weight:800; letter-spacing:.04em; }
 </style>
 </head>
 <body>
@@ -85,9 +92,9 @@
 <nav class="tabs">
   <button class="on" data-tab="droidex">Droidex</button>
   <button data-tab="fusion">Fusion</button>
-  <button data-tab="iconics">Iconics</button>
+  <button data-tab="srb">SRB</button>
   <button data-tab="done">Done</button>
-  <button data-tab="cosmetics">Fashion</button>
+  <button data-tab="more">More</button>
 </nav>
 <script>
 const VARIANTS = ["Basic","Gold","Diamond","Rainbow","Beskar","Galactic","Stellar"];
@@ -167,9 +174,165 @@ const COSMETICS = [
   ["Hat","Event hats","Finish the matching event grind","Event window"]
 ];
 
+const CREDITS = ["10K","150K","975K","2.95M","5.35M","9.85M","14.5M","36M","89M","220M","550M","1.36B","3.40B","8.45B","21B","52B","130B","325B","810B","2T","3T","4.5T","6T","9T","13.5T","21T","32T","45T","68T","100T","150T","230T","345T","520T","778T"];
+const NOVA = {12:11,13:16,14:22,15:29,16:37,17:46,18:56,19:67,20:79,21:92,22:106,23:121,24:137,25:154,26:172,27:191,28:211,29:232,30:254,31:277,32:301,33:326,34:352,35:379};
+const TIER_I = {Basic:0,Gold:1,Diamond:2,Rainbow:3,Beskar:4,Galactic:5,Stellar:6};
+const CYCLES = {
+  1:[
+    [["CB","Basic"],["Pit","Basic"],["DRK-1 Probe","Basic"]],
+    [["BDX Explorer","Basic"],["2BB","Basic"],["Bal-Core","Basic"]],
+    [["A-LT","Basic"],["BU-4D","Basic"],["R9","Gold"]],
+    [["ARG","Gold"],["B1 Security","Gold"],["Groundmech","Basic"]],
+    [["BU-4D","Gold"],["HOV-R","Gold"],["R9","Diamond"]],
+    [["A-LT","Diamond"],["ARG","Diamond"],["Groundmech","Gold"]],
+    [["BU-4D","Diamond"],["B1 Security","Diamond"],["BB","Gold"]],
+    [["HOV-R","Diamond"],["LO","Gold"],["Util-Tec","Gold"]],
+    [["TRAK-R","Gold"],["R6","Gold"],["Groundmech","Rainbow"]],
+    [["Strike-Orb","Gold"],["Haul-R","Rainbow"],["LO","Rainbow"]],
+    [["AMP Walker","Rainbow"],["B1 Heavy","Rainbow"],["BB9","Basic"]],
+    [["Proto-Roller","Gold"],["Mecha-Droid","Basic"],["Mono-WLKR","Basic"]],
+    [["R7","Basic"],["Cyclo-Grav","Basic"],["B2-RP","Basic"]],
+    [["Opti-STRK","Basic"],["Mono-WLKR","Gold"],["Mecha-Droid","Gold"]],
+    [["B2-RP","Gold"],["BB9","Gold"],["R7","Gold"]],
+    [["Opti-STRK","Gold"],["Mono-WLKR","Diamond"],["Proto-Roller","Diamond"]],
+    [["B2-RP","Diamond"],["Cyclo-Grav","Diamond"],["Mecha-Droid","Diamond"]],
+    [["BB9","Diamond"],["R7","Diamond"],["Mono-WLKR","Rainbow"]],
+    [["B2-RP","Rainbow"],["Cyclo-Grav","Rainbow"],["Proto-Roller","Rainbow"]],
+    [["R7","Rainbow"],["Opti-STRK","Rainbow"],["Mecha-Droid","Rainbow"]],
+    [["BB","Beskar"],["ORB-Walker","Beskar"],["Groundmech","Beskar"]],
+    [["AMP Walker","Beskar"],["B1 Heavy","Beskar"],["Proto-Roller","Beskar"]],
+    [["Opti-STRK","Beskar"],["Mono-WLKR","Beskar"],["R7","Beskar"]],
+    [["BB9","Beskar"],["Cyclo-Grav","Beskar"],["MO-TRAK","Basic"]],
+    [["B2-RP","Beskar"],["IG","Basic"],["DRFT-R","Gold"]],
+    [["CYCLENS","Gold"],["Loadlifter","Diamond"],["RIC-1200","Rainbow"]],
+    [["KX","Diamond"],["TRI-TEK","Rainbow"],["Snow Mouse","Beskar"]],
+    [["Proto-Roller","Galactic"],["MO-TRAK","Rainbow"],["DRFT-R","Beskar"]],
+    [["Mono-WLKR","Galactic"],["Mecha-Droid","Galactic"],["IG","Beskar"]],
+    [["B2-RP","Galactic"],["CYCLENS","Beskar"],["Loadlifter","Galactic"]],
+    [["SEN-TRI","Stellar"],["Proto-Roller","Beskar"],["KX","Beskar"]],
+    [["ORB-Walker","Galactic"],["Opti-Pod","Galactic"],["RIC","Beskar"]],
+    [["B1 Heavy","Stellar"],["Cyclo-Grav","Galactic"],["DRFT-R","Galactic"]],
+    [["Groundmech","Stellar"],["BB","Stellar"],["CYCLENS","Galactic"]],
+    [["BB9","Stellar"],["IG","Stellar"],["Snow Mouse","Stellar"]]
+  ],
+  2:[
+    [["ID10","Basic"],["Mouse","Basic"],["Gonk","Basic"]],
+    [["ROLL-R","Basic"],["Senate Hovercam","Basic"],["NAV-EX","Basic"]],
+    [["R4","Basic"],["VECT-Arm","Basic"],["BDX Explorer","Gold"]],
+    [["2BB","Gold"],["Bal-Core","Gold"],["ORB-Walker","Basic"]],
+    [["R4","Gold"],["VECT-Arm","Gold"],["NAV-EX","Gold"]],
+    [["Gunrunner","Basic"],["2BB","Diamond"],["Bal-Core","Diamond"]],
+    [["ROLL-R","Diamond"],["BDX Explorer","Diamond"],["R2","Gold"]],
+    [["R4","Diamond"],["B2 Super","Gold"],["Gunrunner","Gold"]],
+    [["NAV-EX","Rainbow"],["Strike-Orb","Gold"],["AMP Walker","Gold"]],
+    [["VECT-Arm","Rainbow"],["R2","Diamond"],["B2 Super","Diamond"]],
+    [["Bal-Core","Rainbow"],["Strike-Orb","Diamond"],["B2 Heavy","Diamond"]],
+    [["ORB-Walker","Rainbow"],["R2","Rainbow"],["BB9","Basic"]],
+    [["B2 Super","Rainbow"],["Mecha-Droid","Basic"],["Proto-Roller","Basic"]],
+    [["B2 Heavy","Rainbow"],["B2-RP","Basic"],["R7","Gold"]],
+    [["Strike-Orb","Rainbow"],["BB9","Gold"],["Proto-Roller","Gold"]],
+    [["AMP Walker","Rainbow"],["Mecha-Droid","Gold"],["B2-RP","Diamond"]],
+    [["Opti-Pod","Rainbow"],["Mono-WLKR","Gold"],["R7","Diamond"]],
+    [["Util-Tec","Rainbow"],["BB9","Diamond"],["Proto-Roller","Diamond"]],
+    [["Mecha-Droid","Diamond"],["R7","Rainbow"],["B2-RP","Rainbow"]],
+    [["Mono-WLKR","Rainbow"],["Opti-STRK","Rainbow"],["Cyclo-Grav","Rainbow"]],
+    [["LO","Beskar"],["R6","Beskar"],["Haul-R","Beskar"]],
+    [["SEN-TRI","Beskar"],["Strike-Orb","Beskar"],["Proto-Roller","Beskar"]],
+    [["BB9","Beskar"],["Cyclo-Grav","Beskar"],["B2-RP","Beskar"]],
+    [["Opti-STRK","Beskar"],["B2-RP","Beskar"],["Snow Mouse","Basic"]],
+    [["Mono-WLKR","Beskar"],["TRI-TEK","Gold"],["RIC-1200","Basic"]],
+    [["KX","Gold"],["DRFT-R","Diamond"],["IG","Rainbow"]],
+    [["LEP","Diamond"],["Loadlifter","Rainbow"],["MO-TRAK","Beskar"]],
+    [["Mecha-Droid","Galactic"],["Snow Mouse","Rainbow"],["TRI-TEK","Beskar"]],
+    [["Cyclo-Grav","Galactic"],["R7","Galactic"],["RIC","Beskar"]],
+    [["Opti-STRK","Galactic"],["KX","Beskar"],["DRFT-R","Galactic"]],
+    [["B2 Super","Stellar"],["B2-RP","Beskar"],["Loadlifter","Beskar"]],
+    [["Gunrunner","Galactic"],["B1 Heavy","Galactic"],["LEP","Beskar"]],
+    [["R2","Stellar"],["Opti-STRK","Galactic"],["KX","Galactic"]],
+    [["R6","Stellar"],["LO","Stellar"],["RIC","Galactic"]],
+    [["R7","Stellar"],["DRFT-R","Stellar"],["CYCLENS","Stellar"]]
+  ],
+  3:[
+    [["Mouse","Basic"],["Pit","Basic"],["Gonk","Basic"]],
+    [["R3","Basic"],["2BB","Basic"],["Senate Hovercam","Basic"]],
+    [["R8","Basic"],["R5","Basic"],["R4","Basic"]],
+    [["B1 Battle","Gold"],["R9","Gold"],["B1 Security","Gold"]],
+    [["R3","Gold"],["2BB","Gold"],["Senate Hovercam","Gold"]],
+    [["R5","Diamond"],["R4","Diamond"],["BDX Explorer","Diamond"]],
+    [["R8","Diamond"],["B1 Battle","Diamond"],["R9","Diamond"]],
+    [["R3","Rainbow"],["2BB","Rainbow"],["B1 Security","Rainbow"]],
+    [["R5","Rainbow"],["R4","Rainbow"],["BDX Explorer","Rainbow"]],
+    [["Senate Hovercam","Rainbow"],["Groundmech","Basic"],["TRAK-R","Basic"]],
+    [["B2 Heavy","Basic"],["B2 Super","Basic"],["Util-Tec","Basic"]],
+    [["Bal-Core","Rainbow"],["Groundmech","Gold"],["TRAK-R","Gold"]],
+    [["B2 Super","Rainbow"],["Mecha-Droid","Basic"],["Proto-Roller","Basic"]],
+    [["B2 Heavy","Rainbow"],["B2-RP","Basic"],["R7","Gold"]],
+    [["Strike-Orb","Rainbow"],["BB9","Gold"],["Proto-Roller","Gold"]],
+    [["AMP Walker","Rainbow"],["Mecha-Droid","Gold"],["B2-RP","Diamond"]],
+    [["Opti-Pod","Rainbow"],["Mono-WLKR","Gold"],["R7","Diamond"]],
+    [["Util-Tec","Rainbow"],["BB9","Diamond"],["Proto-Roller","Diamond"]],
+    [["Mecha-Droid","Diamond"],["R7","Rainbow"],["B2-RP","Rainbow"]],
+    [["Mono-WLKR","Rainbow"],["Opti-STRK","Rainbow"],["Cyclo-Grav","Rainbow"]],
+    [["B2 Super","Beskar"],["Opti-Pod","Beskar"],["R2","Beskar"]],
+    [["Gunrunner","Beskar"],["LNG-Shot","Beskar"],["B2-RP","Beskar"]],
+    [["Mono-WLKR","Beskar"],["Mecha-Droid","Beskar"],["Cyclo-Grav","Beskar"]],
+    [["BB9","Beskar"],["Proto-Roller","Beskar"],["RIC","Basic"]],
+    [["Loadlifter","Basic"],["MO-TRAK","Gold"],["LEP","Gold"]],
+    [["TRI-TEK","Diamond"],["Snow Mouse","Rainbow"],["RIC-1200","Diamond"]],
+    [["IG","Rainbow"],["DRFT-R","Beskar"],["RIC","Rainbow"]],
+    [["BB9","Galactic"],["RIC","Rainbow"],["MO-TRAK","Beskar"]],
+    [["Mecha-Droid","Galactic"],["Opti-STRK","Galactic"],["IG","Beskar"]],
+    [["R7","Galactic"],["LEP","Beskar"],["DRFT-R","Galactic"]],
+    [["B2 Heavy","Stellar"],["Mecha-Droid","Beskar"],["RIC-1200","Beskar"]],
+    [["Groundmech","Galactic"],["BB","Galactic"],["MO-TRAK","Beskar"]],
+    [["TRAK-R","Stellar"],["Mono-WLKR","Galactic"],["Loadlifter","Galactic"]],
+    [["ORB-Walker","Stellar"],["B2 Super","Stellar"],["LEP","Galactic"]],
+    [["Proto-Roller","Stellar"],["KX","Stellar"],["RIC","Stellar"]]
+  ],
+  4:[
+    [["ID10","Basic"],["Pit","Basic"],["DRK-1 Probe","Basic"]],
+    [["R3","Basic"],["2BB","Basic"],["Senate Hovercam","Basic"]],
+    [["R5","Gold"],["R8","Gold"],["R4","Basic"]],
+    [["B1 Battle","Gold"],["R9","Gold"],["B1 Security","Gold"]],
+    [["R3","Gold"],["2BB","Gold"],["Senate Hovercam","Gold"]],
+    [["R5","Diamond"],["R4","Diamond"],["BDX Explorer","Diamond"]],
+    [["R8","Diamond"],["B1 Battle","Diamond"],["R9","Diamond"]],
+    [["R3","Rainbow"],["B1 Security","Rainbow"],["2BB","Rainbow"]],
+    [["R5","Rainbow"],["R4","Rainbow"],["BDX Explorer","Rainbow"]],
+    [["Senate Hovercam","Rainbow"],["Groundmech","Basic"],["TRAK-R","Basic"]],
+    [["B2 Heavy","Basic"],["B2 Super","Basic"],["Util-Tec","Basic"]],
+    [["Bal-Core","Rainbow"],["Groundmech","Gold"],["TRAK-R","Gold"]],
+    [["B2 Super","Rainbow"],["Mecha-Droid","Basic"],["Proto-Roller","Basic"]],
+    [["B2 Heavy","Rainbow"],["B2-RP","Basic"],["R7","Gold"]],
+    [["Util-Tec","Rainbow"],["BB9","Basic"],["Opti-STRK","Basic"]],
+    [["Cyclo-Grav","Gold"],["Mecha-Droid","Gold"],["B2-RP","Gold"]],
+    [["BB9","Gold"],["R7","Diamond"],["Mecha-Droid","Diamond"]],
+    [["R7","Rainbow"],["B2-RP","Rainbow"],["Mono-WLKR","Rainbow"]],
+    [["Opti-STRK","Rainbow"],["Cyclo-Grav","Rainbow"],["Mono-WLKR","Rainbow"]],
+    [["AMP Walker","Beskar"],["Groundmech","Beskar"],["Haul-R","Beskar"]],
+    [["Gunrunner","Beskar"],["Strike-Orb","Beskar"],["B2 Super","Beskar"]],
+    [["Mono-WLKR","Beskar"],["Cyclo-Grav","Beskar"],["B2-RP","Beskar"]],
+    [["Mecha-Droid","Beskar"],["Proto-Roller","Beskar"],["MO-TRAK","Basic"]],
+    [["Opti-STRK","Beskar"],["TRI-TEK","Basic"],["DRFT-R","Gold"]],
+    [["CYCLENS","Gold"],["LEP","Diamond"],["MO-TRAK","Rainbow"]],
+    [["RIC-1200","Diamond"],["Snow Mouse","Rainbow"],["Loadlifter","Beskar"]],
+    [["Opti-STRK","Galactic"],["IG","Rainbow"],["KX","Beskar"]],
+    [["BB9","Galactic"],["R7","Galactic"],["TRI-TEK","Beskar"]],
+    [["Mono-WLKR","Galactic"],["CYCLENS","Beskar"],["IG","Galactic"]],
+    [["TRAK-R","Stellar"],["Cyclo-Grav","Beskar"],["TRI-TEK","Beskar"]],
+    [["R2","Galactic"],["R6","Galactic"],["IG","Beskar"]],
+    [["B2 Heavy","Stellar"],["BB9","Galactic"],["RIC-1200","Galactic"]],
+    [["Strike-Orb","Stellar"],["AMP Walker","Stellar"],["MO-TRAK","Galactic"]],
+    [["B2-RP","Stellar"],["Loadlifter","Stellar"],["LEP","Stellar"]],
+    [["B2-RP","Stellar"],["Loadlifter","Stellar"],["LEP","Stellar"]]
+  ]
+};
+
 const KEY = "droidex-v2";
 let state = JSON.parse(localStorage.getItem(KEY) || localStorage.getItem("droidex-v1") || '{"d":{},"f":{},"i":{},"c":{}}');
+if (!state.rb) state.rb = {};
 let tab = "droidex";
+let srbCycle = Number(state.rb.cycle || 1);
 
 function save(){ localStorage.setItem(KEY, JSON.stringify(state)); updateStats(); }
 function dKey(n,v){ return n+"|"+v; }
@@ -184,6 +347,12 @@ function droidDone(n){ return ownedTiers(n)===7; }
 function fuseDone(n){ return fuseTiers(n)===7; }
 function iconDone(n){ return iconOwned(n); }
 function esc(s){ return String(s).replace(/\\/g,"\\\\").replace(/'/g,"\\'"); }
+function bestTier(n){
+  let best = -1;
+  VARIANTS.forEach(v => { if (has(n,v) || fuseHas(n,v)) best = Math.max(best, TIER_I[v]); });
+  return best;
+}
+function meets(n, min){ return bestTier(n) >= TIER_I[min]; }
 
 function hash(s){ let h=0; for(let i=0;i<s.length;i++) h=s.charCodeAt(i)+((h<<5)-h); return Math.abs(h); }
 function avatar(name, typ, rar){
@@ -291,6 +460,50 @@ function render(){
       html += renderFusionCard(n,r,t,ings,true); shown++;
     });
     if (!shown) html += `<div class="empty">All fusion droids are complete, or none match the filter.</div>`;
+  }
+  if (tab==="srb") {
+    const cyc = CYCLES[srbCycle] || CYCLES[1];
+    html += `<div class="hint">Super Rebirth unlocks at <b>Rebirth 12</b> plus one Rainbow Legendary. Cash-out walks you Cycle 1→2→3→4→1. First SRB usually puts you on Cycle 2. Credits are the same every cycle. Confirm the live board if a mid-cycle row looks off after a patch.</div>`;
+    html += `<div class="cycles">`;
+    [1,2,3,4].forEach(n => {
+      html += `<button class="${srbCycle===n?"on":""}" onclick="srbCycle=${n};state.rb.cycle=${n};save();render();">Cycle ${n}</button>`;
+    });
+    html += `</div>`;
+    cyc.forEach((need, idx) => {
+      const rb = idx+1;
+      const blob = need.map(x=>x.join(" ")).join(" ");
+      const qq = document.getElementById("q").value.trim().toLowerCase();
+      if (qq && !("rebirth "+rb+" "+blob+" "+CREDITS[idx]).toLowerCase().includes(qq)) return;
+      const key = "c"+srbCycle+"r"+rb;
+      const done = !!state.rb[key];
+      const ready = need.every(([n,t]) => meets(n,t));
+      const nova = NOVA[rb] ? ` · SRB ${NOVA[rb]} Nova` : "";
+      html += `<article class="card ${done?"done":""}"><div class="rb-row"><div class="rb-head"><div><div class="name">Rebirth ${rb}</div><div class="meta">${ready?"Collection covers this row":"Need these in base at min tier"}</div></div><div class="rb-cost">${CREDITS[idx]}${nova}</div></div><div class="ings">`;
+      need.forEach(([n,t]) => {
+        const ok = meets(n,t);
+        html += `<label class="chk ${ok?"on":""}">${ok?"✓":"○"} ${t} ${n}</label>`;
+      });
+      html += `<label class="chk ${done?"on":""}"><input type="checkbox" ${done?"checked":""} onchange="state.rb['${key}']=!state.rb['${key}'];save();render();">Cleared this rebirth</label>`;
+      if (rb>=12) html += `<div class="srb">CAN SUPER REBIRTH HERE</div>`;
+      html += `</div></div></article>`;
+    });
+  }
+  if (tab==="more") {
+    html += `<div class="hint">Iconics and workshop fashion.</div><div class="rarity-h Iconic">Iconics</div>`;
+    ICONICS.forEach(([n,t,ev,how]) => {
+      if (iconDone(n) || !showCard(n,t,ev+" "+how)) return;
+      const base = !!state.i[n+"|base"];
+      html += `<article class="card"><div class="top">${picWrap(n,"Iconic","Iconic")}<div class="grow"><div class="name">${n}</div><div class="meta">${t} · ${ev}</div></div><span class="badge Iconic">Iconic</span></div><div class="meta" style="margin-top:8px">${how}</div><div class="vars">
+        <label class="chk"><input type="checkbox" onchange="state.i['${esc(n)}']=!state.i['${esc(n)}'];save();render();">Owned</label>
+        <label class="chk ${base?"on":""}"><input type="checkbox" ${base?"checked":""} onchange="state.i['${esc(n)}|base']=!state.i['${esc(n)}|base'];save();render();">In base</label>
+      </div></article>`;
+    });
+    html += `<div class="rarity-h">Fashion</div>`;
+    COSMETICS.forEach(([cat,item,how,cost],idx) => {
+      if (!showCard(item,cat,how+" "+cost)) return;
+      const on = !!state.c[idx];
+      html += `<article class="card ${on?"done":""}"><div class="top"><div class="grow"><div class="name">${item}</div><div class="meta">${cat} · ${cost}</div></div></div><div class="meta" style="margin-top:8px">${how}</div><div class="vars"><label class="chk ${on?"on":""}"><input type="checkbox" ${on?"checked":""} onchange="state.c[${idx}]=!state.c[${idx}];save();render();">Have it</label></div></article>`;
+    });
   }
   if (tab==="iconics") {
     html += `<div class="hint">Event-only named droids. Owned iconics move to Done.</div>`;
