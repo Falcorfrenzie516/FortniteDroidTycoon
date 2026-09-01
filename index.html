@@ -44,8 +44,11 @@
   .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px; }
   .card.done { border-color:rgba(74,222,128,.35); }
   .top { display:flex; gap:8px; align-items:flex-start; }
-  .pic { width:22px; height:22px; border-radius:6px; overflow:hidden; flex:none; margin-top:1px; }
-  .pic svg { width:100%; height:100%; display:block; }
+  .pic { width:72px; height:72px; border-radius:10px; overflow:hidden; flex:none; background:#0a0714; border:1px solid var(--line); position:relative; }
+  .pic img, .pic svg { width:100%; height:100%; display:block; object-fit:cover; }
+  .pic .glyph { position:absolute; inset:0; display:none; align-items:center; justify-content:center; padding:16px; background:#120d24; }
+  .pic.miss .glyph { display:flex; }
+  .pic.miss img { display:none; }
   .name { font-weight:800; font-size:15px; }
   .meta { color:var(--muted); font-size:12px; margin-top:2px; }
   .grow { flex:1; min-width:0; }
@@ -390,7 +393,30 @@ function showCard(name, typ, extra){
   return true;
 }
 
-function picWrap(name,typ,rar){ return `<div class="pic">${avatar(name,typ,rar)}</div>`; }
+function slug(name){
+  return name.replace(/\s+/g,"_");
+}
+function wikiFiles(name){
+  const pretty = name.replace(/\s+/g," ");
+  return [
+    `https://fortnite.fandom.com/wiki/Special:FilePath/${encodeURIComponent(pretty + " - Droid - Droid Tycoon.png")}`,
+    `https://fortnite.fandom.com/wiki/Special:FilePath/${encodeURIComponent(name + " - Droid - Droid Tycoon.png")}`,
+    `https://starwars.fandom.com/wiki/Special:FilePath/${encodeURIComponent(name.replace(/\s+/g,"-") + "-Fortnite.png")}`
+  ];
+}
+function picWrap(name,typ,rar){
+  const srcs = wikiFiles(name);
+  const id = "p-"+slug(name).replace(/[^A-Za-z0-9_-]/g,"");
+  return `<div class="pic" id="${id}"><img alt="${name}" src="${srcs[0]}" onerror="picFail(this,'${esc(name)}')">${avatar(name,typ,rar).replace("<svg",'<svg class="glyph"')}</div>`;
+}
+const _picTry = {};
+function picFail(img, name){
+  const box = img.parentElement;
+  const tries = (_picTry[name] = (_picTry[name]||0)+1);
+  const srcs = wikiFiles(name);
+  if (tries < srcs.length) { img.src = srcs[tries]; return; }
+  box.classList.add("miss");
+}
 
 function renderDroidCard(name,typ,rar,hideDone){
   if (hideDone && droidDone(name)) return "";
