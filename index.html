@@ -204,7 +204,7 @@
     <div class="stat"><b id="sDone">0</b><span>Completed</span></div>
   </div>
   <div class="toolbar">
-    <input id="q" type="search" placeholder="Search droids…" />
+    <input id="q" type="search" placeholder="Search droids…" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" name="droidex-search" />
     <select id="filter">
       <option value="all">All types</option>
       <option value="Worker">Worker</option>
@@ -723,10 +723,14 @@ function updateStats(){
   document.getElementById("sDone").textContent = done;
 }
 
+function norm(s){ return String(s||"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim(); }
 function showCard(name, typ, extra){
-  const q = document.getElementById("q").value.trim().toLowerCase();
+  const q = norm(document.getElementById("q").value);
   const t = document.getElementById("filter").value;
-  if (q && ![name,typ,extra||""].join(" ").toLowerCase().includes(q)) return false;
+  if (q) {
+    const blob = norm([name, typ, extra||""].join(" "));
+    if (!blob.includes(q) && !norm(name).includes(q)) return false;
+  }
   if (t!=="all" && typ!==t) return false;
   return true;
 }
@@ -792,6 +796,34 @@ function renderFusionCard(name,rar,typ,ings,hideDone){
 function render(){
   const app = document.getElementById("app");
   let html = "";
+  const qLive = norm(document.getElementById("q").value);
+  if (qLive) {
+    html += `<div class="hint">Matches for “${document.getElementById("q").value.trim()}”. Results update as you type. Tap the box again to start a new search.</div>`;
+    let shown=0;
+    const dHits = DROIDS.filter(([n,t,r]) => showCard(n,t,r));
+    const fHits = FUSIONS.filter(([n,r,t,ings]) => showCard(n,t,ings.join(" ")));
+    const iHits = ICONICS.filter(([n,t,ev,how]) => showCard(n,t,ev+" "+how));
+    if (dHits.length){
+      html += `<div class="rarity-h">Droidex</div>`;
+      dHits.forEach(([n,t,r]) => { html += renderDroidCard(n,t,r,false); shown++; });
+    }
+    if (fHits.length){
+      html += `<div class="rarity-h Fusion">Fusion</div>`;
+      fHits.forEach(([n,r,t,ings]) => { html += renderFusionCard(n,r,t,ings,false); shown++; });
+    }
+    if (iHits.length){
+      html += `<div class="rarity-h Iconic">Iconic</div>`;
+      iHits.forEach(([n,t,ev,how]) => {
+        html += `<article class="card"><div class="top">${picWrap(n,"Iconic","Iconic")}<div class="grow"><div class="name">${n}</div><div class="meta">${t} · ${ev}</div></div><span class="badge Iconic">Iconic</span></div></article>`;
+        shown++;
+      });
+    }
+    if (!shown) html += `<div class="empty">No droids match “${document.getElementById("q").value.trim()}”.</div>`;
+    app.innerHTML = html;
+    updateStats();
+    updateSaveLabel();
+    return;
+  }
   if (tab==="droidex") {
     html += `<div class="hint">Regular Droidex names. Completed 7/7 droids move to the <b>Done</b> tab. Fusion recipes live on the Fusion tab — they are not missing, they are just a separate list.</div>`;
     let last="", shown=0;
@@ -956,6 +988,10 @@ document.querySelectorAll(".tabs button").forEach(btn => {
   };
 });
 document.getElementById("q").addEventListener("input", render);
+document.getElementById("q").addEventListener("focus", e => {
+  e.target.value = "";
+  render();
+});
 document.getElementById("filter").addEventListener("change", render);
 document.getElementById("loadFile").addEventListener("change", e => {
   const file = e.target.files && e.target.files[0];
