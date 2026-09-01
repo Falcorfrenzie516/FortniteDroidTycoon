@@ -42,7 +42,7 @@
   .tabs { display:flex; flex-direction:column; gap:4px; margin-top:10px; }
   .tabrow { display:grid; gap:4px; }
   .tabrow.row1 { grid-template-columns:repeat(4,1fr); }
-  .tabrow.row2 { grid-template-columns:repeat(3,1fr); }
+  .tabrow.row2 { grid-template-columns:repeat(4,1fr); }
   .tabs button { background:var(--bg2); border:1px solid var(--line); border-radius:10px; color:var(--muted); padding:9px 2px; font-size:11px; font-weight:700; }
   .tabs button.on { color:#0b0818; background:var(--gold); border-color:var(--gold); }
   main { padding:12px; }
@@ -145,6 +145,7 @@
       <button data-tab="iconics">Iconic</button>
       <button data-tab="cosmetics">Paint</button>
       <button data-tab="saves">Profiles</button>
+      <button data-tab="alarms">Alarms</button>
     </div>
   </nav>
 </header>
@@ -818,6 +819,24 @@ function render(){
     }
     if (!shown) html += `<div class="empty">Nothing completed yet. Finish all 7 variants on a droid, or own an iconic.</div>`;
   }
+  if (tab==="alarms") {
+    html += `<div class="hint">Keep this page open for alerts. Each drop has its own timer. Pick how many minutes early to warn, then Vibrate, Sound, or Both. iPhone cannot vibrate from a webpage — use Sound there.</div>`;
+    [["Galactic","Every :15 and :45"],["Mythic","Hourly at :55"],["Stellar","Hourly at :00"]].forEach(([name,when]) => {
+      const a = alarms[name];
+      const at = name==="Galactic" ? nextGalactic() : nextHourly(name==="Mythic"?55:0);
+      html += `<article class="card"><div class="name">${name}</div><div class="meta">${when} · next ${fmtLeft(at-Date.now())}</div>`;
+      html += `<div class="vars" style="grid-template-columns:1fr;margin-top:10px"><label class="chk ${a.on?"on":""}" style="flex-direction:row;text-transform:none;letter-spacing:0"><input type="checkbox" ${a.on?"checked":""} onchange="setAlarm('${name}','on',this.checked)">Alarm on</label></div>`;
+      html += `<div class="meta" style="margin:10px 0 6px">Warn this many minutes before</div><div class="vars">`;
+      [1,2,3,4,5].forEach(n => {
+        html += `<label class="chk ${a.lead===n?"on":""}"><input type="radio" name="lead-${name}" ${a.lead===n?"checked":""} onchange="setAlarm('${name}','lead',${n})">${n}m</label>`;
+      });
+      html += `</div><div class="meta" style="margin:10px 0 6px">Alert type</div><div class="vars">`;
+      [["vibrate","Vibrate"],["sound","Sound"],["both","Both"]].forEach(([k,lab]) => {
+        html += `<label class="chk ${a.mode===k?"on":""}" style="text-transform:none;letter-spacing:0"><input type="radio" name="mode-${name}" ${a.mode===k?"checked":""} onchange="setAlarm('${name}','mode','${k}')">${lab}</label>`;
+      });
+      html += `</div><div class="act" style="margin-top:10px"><button onclick="testAlarm('${name}')">Test ${name}</button></div></article>`;
+    });
+  }
   if (tab==="cosmetics") {
     html += `<div class="hint">Workshop paints. These are not Droidex entries.</div>`;
     COSMETICS.forEach(([cat,item,how,cost],idx) => {
@@ -848,6 +867,83 @@ document.getElementById("loadFile").addEventListener("change", e => {
   if (file) importSave(file);
 });
 document.getElementById("modal").addEventListener("click", e => { if (e.target.id==="modal") closeModal(); });
+const ALARM_KEY = "droidex-alarms";
+function defaultAlarms(){
+  return {
+    Galactic:{on:false,lead:1,mode:"both"},
+    Mythic:{on:false,lead:1,mode:"both"},
+    Stellar:{on:false,lead:1,mode:"both"}
+  };
+}
+let alarms = Object.assign(defaultAlarms(), JSON.parse(localStorage.getItem(ALARM_KEY) || "{}"));
+const lastFired = {Galactic:0,Mythic:0,Stellar:0};
+let audioCtx = null;
+function saveAlarms(){ localStorage.setItem(ALARM_KEY, JSON.stringify(alarms)); }
+function setAlarm(name, field, value){
+  unlockAudio();
+  alarms[name][field] = value;
+  saveAlarms();
+  render();
+}
+function unlockAudio(){
+  try {
+    if (!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+    if (audioCtx.state === "suspended") audioCtx.resume();
+  } catch(e){}
+}
+function playAlarmSound(){
+  unlockAudio();
+  if (!audioCtx) return;
+  const t0 = audioCtx.currentTime;
+  [0,0.22,0.44,0.88,1.1].forEach(off => {
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.type = "square";
+    o.frequency.value = off>=0.8 ? 1174 : 880;
+    g.gain.setValueAtTime(0.0001, t0+off);
+    g.gain.exponentialRampToValueAtTime(0.14, t0+off+0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0+off+0.18);
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start(t0+off); o.stop(t0+off+0.2);
+  });
+}
+function buzz(){
+  if (navigator.vibrate) navigator.vibrate([180,70,180,70,320,90,420]);
+}
+function fireAlarm(name){
+  const a = alarms[name];
+  if (!a || !a.on) return;
+  if (a.mode !== "sound") buzz();
+  if (a.mode !== "vibrate") playAlarmSound();
+}
+function testAlarm(name){
+  unlockAudio();
+  const a = alarms[name];
+  if (a.mode !== "sound") buzz();
+  if (a.mode !== "vibrate") playAlarmSound();
+}
+function beltTarget(name){
+  if (name==="Galactic") return nextGalactic();
+  if (name==="Mythic") return nextHourly(55);
+  return nextHourly(0);
+}
+function checkAlarms(){
+  const now = Date.now();
+  ["Galactic","Mythic","Stellar"].forEach(name => {
+    const a = alarms[name];
+    if (!a || !a.on) return;
+    const at = beltTarget(name);
+    const left = at - now;
+    const leadMs = a.lead * 60 * 1000;
+    if (left <= leadMs && left > leadMs - 2500) {
+      const id = at.getTime();
+      if (lastFired[name] !== id) {
+        lastFired[name] = id;
+        fireAlarm(name);
+      }
+    }
+  });
+}
 function nextHourly(minMark){
   const now = new Date();
   const t = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), minMark, 0, 0);
@@ -884,6 +980,7 @@ function tickBelts(){
     el.classList.toggle("soon", left <= 60000);
     el.querySelector("b").textContent = fmtLeft(left);
   });
+  checkAlarms();
 }
 tickBelts();
 setInterval(tickBelts, 1000);
