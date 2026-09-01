@@ -46,7 +46,7 @@
   @media (min-width:720px){ .grid { grid-template-columns:1fr 1fr; } }
   .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px; }
   .card.done { border-color:rgba(74,222,128,.35); }
-  .top { display:flex; gap:8px; align-items:flex-start; }
+  .top { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
   .pic { width:52px; height:52px; border-radius:10px; overflow:hidden; flex:none; background:#000; border:1px solid var(--line); position:relative; }
   .pic img, .pic svg { width:100%; height:100%; display:block; object-fit:contain; background:#000; }
   .pic svg.glyph { position:absolute; inset:0; }
@@ -640,7 +640,8 @@ function renderFusionCard(name,rar,typ,ings,hideDone){
   const tiers = fuseTiers(name);
   const opened = openF[name] ? "open" : "";
   const allOn = VARIANTS.every(v => fuseHas(name,v));
-  let html = `<details class="card drop ${tiers===7?"done":""}" ${opened} ontoggle="openF['${esc(name)}']=this.open"><summary><div class="top" style="flex:1">${picWrap(name,"Fusion",rar)}<div class="grow"><div class="name">${name}</div><div class="meta">${typ} · ${tiers}/7 variants</div></div><label class="fl-pill ${allOn?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${allOn?"checked":""} onchange="completeFusion('${esc(name)}')">Complete All</label><span class="badge Fusion">${rar}</span></div><span class="chev">▸</span></summary><div class="drop-body">`;
+  const fl = fuseHas(name,"Flawless");
+  let html = `<details class="card drop ${tiers===7?"done":""}" ${opened} ontoggle="openF['${esc(name)}']=this.open"><summary><div class="top" style="flex:1">${picWrap(name,"Fusion",rar)}<div class="grow"><div class="name">${name}</div><div class="meta">${typ} · ${tiers}/7 variants</div></div><label class="fl-pill ${fl?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${fl?"checked":""} onchange="state.f['${esc(name)}|Flawless']=this.checked;save();render();">Flawless</label><label class="fl-pill ${allOn?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${allOn?"checked":""} onchange="completeFusion('${esc(name)}')">Complete All</label><span class="badge Fusion">${rar}</span></div><span class="chev">▸</span></summary><div class="drop-body">`;
   VARIANTS.forEach(v => {
     const own = fuseHas(name,v);
     const got = ings.map((_,i)=>fuseIng(name,v,i));
