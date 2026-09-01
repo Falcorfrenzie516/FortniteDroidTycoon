@@ -22,9 +22,28 @@
     --safe: env(safe-area-inset-bottom, 0px);
   }
   * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-  html,body { margin:0; background:var(--bg); color:var(--ink); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif; }
+  html,body { margin:0; background:#05030c; color:var(--ink); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif; }
   body { padding-bottom: 24px; }
-  header { position:sticky; top:0; z-index:20; background:linear-gradient(180deg,#0b0818 72%,rgba(11,8,24,.92)); border-bottom:1px solid var(--line); padding:12px 14px 10px; }
+  #space { position:fixed; inset:0; z-index:0; width:100%; height:100%; pointer-events:none; }
+  .nebula {
+    position:fixed; z-index:0; pointer-events:none; filter:blur(40px); opacity:.45;
+    animation:drift 80s ease-in-out infinite alternate;
+  }
+  .nebula.a { width:55vw; height:40vw; left:-8vw; top:8vh; background:radial-gradient(circle, #3b0764 0%, transparent 70%); }
+  .nebula.b { width:48vw; height:36vw; right:-10vw; top:28vh; background:radial-gradient(circle, #083344 0%, transparent 70%); animation-duration:110s; }
+  .nebula.c { width:40vw; height:30vw; left:20vw; bottom:-8vh; background:radial-gradient(circle, #4a044e 0%, transparent 72%); animation-duration:95s; }
+  .planet {
+    position:fixed; z-index:0; pointer-events:none; border-radius:50%;
+    box-shadow:inset -6px -4px 12px rgba(0,0,0,.55), 0 0 18px rgba(255,255,255,.08);
+    animation:orbit 120s linear infinite;
+  }
+  .planet.p1 { width:22px; height:22px; right:12vw; top:18vh; background:radial-gradient(circle at 35% 30%, #fde68a, #b45309 60%, #1c0a06); animation-duration:160s; }
+  .planet.p2 { width:14px; height:14px; left:8vw; top:42vh; background:radial-gradient(circle at 30% 30%, #93c5fd, #1d4ed8 62%, #0b1220); animation-duration:210s; }
+  .planet.p3 { width:9px; height:9px; right:22vw; bottom:16vh; background:radial-gradient(circle at 40% 30%, #fda4af, #9f1239 70%, #1c0a0e); animation-duration:180s; }
+  @keyframes drift { from { transform:translate3d(0,0,0) scale(1); } to { transform:translate3d(6vw,-4vh,0) scale(1.08); } }
+  @keyframes orbit { from { transform:translate3d(0,0,0); } to { transform:translate3d(-3vw,2vh,0); } }
+  header { position:sticky; top:0; z-index:20; background:linear-gradient(180deg,rgba(5,3,12,.82) 60%,rgba(5,3,12,.55)); border-bottom:1px solid var(--line); padding:12px 14px 10px; backdrop-filter:blur(8px); }
+  main { position:relative; z-index:1; }
   h1 { margin:0; font-size:0; line-height:0; }
   .brand { display:block; width:min(280px,72vw); height:auto; margin:0 auto 2px; }
   .sub { color:var(--muted); font-size:12px; margin-top:2px; text-align:center; }
@@ -121,7 +140,7 @@
   .tabs button.on { color:#0b0818; background:var(--gold); border-color:var(--gold); }
   main { padding:12px; }
   .hint { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px 14px; color:var(--muted); font-size:13px; line-height:1.45; margin-bottom:12px; }
-  .rarity-h { position:sticky; top:248px; z-index:10; margin:14px 0 8px; font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); background:var(--bg); padding:6px 2px; }
+  .rarity-h { position:sticky; top:248px; z-index:10; margin:14px 0 8px; font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); background:rgba(5,3,12,.72); padding:6px 2px; }
   .grid { display:grid; grid-template-columns:1fr; gap:8px; }
   @media (min-width:720px){ .grid { grid-template-columns:1fr 1fr; } }
   .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px; }
@@ -190,6 +209,13 @@
 </style>
 </head>
 <body>
+<canvas id="space"></canvas>
+<div class="nebula a"></div>
+<div class="nebula b"></div>
+<div class="nebula c"></div>
+<div class="planet p1"></div>
+<div class="planet p2"></div>
+<div class="planet p3"></div>
 <header>
   <h1>Pocket Droidex</h1>
   <img class="brand" src="img/pocket-droidex.jpg" alt="Pocket Droidex" />
@@ -1178,6 +1204,40 @@ function tickBelts(){
 }
 tickBelts();
 setInterval(tickBelts, 1000);
+(function spaceBG(){
+  const c = document.getElementById("space");
+  if (!c || !c.getContext) return;
+  const ctx = c.getContext("2d");
+  let stars = [];
+  function fit(){
+    c.width = innerWidth;
+    c.height = innerHeight;
+    const n = Math.min(220, Math.floor(c.width*c.height/9000));
+    stars = Array.from({length:n}, () => ({
+      x: Math.random()*c.width,
+      y: Math.random()*c.height,
+      z: 0.3 + Math.random()*1.7,
+      p: Math.random()*Math.PI*2,
+      s: 0.4 + Math.random()*1.4
+    }));
+  }
+  function draw(t){
+    ctx.clearRect(0,0,c.width,c.height);
+    stars.forEach(st => {
+      const tw = 0.45 + 0.55*Math.abs(Math.sin(t*0.001*st.z + st.p));
+      ctx.fillStyle = `rgba(230,240,255,${0.25+0.55*tw})`;
+      ctx.beginPath();
+      ctx.arc(st.x, st.y, st.s*tw, 0, Math.PI*2);
+      ctx.fill();
+      st.y += 0.015*st.z;
+      if (st.y > c.height+2) { st.y = -2; st.x = Math.random()*c.width; }
+    });
+    requestAnimationFrame(draw);
+  }
+  addEventListener("resize", fit, {passive:true});
+  fit();
+  requestAnimationFrame(draw);
+})();
 render();
 </script>
 </body>
