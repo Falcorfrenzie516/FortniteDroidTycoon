@@ -815,10 +815,20 @@ function slug(name){
 function assetName(name){
   return name.toUpperCase().replace(/\s+/g,"_");
 }
+const IMG_ALIAS = {
+  "AXL-POD":"AXI-POD",
+  "BU-4D":"B-U4D",
+  "D-O":"D-0",
+  "DJ R-3X":"DJ_R-3X",
+  "RIV-3T":"FUSION_UNKNOWN",
+  "LOW-MO":"FUSION_UNKNOWN",
+  "SRV-0":"FUSION_UNKNOWN"
+};
+function picFile(name){
+  return "img/" + (IMG_ALIAS[name] || assetName(name)) + ".png";
+}
 function picWrap(name,typ,rar){
-  const a = "img/" + assetName(name) + "_DEFAULT.png";
-  const b = "img/" + slug(name) + ".jpg";
-  return `<div class="pic"><img alt="${name}" src="${a}" onerror="if(this.dataset.n!=='1'){this.dataset.n='1';this.src='${b}';}else{this.style.display='none';this.nextElementSibling.style.display='block';}">${portrait(name,typ)}</div>`;
+  return `<div class="pic"><img alt="${name}" src="${picFile(name)}" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">${portrait(name,typ)}</div>`;
 }
 
 const openD = {};
