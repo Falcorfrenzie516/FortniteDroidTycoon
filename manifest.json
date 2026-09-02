@@ -1,7 +1,7 @@
 {
-  "name": "Pocket Droidex",
-  "short_name": "Pocket Droidex",
-  "description": "Collection tracker for Star Wars: Droid Tycoon",
+  "name": "Pocket Droid Tycoon Companion",
+  "short_name": "Pocket DTC",
+  "description": "Companion tracker for Star Wars: Droid Tycoon",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#0b1220",
