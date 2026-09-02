@@ -48,7 +48,8 @@
   header { position:sticky; top:0; z-index:20; background:linear-gradient(180deg,rgba(5,3,12,.82) 60%,rgba(5,3,12,.55)); border-bottom:1px solid var(--line); padding:12px 14px 10px; backdrop-filter:blur(8px); }
   main { position:relative; z-index:1; }
   h1 { margin:0; font-size:0; line-height:0; }
-  .brand { display:block; width:min(280px,72vw); height:auto; margin:0 auto 2px; }
+  h1.show { font-size:22px; line-height:1.1; text-align:center; font-family:Orbitron,sans-serif; letter-spacing:.12em; text-transform:uppercase; color:#f5d0fe; }
+  .brand { display:block; width:min(420px,92vw); height:auto; margin:0 auto 2px; border-radius:10px; }
   .sub { color:var(--muted); font-size:11px; margin-top:2px; text-align:center; font-family:Orbitron,sans-serif; letter-spacing:.16em; text-transform:uppercase; }
   .belts { display:grid; grid-template-columns:repeat(3,1fr); gap:7px; margin-top:10px; }
   .belt { background:var(--card); border:1px solid var(--line); border-radius:16px; padding:10px 6px; text-align:center; }
@@ -238,7 +239,7 @@
 <div class="planet p3"></div>
 <header>
   <h1>Pocket Droidex</h1>
-  <img class="brand" src="img/pocket-droidex.jpg" alt="Pocket Droidex" />
+  <img class="brand" src="img/pocket-droidex.jpg" alt="Star Wars Droid Tycoon" onerror="this.style.display='none';document.querySelector('h1').classList.add('show')" />
   <div class="sub">Profile: <span id="saveLabel">Main</span></div>
   <div class="belts">
     <div class="belt gal" id="beltGal"><b>--</b><span>Galactic</span></div>
