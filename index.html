@@ -221,6 +221,22 @@
   .pick-item.on { border-color:#c4b5fd; background:rgba(196,181,253,.16); color:#f5d0fe; }
   .grid { display:grid; grid-template-columns:1fr; gap:8px; }
   @media (min-width:720px){ .grid { grid-template-columns:1fr 1fr; } }
+  .mini-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(112px,1fr)); gap:8px; margin-top:8px; }
+  .mini-tile {
+    display:flex; flex-direction:column; align-items:flex-start; gap:6px;
+    background:rgba(12,10,24,.92); border:1px solid var(--line); border-radius:14px;
+    padding:8px; text-align:left; color:var(--ink); cursor:pointer;
+  }
+  .mini-tile .pic { width:48px; height:48px; }
+  .mini-name { font-family:Orbitron,sans-serif; font-size:11px; letter-spacing:.08em; text-transform:uppercase; }
+  .mini-meta { font-size:9px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); }
+  .card-pop {
+    position:fixed; inset:0; z-index:80; background:rgba(4,2,12,.72);
+    display:flex; align-items:flex-start; justify-content:center;
+    padding:18px 12px calc(24px + var(--safe)); overflow:auto;
+  }
+  .card-pop.hidden { display:none; }
+  .card-pop .pop-card { width:min(640px,100%); }
   .card { position:relative; overflow:hidden; background:rgba(12,10,24,.78); border:1px solid var(--line); border-radius:16px; padding:12px; }
   .card > i.fill { position:absolute; left:0; top:0; height:76px; bottom:auto; width:0; background:linear-gradient(90deg,#365314,#84cc16 70%,#d9f99d); opacity:.28; pointer-events:none; }
   details.drop > i.fill { display:none; }
@@ -1343,6 +1359,50 @@ function renderIconicCard(name,typ,ev,how,hideDone){
   let html = `<details class="card drop ${on?"done":""}"><summary><i class="fill" style="width:${on?100:0}%"></i><div class="top" style="flex:1">${picWrap(name,"Iconic","Iconic")}<div class="grow"><div class="name">${name.toUpperCase()}</div><div class="meta">${typ.toUpperCase()} · ${ev}</div></div><div class="pills"><label class="fl-pill ${fl?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${fl?"checked":""} onchange="state.i['${esc(name)}|fl']=this.checked;save();render();">Flawless</label><label class="fl-pill ${on?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${on?"checked":""} onchange="state.i['${esc(name)}']=this.checked;save();render();">Complete All</label></div></div><span class="chev">▸</span></summary><div class="drop-body"><div class="meta">${how}</div><div class="vars" style="margin-top:8px"><label class="chk ${base?"on":""}"><input type="checkbox" ${base?"checked":""} onchange="state.i['${esc(name)}|base']=!state.i['${esc(name)}|base'];save();render();">In base</label></div></div></details>`;
   return html;
 }
+let openPop = null;
+function openCardPop(kind,name){
+  openPop = {kind,name};
+  if (kind==="d") openD[name]=true;
+  if (kind==="f") openF[name]=true;
+  render();
+}
+function closeCardPop(){ openPop=null; render(); }
+function renderMiniTile(name,typ,rar,kind){
+  return `<button class="mini-tile" onclick="openCardPop('${kind}','${esc(name)}')">${picWrap(name,typ,rar)}<span class="mini-name">${name}</span><span class="mini-meta">${typ}</span></button>`;
+}
+function popInner(){
+  if (!openPop) return "";
+  const {kind,name} = openPop;
+  if (kind==="d"){
+    const d = DROIDS.find(x=>x[0]===name);
+    return d ? renderDroidCard(d[0],d[1],d[2],false) : "";
+  }
+  if (kind==="f"){
+    const d = FUSIONS.find(x=>x[0]===name);
+    return d ? renderFusionCard(d[0],d[1],d[2],d[3],false) : "";
+  }
+  if (kind==="i"){
+    const d = ICONICS.find(x=>x[0]===name);
+    return d ? renderIconicCard(d[0],d[1],d[2],d[3],false) : "";
+  }
+  return "";
+}
+function paintPop(){
+  let pop = document.getElementById("cardPop");
+  if (!pop){
+    pop = document.createElement("div");
+    pop.id = "cardPop";
+    document.body.appendChild(pop);
+  }
+  if (openPop){
+    pop.className = "card-pop";
+    pop.onclick = function(e){ if (e.target===pop) closeCardPop(); };
+    pop.innerHTML = `<div class="pop-card" onclick="event.stopPropagation()">${popInner()}</div>`;
+  } else {
+    pop.className = "card-pop hidden";
+    pop.innerHTML = "";
+  }
+}
 function render(){
   const app = document.getElementById("app");
   let html = "";
@@ -1370,6 +1430,7 @@ function render(){
     }
     if (!shown) html += `<div class="empty">No droids match “${document.getElementById("q").value.trim()}”.</div>`;
     app.innerHTML = html;
+    paintPop();
     updateStats();
     updateSaveLabel();
     return;
@@ -1497,15 +1558,41 @@ function render(){
     const doneD = DROIDS.filter(([n])=>droidDone(n));
     const doneF = FUSIONS.filter(([n])=>fuseDone(n));
     const doneI = ICONICS.filter(([n])=>iconDone(n));
-    if (doneD.length){ html += `<div class="rarity-h">Regular</div>`; doneD.forEach(([n,t,r]) => { html += renderDroidCard(n,t,r,false); shown++; }); }
-    if (doneF.length){ html += `<div class="rarity-h Fusion">Fusion</div>`; doneF.forEach(([n,r,t,ings]) => { html += renderFusionCard(n,r,t,ings,false); shown++; }); }
+    const order = ["Common","Rare","Epic","Legendary","Mythic"];
+    order.forEach(r => {
+      const full = doneD.filter(([n,t,rr]) => rr===r && !has(n,"Flawless"));
+      const mini = doneD.filter(([n,t,rr]) => rr===r && has(n,"Flawless"));
+      const fFull = doneF.filter(([n,rr]) => rr===r && !fuseHas(n,"Flawless"));
+      const fMini = doneF.filter(([n,rr]) => rr===r && fuseHas(n,"Flawless"));
+      if (!full.length && !mini.length && !fFull.length && !fMini.length) return;
+      html += `<div class="rarity-h ${r}">${r}</div>`;
+      if (full.length || fFull.length){
+        html += `<div class="grid">`;
+        full.forEach(([n,t]) => { html += renderDroidCard(n,t,r,false); shown++; });
+        fFull.forEach(([n,rr,ty,ings]) => { html += renderFusionCard(n,rr,ty,ings,false); shown++; });
+        html += `</div>`;
+      }
+      if (mini.length || fMini.length){
+        html += `<div class="mini-grid">`;
+        mini.forEach(([n,ty]) => { html += renderMiniTile(n,ty,r,"d"); shown++; });
+        fMini.forEach(([n,rr,ty]) => { html += renderMiniTile(n,ty,rr,"f"); shown++; });
+        html += `</div>`;
+      }
+    });
     if (doneI.length){
+      const iFull = doneI.filter(([n]) => !(state.i && state.i[n+"|fl"]));
+      const iMini = doneI.filter(([n]) => state.i && state.i[n+"|fl"]);
       html += `<div class="rarity-h Iconic">Iconic</div>`;
-      doneI.forEach(([n,t,ev,how]) => {
-        if (!showCard(n,t,ev)) return;
-        html += `<article class="card done"><div class="top">${picWrap(n,"Iconic","Iconic")}<div class="grow"><div class="name">${n}</div><div class="meta">${t} · ${ev}</div></div><span class="badge Iconic">Iconic</span></div><div class="vars"><label class="chk on"><input type="checkbox" checked onchange="state.i['${esc(n)}']=false;save();render();">Owned</label></div></article>`;
-        shown++;
-      });
+      if (iFull.length){
+        html += `<div class="grid">`;
+        iFull.forEach(([n,t,ev,how]) => { html += renderIconicCard(n,t,ev,how,false); shown++; });
+        html += `</div>`;
+      }
+      if (iMini.length){
+        html += `<div class="mini-grid">`;
+        iMini.forEach(([n,t]) => { html += renderMiniTile(n,t,"Iconic","i"); shown++; });
+        html += `</div>`;
+      }
     }
     if (!shown) html += `<div class="empty">Nothing completed yet. Finish all 7 variants on a droid, or own an iconic.</div>`;
   }
@@ -1541,6 +1628,7 @@ function render(){
     });
   }
   app.innerHTML = html;
+  paintPop();
   document.body.dataset.tab = tab;
   updateStats();
   updateSaveLabel();
