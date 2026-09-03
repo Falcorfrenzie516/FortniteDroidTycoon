@@ -152,8 +152,8 @@
   }
   .tabs { display:flex; flex-direction:column; gap:4px; margin-top:10px; }
   .tabrow { display:grid; gap:4px; }
-  .tabrow.row1 { grid-template-columns:repeat(5,1fr); }
-  .tabrow.row2 { grid-template-columns:repeat(4,1fr); }
+  .tabrow.row1 { grid-template-columns:repeat(4,1fr); }
+  .tabrow.row2 { grid-template-columns:repeat(3,1fr); }
   .tabs button { position:relative; overflow:hidden; background:rgba(12,10,24,.78); border:1px solid var(--line); border-radius:14px; color:var(--muted); padding:9px 2px; font-size:10px; font-weight:700; font-family:Orbitron,sans-serif; letter-spacing:.08em; text-transform:uppercase; }
   .tabs button .fill { position:absolute; left:0; top:0; bottom:0; width:0; opacity:.42; pointer-events:none; transition:width .25s ease; }
   .tabs button span { position:relative; z-index:1; }
@@ -192,6 +192,7 @@
   .floor.worker { border-color:rgba(74,222,128,.35); }
   .floor.astromech { border-color:rgba(96,165,250,.4); }
   .floor.battle { border-color:rgba(251,113,133,.4); }
+  .floor.lounge { border-color:rgba(251,191,36,.4); }
   .pads { display:grid; grid-template-columns:repeat(auto-fill,minmax(58px,1fr)); gap:8px; justify-items:center; }
   .pad {
     width:58px; height:72px; padding:0; display:flex; flex-direction:column; align-items:center; justify-content:flex-start;
@@ -203,6 +204,7 @@
   .pad.filled { border-style:solid; border-color:#a78bfa; background:rgba(20,12,40,.85); }
   .pad.match { border-color:#4ade80; }
   .pad.offtype { border-color:#fbbf24; }
+  .pad.lounge { border-color:#ca8a04; }
   .deck-bar { display:flex; gap:6px; flex-wrap:wrap; margin:0 0 10px; align-items:center; }
   .deck-bar button { background:var(--card); color:var(--muted); border:1px solid var(--line); border-radius:14px; padding:7px 10px; font-size:10px; font-weight:700; font-family:Orbitron,sans-serif; letter-spacing:.1em; text-transform:uppercase; }
   .deck-bar button.on { color:#0b1220; background:var(--gold); border-color:var(--gold); }
@@ -327,13 +329,11 @@
   <nav class="tabs">
     <div class="tabrow row1">
       <button class="on" data-tab="droidex"><i class="fill" id="tabFill-droidex"></i><span>Droidex</span></button>
-      <button data-tab="fusion"><i class="fill" id="tabFill-fusion"></i><span>Fusion</span></button>
       <button data-tab="decks"><i class="fill" id="tabFill-decks"></i><span>Decks</span></button>
       <button data-tab="srb"><i class="fill" id="tabFill-srb"></i><span>SRB</span></button>
       <button data-tab="done"><i class="fill" id="tabFill-done"></i><span>Done</span></button>
     </div>
     <div class="tabrow row2">
-      <button data-tab="iconics"><i class="fill" id="tabFill-iconics"></i><span>Iconic</span></button>
       <button data-tab="cosmetics"><i class="fill" id="tabFill-cosmetics"></i><span>Paint</span></button>
       <button data-tab="saves"><i class="fill" id="tabFill-saves"></i><span>Profiles</span></button>
       <button data-tab="alarms"><i class="fill" id="tabFill-alarms"></i><span>Alarms</span></button>
@@ -671,12 +671,14 @@ const SAVES_KEY = "droidex-saves";
 function blankState(cycle){ return {d:{},f:{},i:{},c:{},rb:{cycle:cycle||1},decks:{active:0,list:[blankDeck("Deck 1")]}}; }
 function blankDeck(name){ return {name:name||"Deck",mult:1,bonus:true,slots:[]}; }
 function allDeckNames(){
-  return DROIDS.map(d=>d[0]).concat(FUSIONS.map(d=>d[0]));
+  return DROIDS.map(d=>d[0]).concat(FUSIONS.map(d=>d[0])).concat(ICONICS.map(d=>d[0]));
 }
+function isIconic(name){ return ICONICS.some(d => d[0]===name); }
 function ownedOptions(){
   const names = [];
   DROIDS.forEach(([n]) => { if (ownedTiers(n)) names.push(n); });
   FUSIONS.forEach(([n]) => { if (fuseTiers(n)) names.push(n); });
+  ICONICS.forEach(([n]) => { if (state.i && state.i[n]) names.push(n); });
   return names.length ? names : allDeckNames();
 }
 function collectionBonus(){
@@ -689,7 +691,8 @@ function collectionBonus(){
 const FLOORS = [
   {id:"worker", label:"Worker deck", kind:"Worker", count:11},
   {id:"astromech", label:"Astromech deck", kind:"Astromech", count:9},
-  {id:"battle", label:"Battle deck", kind:"Battle", count:5}
+  {id:"battle", label:"Battle deck", kind:"Battle", count:5},
+  {id:"lounge", label:"Lounge", kind:"Lounge", count:4}
 ];
 function padList(){
   const pads = [];
@@ -721,17 +724,27 @@ function padSlot(deck, id){
   return (deck.pads && deck.pads[id]) || null;
 }
 function slotCps(slot, kind){
-  if (!slot || !slot.name || !slot.variant) return 0;
-  const raw = rateOf(slot.name, slot.variant) * (Number(slot.mult)||1);
+  if (!slot || !slot.name) return 0;
+  if (isIconic(slot.name)) return 0;
+  const raw = rateOf(slot.name, slot.variant||"Basic") * (Number(slot.mult)||1);
   const match = kind && classOf(slot.name)===kind ? 1.1 : 1;
   return raw * match;
+}
+function iconicBoost(deck){
+  let n = 0;
+  PADS.forEach(p => {
+    const s = padSlot(deck,p.id);
+    if (s && s.name && isIconic(s.name)) n++;
+  });
+  return n;
 }
 function deckCps(deck){
   if (!deck) return 0;
   normalizeDeck(deck);
   const raw = PADS.reduce((a,p)=>a+slotCps(padSlot(deck,p.id), p.kind),0);
   const bonus = deck.bonus===false ? 1 : (1 + collectionBonus()/100);
-  return raw * (Number(deck.mult)||1) * bonus;
+  const icon = 1 + iconicBoost(deck)*0.15;
+  return raw * (Number(deck.mult)||1) * bonus * icon;
 }
 function activeDeck(){
   ensureDecks(state);
@@ -773,26 +786,33 @@ function openPad(id){
   html += `<select id="padName" class="deck-field">`;
   html += `<option value="">Empty pad</option>`;
   names.forEach(n => {
-    html += `<option value="${esc(n)}" ${n===cur.name?"selected":""}>${owned.has(n)?"● ":""}${n} · ${classOf(n)}</option>`;
+    html += `<option value="${esc(n)}" ${n===cur.name?"selected":""}>${owned.has(n)?"● ":""}${n} · ${isIconic(n)?"Iconic "+classOf(n):classOf(n)}</option>`;
   });
-  html += `</select><div class="meta" style="margin:10px 0 6px">Variant</div><select id="padVar" class="deck-field">`;
-  VARIANTS.forEach(v => {
-    html += `<option value="${v}" ${v===(cur.variant||"Basic")?"selected":""}>${v}</option>`;
-  });
-  html += `</select><div class="row" style="margin-top:12px"><button onclick="closeModal()">Cancel</button><button class="danger" onclick="setPad('${id}','','');closeModal()">Clear</button><button onclick="setPad('${id}',document.getElementById('padName').value,document.getElementById('padVar').value);closeModal()">Park</button></div></div>`;
+  html += `</select>`;
+  if (!isIconic(cur.name)) {
+    html += `<div class="meta" style="margin:10px 0 6px">Variant</div><select id="padVar" class="deck-field">`;
+    VARIANTS.forEach(v => {
+      html += `<option value="${v}" ${v===(cur.variant||"Basic")?"selected":""}>${v}</option>`;
+    });
+    html += `</select>`;
+  } else {
+    html += `<input id="padVar" type="hidden" value="Basic"><div class="meta" style="margin:10px 0 0">Iconic · +15% income when parked</div>`;
+  }
+  html += `<div class="row" style="margin-top:12px"><button onclick="closeModal()">Cancel</button><button class="danger" onclick="setPad('${id}','','');closeModal()">Clear</button><button onclick="setPad('${id}',document.getElementById('padName').value,document.getElementById('padVar').value);closeModal()">Park</button></div></div>`;
   box.innerHTML = html;
 }
 function renderDecks(){
   const deck = activeDeck();
   let parked = 0;
   PADS.forEach(p => { if (padSlot(deck,p.id) && padSlot(deck,p.id).name) parked++; });
-  let html = `<div class="hint">Mini base map — 11 worker, 9 astromech, 5 battle pads. Dotted pads are empty. Green border = parked on its own type (+10%). Gold border = off-type.</div>`;
+  let html = `<div class="hint">Mini base map — 11 worker, 9 astromech, 5 battle, 4 lounge. Lounge still earns credits/s but no +10% type bonus. Green = matching type. Gold = off-type.</div>`;
   html += `<div class="deck-bar">`;
   state.decks.list.forEach((d,i) => {
     html += `<button class="${i===state.decks.active?"on":""}" onclick="switchDeck(${i})">${d.name||("Deck "+(i+1))}</button>`;
   });
   html += `<button onclick="addDeck()">+ Deck</button></div>`;
-  html += `<article class="card deck-total"><b>${fmtRate(deckCps(deck))}</b><span>${parked}/25 parked · total credits / second</span></article>`;
+  const icons = iconicBoost(deck);
+  html += `<article class="card deck-total"><b>${fmtRate(deckCps(deck))}</b><span>${parked}/29 parked${icons?` · ${icons} iconic ×15%`:""} · total credits / second</span></article>`;
   html += `<article class="card"><div class="name">${deck.name||"Deck"}</div>`;
   html += `<div class="meta" style="margin:8px 0 6px">Deck name</div><input class="deck-field" value="${esc(deck.name||"")}" onchange="setDeckField('name',this.value)">`;
   html += `<div class="meta" style="margin:8px 0 6px">Deck multiplier (1 = none)</div><input class="deck-field" type="number" min="0" step="0.01" value="${deck.mult||1}" onchange="setDeckField('mult',this.value)">`;
@@ -804,10 +824,12 @@ function renderDecks(){
     slice.forEach(p => {
       const s = padSlot(deck,p.id);
       if (s && s.name){
-        const match = classOf(s.name)===p.kind;
-        html += `<button class="pad filled ${match?"match":"offtype"}" onclick="openPad('${p.id}')">${picWrap(s.name,p.kind,"Common")}<span class="pad-lab">${s.name}</span></button>`;
+        const typed = p.kind==="Worker"||p.kind==="Astromech"||p.kind==="Battle";
+        const match = typed && classOf(s.name)===p.kind;
+        const tone = !typed ? "lounge" : (match ? "match" : "offtype");
+        html += `<button class="pad filled ${tone}" onclick="openPad('${p.id}')">${picWrap(s.name,p.kind,isIconic(s.name)?"Iconic":"Common")}<span class="pad-lab">${isIconic(s.name)?"★ "+s.name:s.name}</span></button>`;
       } else {
-        html += `<button class="pad empty" onclick="openPad('${p.id}')"><div class="pic">+</div><span class="pad-lab">${p.kind[0]}${p.n}</span></button>`;
+        html += `<button class="pad empty ${p.kind==="Lounge"?"lounge":""}" onclick="openPad('${p.id}')"><div class="pic">+</div><span class="pad-lab">${p.kind==="Lounge"?"L"+p.n:p.kind[0]+p.n}</span></button>`;
       }
     });
     html += `</div></section>`;
@@ -1024,6 +1046,14 @@ function toggleRebirth(key,on){
   if (on) rebirthNeeds(key).forEach(([n,t]) => { state.d[dKey(n,t)] = true; });
   save(); render();
 }
+function completeRebirthList(list,on){
+  (list||[]).forEach(rb => {
+    const key = "c"+srbCycle+"r"+rb;
+    state.rb[key] = !!on;
+    if (on) rebirthNeeds(key).forEach(([n,t]) => { state.d[dKey(n,t)] = true; });
+  });
+  save(); render();
+}
 function ownedTiers(n){ return VARIANTS.filter(v => has(n,v)).length; }
 function fuseHas(n,v){ return !!state.f[n+"|"+v]; }
 function fuseIng(n,v,i){ return !!state.f[n+"|"+v+"|i"+i]; }
@@ -1038,7 +1068,25 @@ function bestTier(n){
   VARIANTS.forEach(v => { if (has(n,v) || fuseHas(n,v)) best = Math.max(best, TIER_I[v]); });
   return best;
 }
-function meets(n, min){ return bestTier(n) >= TIER_I[min]; }
+function parkedBest(n){
+  try {
+    const deck = activeDeck();
+    let best = -1;
+    PADS.forEach(p => {
+      const s = padSlot(deck, p.id);
+      if (!s || s.name !== n) return;
+      if (isIconic(n)) { best = Math.max(best, 0); return; }
+      const i = TIER_I[s.variant||"Basic"];
+      if (typeof i === "number") best = Math.max(best, i);
+    });
+    return best;
+  } catch(e){ return -1; }
+}
+function meets(n, min){
+  const need = TIER_I[min];
+  if (need === undefined) return parkedBest(n) >= 0;
+  return parkedBest(n) >= need;
+}
 
 function hash(s){ let h=0; for(let i=0;i<s.length;i++) h=s.charCodeAt(i)+((h<<5)-h); return Math.abs(h); }
 const SHORT = {Basic:"DEF",Gold:"GLD",Diamond:"DIA",Rainbow:"RBW",Beskar:"BSK",Galactic:"GLC",Stellar:"STL"};
@@ -1151,12 +1199,12 @@ function renderDroidCard(name,typ,rar,hideDone){
   const opened = openD[name] ? "open" : "";
   const fl = has(name,"Flawless");
   const allOn = tiers===7;
-  let html = `<details class="card drop ${tiers===7?"done":""} ${rarTheme(rar)}" ${opened} ontoggle="openD['${esc(name)}']=this.open"><summary><i class="fill" style="width:${(tiers/7*100).toFixed(1)}%"></i><div class="top" style="flex:1">${picWrap(name,typ,rar)}<div class="grow"><div class="name">${name.toUpperCase()}</div><div class="meta">${typ.toUpperCase()} · ${tiers}/7</div></div><label class="fl-pill ${fl?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${fl?"checked":""} onchange="toggle('${esc(name)}','Flawless')">Flawless</label></div><span class="chev">▸</span></summary><div class="drop-body"><div class="vars">`;
+  let html = `<details class="card drop ${tiers===7?"done":""} ${rarTheme(rar)}" ${opened} ontoggle="openD['${esc(name)}']=this.open"><summary><i class="fill" style="width:${(tiers/7*100).toFixed(1)}%"></i><div class="top" style="flex:1">${picWrap(name,typ,rar)}<div class="grow"><div class="name">${name.toUpperCase()}</div><div class="meta">${typ.toUpperCase()} · ${tiers}/7</div></div><label class="fl-pill ${fl?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${fl?"checked":""} onchange="toggle('${esc(name)}','Flawless')">Flawless</label><label class="fl-pill ${allOn?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${allOn?"checked":""} onchange="completeAll('${esc(name)}')">Complete All</label></div><span class="chev">▸</span></summary><div class="drop-body"><div class="vars">`;
   VARIANTS.forEach(v => {
     const on = has(name,v);
     html += `<label class="chk ${on?"on":""} ${vTheme(v)}"><input type="checkbox" ${on?"checked":""} onchange="toggle('${esc(name)}','${v}')">${SHORT[v]}</label>`;
   });
-  html += `</div><div class="vars" style="grid-template-columns:1fr;margin-top:6px"><label class="chk ${allOn?"on":""}" style="flex-direction:row;min-height:0;padding:8px;text-transform:none;letter-spacing:0;font-size:12px"><input type="checkbox" ${allOn?"checked":""} onchange="completeAll('${esc(name)}')">Complete All</label></div></div></details>`;
+  html += `</div></div></details>`;
   return html;
 }
 
@@ -1189,6 +1237,15 @@ function renderFusionCard(name,rar,typ,ings,hideDone){
   return html;
 }
 
+function renderIconicCard(name,typ,ev,how,hideDone){
+  if (hideDone && iconDone(name)) return "";
+  if (!showCard(name,typ,ev+" "+how+" iconic")) return "";
+  const on = iconOwned(name);
+  const fl = !!(state.i && state.i[name+"|fl"]);
+  const base = !!(state.i && state.i[name+"|base"]);
+  let html = `<details class="card drop ${on?"done":""}"><summary><i class="fill" style="width:${on?100:0}%"></i><div class="top" style="flex:1">${picWrap(name,"Iconic","Iconic")}<div class="grow"><div class="name">${name.toUpperCase()}</div><div class="meta">${typ.toUpperCase()} · ${ev}</div></div><label class="fl-pill ${fl?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${fl?"checked":""} onchange="state.i['${esc(name)}|fl']=this.checked;save();render();">Flawless</label><label class="fl-pill ${on?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${on?"checked":""} onchange="state.i['${esc(name)}']=this.checked;save();render();">Complete All</label><span class="badge Iconic">Iconic</span></div><span class="chev">▸</span></summary><div class="drop-body"><div class="meta">${how}</div><div class="vars" style="margin-top:8px"><label class="chk ${base?"on":""}"><input type="checkbox" ${base?"checked":""} onchange="state.i['${esc(name)}|base']=!state.i['${esc(name)}|base'];save();render();">In base</label></div></div></details>`;
+  return html;
+}
 function render(){
   const app = document.getElementById("app");
   let html = "";
@@ -1220,14 +1277,26 @@ function render(){
     updateSaveLabel();
     return;
   }
+  if (tab==="fusion" || tab==="iconics") tab = "droidex";
   if (tab==="droidex") {
-    let last="", shown=0;
-    DROIDS.forEach(([n,t,r]) => {
-      if (droidDone(n) || !showCard(n,t,r)) return;
-      if (r!==last) { if (last) html += `</div>`; html += `<div class="rarity-h ${r}">${r}</div><div class="grid">`; last=r; }
-      html += renderDroidCard(n,t,r,true); shown++;
+    html += `<div class="hint">Regular, fusion, and iconic names live here. Fusion variants still need the same-tier ingredients inside the card.</div>`;
+    const order = ["Common","Rare","Epic","Legendary","Mythic"];
+    let shown=0;
+    order.forEach(r => {
+      const regs = DROIDS.filter(([n,t,rr]) => rr===r && !droidDone(n) && showCard(n,t,r));
+      const fuses = FUSIONS.filter(([n,rr,t,ings]) => rr===r && !fuseDone(n) && showCard(n,t,ings.join(" ")+" fusion"));
+      if (!regs.length && !fuses.length) return;
+      html += `<div class="rarity-h ${r}">${r}</div><div class="grid">`;
+      regs.forEach(([n,t]) => { html += renderDroidCard(n,t,r,true); shown++; });
+      fuses.forEach(([n,rr,t,ings]) => { html += renderFusionCard(n,rr,t,ings,true); shown++; });
+      html += `</div>`;
     });
-    if (last) html += `</div>`;
+    const icons = ICONICS.filter(([n,t,ev,how]) => !iconDone(n) && showCard(n,t,ev+" "+how+" iconic"));
+    if (icons.length){
+      html += `<div class="rarity-h Iconic">Iconic</div><div class="grid">`;
+      icons.forEach(([n,t,ev,how]) => { html += renderIconicCard(n,t,ev,how,true); shown++; });
+      html += `</div>`;
+    }
     if (!shown) html += `<div class="empty">Nothing left here. Check Done, or clear search.</div>`;
   }
   if (tab==="decks") {
@@ -1245,7 +1314,7 @@ function render(){
   }
   if (tab==="srb") {
     const cyc = CYCLES[srbCycle] || CYCLES[1];
-    html += `<div class="hint">Tap a rebirth to see the droids it wants. Super Rebirth unlocks at <b>Rebirth 12</b> plus one Rainbow Legendary. Paths loop <b>1 → 2 → 3 → 4 → 5 → 1</b>.</div>`;
+    html += `<div class="hint">Tap a rebirth to see the droids it wants. A row only checks off if that droid is <b>parked on Decks or Lounge</b> at that variant or better — owning it in the Droidex is not enough. Super Rebirth unlocks at <b>Rebirth 12</b> plus one Rainbow Legendary. Paths loop <b>1 → 2 → 3 → 4 → 5 → 1</b>.</div>`;
     html += `<div class="cycles">`;
     [1,2,3,4,5].forEach(n => {
       html += `<button class="${srbCycle===n?"on":""}" onclick="srbCycle=${n};state.rb.cycle=${n};save();render();">Cycle ${n}</button>`;
@@ -1268,7 +1337,8 @@ function render(){
       if (!slice.length) return;
       const cleared = slice.filter(rb => state.rb["c"+srbCycle+"r"+rb]).length;
       const gopen = openG[g.id+"-"+srbCycle] ? "open" : (qq ? "open" : "");
-      html += `<details class="card drop" ${gopen} ontoggle="openG['${g.id}-${srbCycle}']=this.open"><i class="fill" style="width:${(slice.length?cleared/slice.length*100:0).toFixed(1)}%;background:linear-gradient(90deg,#9a3412,#fb923c 70%,#fed7aa)"></i><summary><div class="grow"><div class="name">${g.title}</div><div class="meta">${cleared}/${slice.length} cleared · Cycle ${srbCycle}</div></div><span class="chev">▸</span></summary><div class="drop-body">`;
+      const allOn = slice.length && cleared===slice.length;
+      html += `<details class="card drop" ${gopen} ontoggle="openG['${g.id}-${srbCycle}']=this.open"><i class="fill" style="width:${(slice.length?cleared/slice.length*100:0).toFixed(1)}%;background:linear-gradient(90deg,#9a3412,#fb923c 70%,#fed7aa)"></i><summary><label class="fl-pill ${allOn?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${allOn?"checked":""} onchange="completeRebirthList([${slice.join(',')}],this.checked)"></label><div class="grow"><div class="name">${g.title}</div><div class="meta">${cleared}/${slice.length} cleared · Cycle ${srbCycle}</div></div><span class="chev">▸</span></summary><div class="drop-body">`;
       slice.forEach(rb => {
         const need = cyc[rb-1];
         const key = "c"+srbCycle+"r"+rb;
@@ -1280,7 +1350,8 @@ function render(){
         html += `<details class="tier ${done?"done":""}" ${ropen} ontoggle="openR['${key}']=this.open"><i class="fill" style="width:${done?100:(need.length?have/need.length*100:0)}%"></i><summary><label class="fl-pill ${done?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${done?"checked":""} onchange="toggleRebirth('${key}',this.checked)"></label><span>Rebirth ${rb}</span><span style="color:var(--muted);font-weight:600;letter-spacing:0;text-transform:none">${have}/${need.length}</span><span class="rb-cost">${CREDITS[rb-1]||""}${nova}</span>${ready&&!done?'<span class="ready" style="margin:0">READY</span>':''}${done?'<span style="color:var(--green);font-size:10px">DONE</span>':''}${rb>=12?'<span class="srb">SRB</span>':''}<span class="chev">▸</span></summary><div class="ings">`;
         need.forEach(([n,t]) => {
           const ok = meets(n,t);
-          html += `<label class="chk ${ok?"on":""} ${vTheme(t)}">${ok?"✓":"○"} ${vName(t).toUpperCase()} ${n.toUpperCase()}</label>`;
+          const owned = bestTier(n) >= TIER_I[t];
+          html += `<label class="chk ${ok?"on":""} ${vTheme(t)}">${ok?"✓":"○"} ${vName(t).toUpperCase()} ${n.toUpperCase()}${ok?"":owned?" · owned, not parked":""}</label>`;
         });
         html += `</div></details>`;
       });
