@@ -1,0 +1,44 @@
+{
+  "updated": "2026-09-03T07:00:00-04:00",
+  "source": "FOAD patch notes",
+  "slots": {
+    "worker": 11,
+    "astromech": 9,
+    "battle": 5,
+    "firing": 6,
+    "lounge": 13,
+    "companion": 2,
+    "fuse1": 3,
+    "chamber1": 1,
+    "fuse2": 3,
+    "chamber2": 1
+  },
+  "notes": [
+    {
+      "ver": "1.28",
+      "date": "2026-08-29",
+      "items": [
+        "D-O iconic event",
+        "Mega Crate mini event every Thursday",
+        "Droid menu supports 2 companions"
+      ]
+    },
+    {
+      "ver": "1.27",
+      "date": "2026-08-22",
+      "items": [
+        "Droid Fusion lab: 3 pads + chamber",
+        "Second fusion tank behind Nova / V-Bucks"
+      ]
+    },
+    {
+      "ver": "1.26",
+      "date": "2026-08-15",
+      "items": [
+        "Stellar variant",
+        "Rebirth 31–35",
+        "5th Super Rebirth cycle"
+      ]
+    }
+  ]
+}

@@ -402,7 +402,7 @@
 <div id="alarmToast"></div>
 <script>
 const VARIANTS = ["Basic","Gold","Diamond","Rainbow","Beskar","Galactic","Stellar"];
-const DROIDS = [
+let DROIDS = [
   ["Mouse","Worker","Common"],["Pit","Worker","Common"],["Gonk","Worker","Common"],
   ["CB","Astromech","Common"],["R3","Astromech","Common"],["R5","Astromech","Common"],["R8","Astromech","Common"],
   ["Imperial Probe","Battle","Common"],["B1 Battle","Battle","Common"],["DRK-1 Probe","Battle","Common"],["ID10","Battle","Common"],
@@ -422,7 +422,7 @@ const DROIDS = [
   ["Loadlifter","Worker","Mythic"],["DRFT-R","Astromech","Mythic"],["MO-TRAK","Astromech","Mythic"],
   ["TRI-TEK","Astromech","Mythic"],["CYCLENS","Astromech","Mythic"],["KX","Battle","Mythic"],["IG","Battle","Mythic"]
 ];
-const FUSIONS = [
+let FUSIONS = [
   ["WHL-EX","Rare","Worker",["Mouse","Mouse","ARG"]],
   ["ZRO-TEC","Rare","Astromech",["ID10","ID10","2BB"]],
   ["BTL-R","Rare","Battle",["B1 Battle","R9","BDX Explorer"]],
@@ -441,7 +441,7 @@ const FUSIONS = [
   ["SRV-0","Mythic","Battle",["RIC-1200","B1 Heavy","B1 Heavy"]],
   ["X-ONK","Mythic","Battle",["KX","KX","Gonk"]]
 ];
-const RATE = {
+let RATE = {
   "Gonk":[4,8,16,32,48,96,128],"Mouse":[2,4,8,16,24,48,64],"Pit":[2,4,8,16,24,48,64],
   "R8":[4,8,16,32,48,96,128],"CB":[3,6,12,24,36,72,96],"R3":[3,6,12,24,36,72,96],"R5":[3,6,12,24,36,72,96],
   "Imperial Probe":[6,12,24,48,72,144,192],"B1 Battle":[5,10,20,40,60,120,160],"ID10":[4,8,16,32,48,96,128],"DRK-1 Probe":[3,6,12,24,36,72,96],
@@ -504,7 +504,7 @@ function fmtNum(n){
 }
 function fmtRate(n){ return fmtNum(n)+"/s"; }
 
-const ICONICS = [
+let ICONICS = [
   ["BB-8","Astromech","BB-8 Event","Log in / finish the BB-8 event track"],
   ["R2-D2","Astromech","R2-D2 Event","Collect Data Chips during the event"],
   ["C-3PO","Worker","C-3PO Event","Collect Scrap Points during the event"],
@@ -754,7 +754,7 @@ function collectionBonus(){
   ICONICS.forEach(([nm]) => { if (state.i && state.i[nm]) n++; });
   return n;
 }
-const FLOORS = [
+let FLOORS = [
   {id:"worker", label:"Worker deck", kind:"Worker", count:11},
   {id:"astromech", label:"Astromech deck", kind:"Astromech", count:9},
   {id:"battle", label:"Battle deck", kind:"Battle", count:5},
@@ -779,7 +779,46 @@ function padList(){
   });
   return pads;
 }
-const PADS = padList();
+let PADS = padList();
+const PATCH_KEY = "droidex-patches-cache";
+function rebuildPads(){ PADS = padList(); }
+function applyPatches(pack){
+  if (!pack) return;
+  if (pack.slots){
+    FLOORS.forEach(f => {
+      if (pack.slots[f.id] != null) f.count = Number(pack.slots[f.id]);
+    });
+    rebuildPads();
+  }
+  if (Array.isArray(pack.notes)) state._patchNotes = pack.notes;
+  if (pack.updated) state._patchUpdated = pack.updated;
+}
+function loadCachedPatches(){
+  try {
+    const raw = localStorage.getItem(PATCH_KEY);
+    if (raw) applyPatches(JSON.parse(raw));
+  } catch(e){}
+}
+async function scanPatches(silent){
+  let pack = null;
+  try {
+    const res = await fetch("patches.json?t="+Date.now(), {cache:"no-store"});
+    if (res.ok) pack = await res.json();
+  } catch(e){}
+  if (!pack){
+    if (!silent) alert("Could not refresh patches.json. Keep it next to index.html on GitHub Pages.");
+    return false;
+  }
+  applyPatches(pack);
+  try { localStorage.setItem(PATCH_KEY, JSON.stringify(pack)); } catch(e){}
+  if (!silent){
+    const latest = (pack.notes&&pack.notes[0]) ? ("Latest: v"+pack.notes[0].ver) : "Slots refreshed";
+    alert(latest);
+    render();
+  } else render();
+  return true;
+}
+loadCachedPatches();
 function classOf(name){
   const d = DROIDS.find(x=>x[0]===name);
   if (d) return d[1];
@@ -790,6 +829,73 @@ function classOf(name){
   return "";
 }
 const RARITY_RANK = {Common:0,Rare:1,Epic:2,Legendary:3,Mythic:4,Iconic:5,Fusion:2};
+const REG_KEY = "droidex-registry-cache";
+const DEFAULT_RATE = [2,4,8,16,24,48,64];
+function knownName(n){
+  return DROIDS.some(x=>x[0]===n) || FUSIONS.some(x=>x[0]===n) || ICONICS.some(x=>x[0]===n);
+}
+function addDroidEntry(name, typ, rarity){
+  if (!name || knownName(name)) return false;
+  typ = typ||"Worker";
+  rarity = rarity||"Common";
+  DROIDS.push([name, typ, rarity]);
+  if (!RATE[name]) RATE[name] = DEFAULT_RATE.slice();
+  return true;
+}
+function addFusionEntry(name, rarity, typ, recipe){
+  if (!name || knownName(name)) return false;
+  FUSIONS.push([name, rarity||"Rare", typ||"Worker", recipe||["",""," "]]);
+  if (!RATE[name]) RATE[name] = DEFAULT_RATE.slice();
+  return true;
+}
+function addIconicEntry(name, typ, ev, how){
+  if (!name || knownName(name)) return false;
+  ICONICS.push([name, typ||"Worker", ev||"Event", how||"Limited event iconic"]);
+  return true;
+}
+function applyRegistry(pack){
+  if (!pack) return {added:[]};
+  const added = [];
+  (pack.droids||[]).forEach(d => {
+    const name=d.name||d[0], typ=d.type||d[1], rar=d.rarity||d[2];
+    if (addDroidEntry(name,typ,rar)) added.push(name+" ("+rar+")");
+  });
+  (pack.fusions||[]).forEach(d => {
+    const name=d.name||d[0];
+    if (addFusionEntry(name, d.rarity||d[1], d.type||d[2], d.recipe||d[3])) added.push(name+" (Fusion)");
+  });
+  (pack.iconics||[]).forEach(d => {
+    const name=d.name||d[0];
+    if (addIconicEntry(name, d.type||d[1], d.event||d[2], d.how||d[3])) added.push(name+" (Iconic)");
+  });
+  if (pack.updated) state._regUpdated = pack.updated;
+  return {added};
+}
+function loadCachedRegistry(){
+  try {
+    const raw = localStorage.getItem(REG_KEY);
+    if (raw) applyRegistry(JSON.parse(raw));
+  } catch(e){}
+}
+async function scanRegistry(silent){
+  let pack = null;
+  try {
+    const res = await fetch("registry.json?t="+Date.now(), {cache:"no-store"});
+    if (res.ok) pack = await res.json();
+  } catch(e){}
+  if (!pack){
+    if (!silent) alert("Could not refresh registry.json. Keep it next to index.html on GitHub Pages.");
+    return false;
+  }
+  const {added} = applyRegistry(pack);
+  try { localStorage.setItem(REG_KEY, JSON.stringify(pack)); } catch(e){}
+  if (!silent){
+    alert(added.length ? ("Added: "+added.join(", ")) : "No new droids, iconics, or rarities.");
+    render();
+  } else if (added.length) render();
+  return true;
+}
+loadCachedRegistry();
 function rarityOf(name){
   const d = DROIDS.find(x=>x[0]===name);
   if (d) return d[2];
@@ -1162,6 +1268,16 @@ function updateSaveLabel(){
 }
 function savePanel(){
   let html = `<div class="hint">Each profile is a separate checklist. Download a file to keep a copy. Load a file to come back to that point.</div>`;
+  html += `<article class="card"><div class="name">Scan patch notes</div><div class="meta" style="margin:6px 0 8px">Reads FOAD patch notes for slot changes (firing range, lounge, fusion tanks, companions) and applies new pad counts on Base.</div><div class="act"><button onclick="scanPatches(false)">Scan patch notes</button></div><div class="meta">${state._patchUpdated?("Patches "+state._patchUpdated.replace("T"," ").slice(0,16)):""}</div>`;
+  if (state._patchNotes && state._patchNotes.length){
+    html += `<div class="meta" style="margin-top:8px">`;
+    state._patchNotes.slice(0,4).forEach(n => {
+      html += `<div><b>v${n.ver}</b> · ${n.date||""} · ${(n.items||[]).join(" · ")}</div>`;
+    });
+    html += `</div>`;
+  }
+  html += `</article>`;
+  html += `<article class="card"><div class="name">Scan new droids</div><div class="meta" style="margin:6px 0 8px">Pulls registry.json (updated daily from FOAD / wiki). New names land in the right rarity, fusion, or iconic list with a placeholder portrait until you drop a sprite in img/.</div><div class="act"><button onclick="scanRegistry(false)">Scan variants · iconics · rarity</button></div><div class="meta">${state._regUpdated?("Registry "+state._regUpdated.replace("T"," ").slice(0,16)):""}</div></article>`;
   html += `<article class="card"><div class="name">Rebirth highlight</div><div class="meta" style="margin:6px 0 8px">Cycle plus how many unfinished rebirths ahead to mark on Base. Neon blue = parked at the needed variant. Orange = parked but too low.</div>`;
   html += `<div class="meta" style="margin:8px 0 6px">Current cycle</div><select class="deck-field" onchange="setRbSetting('cycle',this.value)">`;
   [1,2,3,4,5].forEach(n => { html += `<option value="${n}" ${srbCycle===n?"selected":""}>Cycle ${n}</option>`; });
@@ -2243,7 +2359,9 @@ function tickBelts(){
 }
 tickBelts();
 setInterval(tickBelts, 1000);
-scanAnnouncedEvents(true).then(ok => { if (ok) { /* lists refreshed */ tickBelts(); if (tab==="alarms") render(); } });
+scanAnnouncedEvents(true).then(ok => { if (ok) { tickBelts(); if (tab==="alarms") render(); } });
+scanRegistry(true);
+scanPatches(true);
 (function spaceBG(){
   const c = document.getElementById("space");
   if (!c || !c.getContext) return;
