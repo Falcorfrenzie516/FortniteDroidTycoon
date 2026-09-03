@@ -209,6 +209,13 @@
   .deck-bar button { background:var(--card); color:var(--muted); border:1px solid var(--line); border-radius:14px; padding:7px 10px; font-size:10px; font-weight:700; font-family:Orbitron,sans-serif; letter-spacing:.1em; text-transform:uppercase; }
   .deck-bar button.on { color:#0b1220; background:var(--gold); border-color:var(--gold); }
   .xbtn { background:#3b1020; color:#fb7185; border:1px solid #7f1d3a; border-radius:12px; padding:8px 10px; font-size:11px; font-weight:800; }
+  .pick-grid { display:grid; grid-template-columns:1fr; gap:10px; margin-top:8px; }
+  @media (min-width:720px){ .pick-grid { grid-template-columns:1fr 1fr 1fr; } }
+  .pick-col { background:rgba(8,6,18,.7); border:1px dashed rgba(196,181,253,.3); border-radius:14px; padding:8px; }
+  .pick-col h3 { margin:0 0 6px; font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--gold2); font-family:Orbitron,sans-serif; }
+  .pick-list { max-height:160px; overflow-y:auto; display:flex; flex-direction:column; gap:4px; margin-top:6px; }
+  .pick-item { text-align:left; background:#100d22; color:var(--ink); border:1px solid var(--line); border-radius:10px; padding:7px 8px; font-size:11px; font-family:Orbitron,sans-serif; letter-spacing:.04em; }
+  .pick-item.on { border-color:#c4b5fd; background:rgba(196,181,253,.16); color:#f5d0fe; }
   .grid { display:grid; grid-template-columns:1fr; gap:8px; }
   @media (min-width:720px){ .grid { grid-template-columns:1fr 1fr; } }
   .card { position:relative; overflow:hidden; background:rgba(12,10,24,.78); border:1px solid var(--line); border-radius:16px; padding:12px; }
@@ -777,32 +784,65 @@ function setPad(id, name, variant){
   else d.pads[id] = {name, variant: variant||"Basic", mult:1};
   save(); render();
 }
+function namesOfType(kind){
+  return allDeckNames().filter(n => classOf(n)===kind);
+}
+function filterPick(kind, q){
+  const owned = new Set(ownedOptions());
+  const box = document.getElementById("pick-"+kind);
+  if (!box) return;
+  const qq = String(q||"").trim().toLowerCase();
+  const hits = namesOfType(kind).filter(n => !qq || n.toLowerCase().includes(qq));
+  box.innerHTML = hits.length ? hits.map(n => {
+    const on = window._padPick===n ? "on" : "";
+    return `<button type="button" class="pick-item ${on}" onclick="choosePadName('${esc(n)}')">${owned.has(n)?"● ":""}${n}${isIconic(n)?" ★":""}</button>`;
+  }).join("") : `<div class="meta">No ${kind.toLowerCase()} matches</div>`;
+}
+function choosePadName(n){
+  window._padPick = n;
+  const hid = document.getElementById("padName");
+  if (hid) hid.value = n;
+  const lab = document.getElementById("padChosen");
+  if (lab) lab.textContent = n ? ("Selected: "+n+(isIconic(n)?" · iconic +15%":" · "+classOf(n))) : "No droid selected";
+  ["Worker","Astromech","Battle"].forEach(k => {
+    const inp = document.getElementById("pickQ-"+k);
+    filterPick(k, inp ? inp.value : "");
+  });
+  const varBox = document.getElementById("padVarBox");
+  if (varBox){
+    if (isIconic(n)) varBox.innerHTML = `<input id="padVar" type="hidden" value="Basic"><div class="meta">Iconic · +15% income when parked</div>`;
+    else {
+      let html = `<div class="meta" style="margin:8px 0 6px">Variant</div><select id="padVar" class="deck-field">`;
+      VARIANTS.forEach(v => { html += `<option value="${v}">${v}</option>`; });
+      html += `</select>`;
+      varBox.innerHTML = html;
+    }
+  }
+}
 function openPad(id){
   const deck = activeDeck();
   const pad = PADS.find(p=>p.id===id);
   const cur = padSlot(deck, id) || {};
-  const names = allDeckNames();
-  const owned = new Set(ownedOptions());
+  window._padPick = cur.name || "";
   const box = document.getElementById("modal");
   box.classList.remove("hidden");
-  let html = `<div class="sheet"><h2>${pad.kind} ${pad.n}</h2><p>Tap a name. Matching type gets +10%.</p>`;
-  html += `<select id="padName" class="deck-field">`;
-  html += `<option value="">Empty pad</option>`;
-  names.forEach(n => {
-    html += `<option value="${esc(n)}" ${n===cur.name?"selected":""}>${owned.has(n)?"● ":""}${n} · ${isIconic(n)?"Iconic "+classOf(n):classOf(n)}</option>`;
+  let html = `<div class="sheet"><h2>${pad.kind} ${pad.n}</h2><p>Search each type separately. Matching type gets +10%.</p>`;
+  html += `<input id="padName" type="hidden" value="${esc(cur.name||"")}">`;
+  html += `<div id="padChosen" class="meta">${cur.name?("Selected: "+cur.name):"No droid selected"}</div>`;
+  html += `<div class="pick-grid">`;
+  ["Worker","Astromech","Battle"].forEach(kind => {
+    html += `<div class="pick-col"><h3>${kind}</h3><input id="pickQ-${kind}" class="deck-field" type="search" placeholder="Search ${kind.toLowerCase()}…" oninput="filterPick('${kind}',this.value)"><div class="pick-list" id="pick-${kind}"></div></div>`;
   });
-  html += `</select>`;
-  if (!isIconic(cur.name)) {
+  html += `</div><div id="padVarBox">`;
+  if (cur.name && isIconic(cur.name)) html += `<input id="padVar" type="hidden" value="Basic"><div class="meta" style="margin-top:8px">Iconic · +15% income when parked</div>`;
+  else {
     html += `<div class="meta" style="margin:10px 0 6px">Variant</div><select id="padVar" class="deck-field">`;
-    VARIANTS.forEach(v => {
-      html += `<option value="${v}" ${v===(cur.variant||"Basic")?"selected":""}>${v}</option>`;
-    });
+    VARIANTS.forEach(v => { html += `<option value="${v}" ${v===(cur.variant||"Basic")?"selected":""}>${v}</option>`; });
     html += `</select>`;
-  } else {
-    html += `<input id="padVar" type="hidden" value="Basic"><div class="meta" style="margin:10px 0 0">Iconic · +15% income when parked</div>`;
   }
-  html += `<div class="row" style="margin-top:12px"><button onclick="closeModal()">Cancel</button><button class="danger" onclick="setPad('${id}','','');closeModal()">Clear</button><button onclick="setPad('${id}',document.getElementById('padName').value,document.getElementById('padVar').value);closeModal()">Park</button></div></div>`;
+  html += `</div><div class="row" style="margin-top:12px"><button onclick="closeModal()">Cancel</button><button class="danger" onclick="setPad('${id}','','');closeModal()">Clear</button><button onclick="setPad('${id}',document.getElementById('padName').value,document.getElementById('padVar').value);closeModal()">Park</button></div></div>`;
   box.innerHTML = html;
+  ["Worker","Astromech","Battle"].forEach(k => filterPick(k,""));
 }
 function renderDecks(){
   const deck = activeDeck();
