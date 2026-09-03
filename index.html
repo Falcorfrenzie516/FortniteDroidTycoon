@@ -25,8 +25,9 @@
     --safe: env(safe-area-inset-bottom, 0px);
   }
   * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-  html,body { margin:0; background:#05030c; color:var(--ink); font-family:"Exo 2",sans-serif; }
-  body { padding-bottom: 24px; }
+  html,body { margin:0; height:100%; background:#05030c; color:var(--ink); font-family:"Exo 2",sans-serif; }
+  html { height:100dvh; }
+  body { height:100dvh; overflow:hidden; display:flex; flex-direction:column; }
   #space { position:fixed; inset:0; z-index:0; width:100%; height:100%; pointer-events:none; }
   .nebula {
     position:fixed; z-index:0; pointer-events:none; filter:blur(40px); opacity:.45;
@@ -45,11 +46,20 @@
   .planet.p3 { width:9px; height:9px; right:22vw; bottom:16vh; background:radial-gradient(circle at 40% 30%, #fda4af, #9f1239 70%, #1c0a0e); animation-duration:180s; }
   @keyframes drift { from { transform:translate3d(0,0,0) scale(1); } to { transform:translate3d(6vw,-4vh,0) scale(1.08); } }
   @keyframes orbit { from { transform:translate3d(0,0,0); } to { transform:translate3d(-3vw,2vh,0); } }
-  header { position:sticky; top:0; z-index:20; background:linear-gradient(180deg,rgba(5,3,12,.82) 60%,rgba(5,3,12,.55)); border-bottom:1px solid var(--line); padding:12px 14px 10px; backdrop-filter:blur(8px); }
-  main { position:relative; z-index:1; }
+  header { flex:none; z-index:20; background:linear-gradient(180deg,rgba(5,3,12,.96) 60%,rgba(5,3,12,.92)); border-bottom:1px solid var(--line); padding:calc(6px + env(safe-area-inset-top,0px)) 10px 8px; backdrop-filter:blur(8px); }
+  main { position:relative; z-index:1; flex:1; min-height:0; overflow-y:auto; -webkit-overflow-scrolling:touch; overscroll-behavior:contain; padding:12px 12px calc(16px + var(--safe)); }
+  body[data-tab="decks"] .toolbar,
+  body[data-tab="alarms"] .toolbar,
+  body[data-tab="saves"] .toolbar,
+  body[data-tab="srb"] .toolbar { display:none; }
   h1 { margin:0; font-size:0; line-height:0; }
   h1.show { font-size:22px; line-height:1.1; text-align:center; font-family:Orbitron,sans-serif; letter-spacing:.12em; text-transform:uppercase; color:#f5d0fe; }
-  .brand { display:block; width:min(420px,92vw); height:auto; margin:0 auto 2px; border-radius:10px; }
+  .brand { display:block; width:min(360px,86vw); max-height:64px; object-fit:cover; object-position:center; height:auto; margin:0 auto 2px; border-radius:10px; }
+  .dash { margin:0 0 6px; border:1px solid var(--line); border-radius:14px; background:rgba(12,10,24,.55); }
+  .dash > summary { list-style:none; cursor:pointer; padding:8px 10px; font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); font-family:Orbitron,sans-serif; }
+  .dash > summary::-webkit-details-marker { display:none; }
+  .dash[open] > summary { color:var(--gold2); }
+  .dash .dash-body { padding:0 8px 8px; }
   .sub { color:var(--muted); font-size:11px; margin-top:2px; text-align:center; font-family:Orbitron,sans-serif; letter-spacing:.16em; text-transform:uppercase; }
   .belts { display:grid; grid-template-columns:repeat(3,1fr); gap:7px; margin-top:10px; }
   .belt { background:var(--card); border:1px solid var(--line); border-radius:16px; padding:10px 6px; text-align:center; }
@@ -142,7 +152,7 @@
   }
   .tabs { display:flex; flex-direction:column; gap:4px; margin-top:10px; }
   .tabrow { display:grid; gap:4px; }
-  .tabrow.row1 { grid-template-columns:repeat(4,1fr); }
+  .tabrow.row1 { grid-template-columns:repeat(5,1fr); }
   .tabrow.row2 { grid-template-columns:repeat(4,1fr); }
   .tabs button { position:relative; overflow:hidden; background:rgba(12,10,24,.78); border:1px solid var(--line); border-radius:14px; color:var(--muted); padding:9px 2px; font-size:10px; font-weight:700; font-family:Orbitron,sans-serif; letter-spacing:.08em; text-transform:uppercase; }
   .tabs button .fill { position:absolute; left:0; top:0; bottom:0; width:0; opacity:.42; pointer-events:none; transition:width .25s ease; }
@@ -156,9 +166,22 @@
   .tabs button[data-tab="cosmetics"] .fill { background:linear-gradient(90deg,#5b21b6,#c4b5fd); }
   .tabs button[data-tab="saves"] .fill { background:linear-gradient(90deg,#334155,#94a3b8); }
   .tabs button[data-tab="alarms"] .fill { background:linear-gradient(90deg,#a16207,#fbbf24); }
-  main { padding:12px; }
+  .tabs button[data-tab="decks"] .fill { background:linear-gradient(90deg,#6d28d9,#c4b5fd); }
   .hint { background:rgba(12,10,24,.72); border:1px solid var(--line); border-radius:16px; padding:12px 14px; color:var(--muted); font-size:13px; line-height:1.45; margin-bottom:12px; }
-  .rarity-h { position:sticky; top:248px; z-index:10; margin:14px 0 8px; font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); background:rgba(5,3,12,.72); padding:6px 2px; font-family:Orbitron,sans-serif; }
+  .rarity-h { position:sticky; top:0; z-index:10; margin:14px 0 8px; font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); background:rgba(5,3,12,.92); padding:6px 2px; font-family:Orbitron,sans-serif; }
+  .deck-total { text-align:center; padding:16px 10px; border-color:#c4b5fd; background:radial-gradient(circle at 50% 0%, #2a1848, #0c0818 70%); }
+  .deck-total b { display:block; font-size:22px; color:#f5d0fe; font-family:Orbitron,sans-serif; letter-spacing:.06em; }
+  .deck-total span { color:var(--muted); font-size:10px; letter-spacing:.16em; text-transform:uppercase; font-family:Orbitron,sans-serif; }
+  .deck-slot { display:grid; grid-template-columns:52px 1fr auto; gap:8px; align-items:center; }
+  .deck-slot .slot-fields { display:grid; grid-template-columns:1fr 1fr; gap:6px; }
+  .deck-slot select, .deck-field {
+    width:100%; background:#100d22; color:var(--ink); border:1px solid var(--line);
+    border-radius:12px; padding:8px; font-size:12px; font-family:Orbitron,sans-serif;
+  }
+  .deck-bar { display:flex; gap:6px; flex-wrap:wrap; margin:0 0 10px; align-items:center; }
+  .deck-bar button { background:var(--card); color:var(--muted); border:1px solid var(--line); border-radius:14px; padding:7px 10px; font-size:10px; font-weight:700; font-family:Orbitron,sans-serif; letter-spacing:.1em; text-transform:uppercase; }
+  .deck-bar button.on { color:#0b1220; background:var(--gold); border-color:var(--gold); }
+  .xbtn { background:#3b1020; color:#fb7185; border:1px solid #7f1d3a; border-radius:12px; padding:8px 10px; font-size:11px; font-weight:800; }
   .grid { display:grid; grid-template-columns:1fr; gap:8px; }
   @media (min-width:720px){ .grid { grid-template-columns:1fr 1fr; } }
   .card { position:relative; overflow:hidden; background:rgba(12,10,24,.78); border:1px solid var(--line); border-radius:16px; padding:12px; }
@@ -239,8 +262,11 @@
 <div class="planet p3"></div>
 <header>
   <h1>Pocket Droid Tycoon Companion</h1>
+  <details class="dash">
+    <summary>Title · belts · stats · <span id="saveLabel">Main</span></summary>
+    <div class="dash-body">
   <img class="brand" src="img/pocket-droidex.jpg" alt="Pocket Droid Tycoon Companion" onerror="this.style.display='none';document.querySelector('h1').classList.add('show')" />
-  <div class="sub">Profile: <span id="saveLabel">Main</span></div>
+  <div class="sub">Profile: <span id="saveLabel2">Main</span></div>
   <div class="belts">
     <div class="belt gal" id="beltGal"><b>--</b><span>Galactic</span></div>
     <div class="belt myth" id="beltMyth"><b>--</b><span>Mythic</span></div>
@@ -253,6 +279,8 @@
     <div class="stat"><i class="fill" id="fillDone"></i><b id="sDone">0</b><span>Completed</span></div>
     <div class="stat"><i class="fill" id="fillFlaw"></i><b id="sFlaw">0</b><span>Flawless</span></div>
   </div>
+    </div>
+  </details>
   <div class="toolbar">
     <input id="q" type="search" placeholder="Search droids…" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" name="droidex-search" />
     <select id="filter">
@@ -267,6 +295,7 @@
     <div class="tabrow row1">
       <button class="on" data-tab="droidex"><i class="fill" id="tabFill-droidex"></i><span>Droidex</span></button>
       <button data-tab="fusion"><i class="fill" id="tabFill-fusion"></i><span>Fusion</span></button>
+      <button data-tab="decks"><i class="fill" id="tabFill-decks"></i><span>Decks</span></button>
       <button data-tab="srb"><i class="fill" id="tabFill-srb"></i><span>SRB</span></button>
       <button data-tab="done"><i class="fill" id="tabFill-done"></i><span>Done</span></button>
     </div>
@@ -323,6 +352,59 @@ const FUSIONS = [
   ["SRV-0","Mythic","Battle",["RIC-1200","B1 Heavy","B1 Heavy"]],
   ["X-ONK","Mythic","Battle",["KX","KX","Gonk"]]
 ];
+const RATE = {
+  "Gonk":[4,8,16,32,48,96,128],"Mouse":[2,4,8,16,24,48,64],"Pit":[2,4,8,16,24,48,64],
+  "R8":[4,8,16,32,48,96,128],"CB":[3,6,12,24,36,72,96],"R3":[3,6,12,24,36,72,96],"R5":[3,6,12,24,36,72,96],
+  "Imperial Probe":[6,12,24,48,72,144,192],"B1 Battle":[5,10,20,40,60,120,160],"ID10":[4,8,16,32,48,96,128],"DRK-1 Probe":[3,6,12,24,36,72,96],
+  "WHL-EX":[72,144,288,576,864,1728,2300],"BU-4D":[58,116,232,464,696,1400,1900],"Senate Hovercam":[46,92,184,368,552,1100,1500],
+  "ARG":[42,84,168,336,504,1000,1300],"ROLL-R":[31,62,124,248,372,744,992],"Bal-Core":[23,46,92,184,276,552,736],
+  "BDX Explorer":[15,30,60,120,180,360,480],"ZRO-TEC":[72,144,288,576,864,1700,2300],"R9":[54,108,216,432,648,1300,1730],
+  "R4":[50,100,200,400,600,1200,1600],"A-LT":[36,72,144,288,432,864,1100],"2BB":[17,34,68,136,204,408,544],
+  "BTL-R":[72,144,288,576,864,1700,2300],"B1 Security":[66,132,264,528,792,1600,2100],"HOV-R":[62,124,248,496,744,1500,2000],
+  "VECT-Arm":[27,54,108,216,324,648,864],"NAV-EX":[18,36,72,144,216,432,576],
+  "N-UL":[720,1400,2900,5800,24500,37400,57600],"Gunrunner":[660,1300,2600,5300,22400,34300,52800],
+  "AMP Walker":[570,1100,2300,4600,19400,29600,45600],"SEN-TRI":[510,1000,2000,4100,17300,26500,40800],
+  "Opti-Pod":[390,780,1600,3100,13300,20300,31200],"LO":[240,480,960,1900,8200,12500,19200],"Groundmech":[120,240,480,960,4100,6200,9600],
+  "SCRP-R":[720,1400,2900,5800,24500,37400,57600],"R2":[360,720,1400,2900,12200,18700,28800],"TRAK-R":[330,660,1300,2600,11200,17200,26400],
+  "R6":[300,600,1200,2400,10200,15600,24000],"Util-Tec":[210,420,840,1700,7100,10900,16800],"ORB-Walker":[180,360,720,1400,6100,9400,14400],
+  "BB":[150,300,600,1200,5100,7800,12000],"OPT-AR":[720,1400,2900,5800,24500,37400,57600],"ARM-CORE":[690,1400,2800,5500,23200,35900,55200],
+  "B1 Heavy":[630,1300,2500,4800,20400,31200,48000],"Strike-Orb":[540,1100,2200,4300,18400,28100,43200],
+  "B2 Heavy":[480,960,1900,3800,16300,25000,38400],"LNG-Shot":[450,900,1800,3600,15300,23400,36000],
+  "B2 Super":[420,840,1700,3400,14300,21800,33600],"Haul-R":[270,540,1100,2200,9200,14000,21600],
+  "FUS-3":[1600,3200,6400,12800,38400,96000,240000],"Mono-WLKR":[1500,3000,6000,12000,36000,90000,225000],
+  "RO-TOR":[1500,3000,6000,12000,36000,90000,225000],"Mecha-Droid":[1200,2500,5000,9900,29900,74600,186600],
+  "Proto-Roller":[972,1900,3900,7800,23300,58300,145800],"QIK-BIT":[1600,3200,6400,12800,38400,96000,240000],
+  "R7":[1500,3000,6000,12000,36000,90000,225000],"BB9":[1400,2800,5600,11200,33600,84000,210000],
+  "B2-RP":[1400,2800,5600,11200,33600,84000,210000],"Cyclo-Grav":[1350,2700,5400,10800,32400,81000,202500],
+  "Opti-STRK":[1500,3000,6000,12000,36000,90000,225000],"ORB-XL":[1600,3200,6400,12800,38400,96000,240000],
+  "RIV-3T":[8400,16800,33600,67200,134400,369600,1050000],"LOW-MO":[7800,15600,31200,62400,124800,343200,975000],
+  "LUG-G":[7600,15200,30400,60800,121600,334400,950000],"Loadlifter":[7200,14400,28800,57600,115200,316800,900000],
+  "LEP":[6500,13000,26000,52000,104000,286000,812500],"RIC-1200":[5800,11600,23200,46400,92800,255200,725000],
+  "RIC":[5100,10200,20400,40800,81600,224400,637500],"Snow Mouse":[4400,8800,17600,35200,70400,193600,550000],
+  "AXL-POD":[8000,16000,32000,64000,128000,352000,1000000],"MO-TRAK":[7200,14400,28800,57600,115200,316800,900000],
+  "TRI-TEK":[6500,13000,26000,52000,104000,286000,812500],"DRFT-R":[5800,11600,23200,46400,92800,255200,725000],
+  "CYCLENS":[4400,8800,17600,35200,70400,193600,550000],"X-ONK":[8000,16000,32000,64000,128000,352000,1000000],
+  "SRV-0":[7600,15200,30400,60800,121600,334400,950000],"KX":[7200,14400,28800,57600,115200,316800,900000],
+  "IG":[5800,11600,23200,46400,92800,255200,725000]
+};
+const RARITY_FALLBACK = {Common:2,Rare:30,Epic:300,Legendary:1400,Mythic:5000,Iconic:0};
+const VAR_FALLBACK = [1,2,4,8,16,44,125];
+function rateOf(name, variant){
+  const i = VARIANTS.indexOf(variant);
+  if (i<0) return 0;
+  if (RATE[name] && RATE[name][i]) return RATE[name][i];
+  const rar = (DROIDS.find(d=>d[0]===name)||FUSIONS.find(d=>d[0]===name)||[])[2] || (FUSIONS.find(d=>d[0]===name)||[])[1] || "Epic";
+  const base = (RATE[name] && RATE[name][0]) || RARITY_FALLBACK[rar] || 100;
+  return Math.round(base * VAR_FALLBACK[i]);
+}
+function fmtRate(n){
+  if (!n) return "0/s";
+  if (n>=1e9) return (n/1e9).toFixed(2).replace(/\.00$/,"")+"B/s";
+  if (n>=1e6) return (n/1e6).toFixed(2).replace(/\.00$/,"")+"M/s";
+  if (n>=1000) return (n/1000).toFixed(n>=10000?1:2).replace(/\.00$/,"").replace(/(\.\d)0$/,"$1")+"K/s";
+  return n+"/s";
+}
+
 const ICONICS = [
   ["BB-8","Astromech","BB-8 Event","Log in / finish the BB-8 event track"],
   ["R2-D2","Astromech","R2-D2 Event","Collect Data Chips during the event"],
@@ -461,11 +543,11 @@ const CYCLES = {
     [["Mono-WLKR","Rainbow"],["Opti-STRK","Rainbow"],["Cyclo-Grav","Rainbow"]],
     [["B2 Super","Beskar"],["Opti-Pod","Beskar"],["R2","Beskar"]],
     [["Gunrunner","Beskar"],["LNG-Shot","Beskar"],["B2-RP","Beskar"]],
-    [["Mono-WLKR","Beskar"],["Mecha-Droid","Beskar"],["Cyclo-Grav","Beskar"]],
-    [["BB9","Beskar"],["Proto-Roller","Beskar"],["RIC","Basic"]],
-    [["Loadlifter","Basic"],["MO-TRAK","Gold"],["LEP","Gold"]],
-    [["TRI-TEK","Diamond"],["Snow Mouse","Rainbow"],["RIC-1200","Diamond"]],
-    [["IG","Rainbow"],["DRFT-R","Beskar"],["RIC","Rainbow"]],
+    [["Mono-WLKR","Beskar"],["Cyclo-Grav","Beskar"],["Mecha-Droid","Beskar"]],
+    [["BB9","Beskar"],["B2-RP","Beskar"],["RIC","Basic"]],
+    [["Proto-Roller","Beskar"],["Loadlifter","Basic"],["MO-TRAK","Gold"]],
+    [["LEP","Gold"],["TRI-TEK","Diamond"],["Snow Mouse","Rainbow"]],
+    [["RIC-1200","Diamond"],["IG","Rainbow"],["DRFT-R","Beskar"]],
     [["BB9","Galactic"],["RIC","Rainbow"],["MO-TRAK","Beskar"]],
     [["Mecha-Droid","Galactic"],["Opti-STRK","Galactic"],["IG","Beskar"]],
     [["R7","Galactic"],["LEP","Beskar"],["DRFT-R","Galactic"]],
@@ -489,12 +571,13 @@ const CYCLES = {
     [["B2 Heavy","Basic"],["B2 Super","Basic"],["Util-Tec","Basic"]],
     [["Bal-Core","Rainbow"],["Groundmech","Gold"],["TRAK-R","Gold"]],
     [["B2 Super","Rainbow"],["Mecha-Droid","Basic"],["Proto-Roller","Basic"]],
-    [["B2 Heavy","Rainbow"],["B2-RP","Basic"],["R7","Gold"]],
-    [["Util-Tec","Rainbow"],["BB9","Basic"],["Opti-STRK","Basic"]],
-    [["Cyclo-Grav","Gold"],["Mecha-Droid","Gold"],["B2-RP","Gold"]],
-    [["BB9","Gold"],["R7","Diamond"],["Mecha-Droid","Diamond"]],
-    [["R7","Rainbow"],["B2-RP","Rainbow"],["Mono-WLKR","Rainbow"]],
-    [["Opti-STRK","Rainbow"],["Cyclo-Grav","Rainbow"],["Mono-WLKR","Rainbow"]],
+    [["Bal-Core","Diamond"],["Groundmech","Diamond"],["TRAK-R","Rainbow"]],
+    [["B2 Heavy","Diamond"],["B2 Super","Rainbow"],["B2-RP","Basic"]],
+    [["Util-Tec","Rainbow"],["BB9","Basic"],["R7","Gold"]],
+    [["Opti-STRK","Basic"],["Cyclo-Grav","Gold"],["Mecha-Droid","Gold"]],
+    [["B2-RP","Gold"],["BB9","Gold"],["R7","Diamond"]],
+    [["Mecha-Droid","Diamond"],["R7","Rainbow"],["B2-RP","Rainbow"]],
+    [["Mono-WLKR","Rainbow"],["Opti-STRK","Rainbow"],["Cyclo-Grav","Rainbow"]],
     [["AMP Walker","Beskar"],["Groundmech","Beskar"],["Haul-R","Beskar"]],
     [["Gunrunner","Beskar"],["Strike-Orb","Beskar"],["B2 Super","Beskar"]],
     [["Mono-WLKR","Beskar"],["Cyclo-Grav","Beskar"],["B2-RP","Beskar"]],
@@ -509,16 +592,159 @@ const CYCLES = {
     [["R2","Galactic"],["R6","Galactic"],["IG","Beskar"]],
     [["B2 Heavy","Stellar"],["BB9","Galactic"],["RIC-1200","Galactic"]],
     [["Strike-Orb","Stellar"],["AMP Walker","Stellar"],["MO-TRAK","Galactic"]],
-    [["B2-RP","Stellar"],["Loadlifter","Stellar"],["LEP","Stellar"]],
     [["B2-RP","Stellar"],["Loadlifter","Stellar"],["LEP","Stellar"]]
+  ],
+  5:[
+    [["ID10","Basic"],["Mouse","Basic"],["Gonk","Basic"]],
+    [["Imperial Probe","Gold"],["2BB","Basic"],["ROLL-R","Basic"]],
+    [["R4","Basic"],["VECT-Arm","Basic"],["BDX Explorer","Gold"]],
+    [["B1 Battle","Gold"],["R9","Gold"],["B1 Security","Gold"]],
+    [["R3","Gold"],["Bal-Core","Gold"],["R4","Gold"]],
+    [["2BB","Diamond"],["BDX Explorer","Diamond"],["Gunrunner","Basic"]],
+    [["R5","Diamond"],["ROLL-R","Diamond"],["R2","Gold"]],
+    [["R8","Diamond"],["B1 Battle","Diamond"],["B2 Super","Gold"]],
+    [["NAV-EX","Rainbow"],["Strike-Orb","Gold"],["AMP Walker","Gold"]],
+    [["Imperial Probe","Beskar"],["Groundmech","Basic"],["TRAK-R","Basic"]],
+    [["B2 Heavy","Basic"],["B2 Super","Basic"],["Util-Tec","Basic"]],
+    [["Bal-Core","Rainbow"],["Groundmech","Gold"],["TRAK-R","Gold"]],
+    [["B2 Super","Gold"],["B2 Heavy","Gold"],["R2","Diamond"]],
+    [["Groundmech","Diamond"],["TRAK-R","Diamond"],["Util-Tec","Rainbow"]],
+    [["B2 Heavy","Diamond"],["B2 Super","Diamond"],["B2-RP","Basic"]],
+    [["BB9","Basic"],["R7","Gold"],["Proto-Roller","Gold"]],
+    [["Opti-STRK","Basic"],["Cyclo-Grav","Gold"],["Mecha-Droid","Gold"]],
+    [["BB9","Gold"],["B2-RP","Gold"],["R7","Diamond"]],
+    [["Opti-STRK","Diamond"],["Cyclo-Grav","Diamond"],["Mecha-Droid","Rainbow"]],
+    [["B2-RP","Rainbow"],["BB9","Rainbow"],["R7","Rainbow"]],
+    [["LO","Beskar"],["Strike-Orb","Beskar"],["Haul-R","Beskar"]],
+    [["SEN-TRI","Beskar"],["R6","Beskar"],["Gunrunner","Beskar"]],
+    [["BB9","Beskar"],["Cyclo-Grav","Beskar"],["B2-RP","Beskar"]],
+    [["Mono-WLKR","Beskar"],["Opti-STRK","Beskar"],["MO-TRAK","Basic"]],
+    [["Mecha-Droid","Beskar"],["RIC","Basic"],["TRI-TEK","Gold"]],
+    [["CYCLENS","Gold"],["LEP","Diamond"],["Snow Mouse","Rainbow"]],
+    [["RIC-1200","Diamond"],["IG","Rainbow"],["Loadlifter","Beskar"]],
+    [["BB9","Galactic"],["RIC","Rainbow"],["MO-TRAK","Beskar"]],
+    [["Mecha-Droid","Galactic"],["Opti-STRK","Galactic"],["IG","Beskar"]],
+    [["R7","Galactic"],["LEP","Beskar"],["CYCLENS","Galactic"]],
+    [["AMP Walker","Stellar"],["Opti-STRK","Beskar"],["Snow Mouse","Beskar"]],
+    [["LO","Galactic"],["TRAK-R","Galactic"],["DRFT-R","Beskar"]],
+    [["Util-Tec","Stellar"],["R7","Galactic"],["TRI-TEK","Galactic"]],
+    [["Haul-R","Stellar"],["LNG-Shot","Stellar"],["IG","Galactic"]],
+    [["Mecha-Droid","Stellar"],["RIC-1200","Stellar"],["MO-TRAK","Stellar"]]
   ]
 };
 
 const KEY = "droidex-v2";
 const SAVES_KEY = "droidex-saves";
-function blankState(cycle){ return {d:{},f:{},i:{},c:{},rb:{cycle:cycle||1}}; }
+function blankState(cycle){ return {d:{},f:{},i:{},c:{},rb:{cycle:cycle||1},decks:{active:0,list:[blankDeck("Deck 1")]}}; }
+function blankDeck(name){ return {name:name||"Deck",mult:1,bonus:true,slots:[]}; }
+function allDeckNames(){
+  return DROIDS.map(d=>d[0]).concat(FUSIONS.map(d=>d[0]));
+}
+function ownedOptions(){
+  const names = [];
+  DROIDS.forEach(([n]) => { if (ownedTiers(n)) names.push(n); });
+  FUSIONS.forEach(([n]) => { if (fuseTiers(n)) names.push(n); });
+  return names.length ? names : allDeckNames();
+}
+function collectionBonus(){
+  let n = 0;
+  DROIDS.forEach(([nm]) => { if (ownedTiers(nm)) n++; });
+  FUSIONS.forEach(([nm]) => { if (fuseTiers(nm)) n++; });
+  ICONICS.forEach(([nm]) => { if (state.i && state.i[nm]) n++; });
+  return n;
+}
+function slotCps(slot){
+  if (!slot || !slot.name || !slot.variant) return 0;
+  return rateOf(slot.name, slot.variant) * (Number(slot.mult)||1);
+}
+function deckCps(deck){
+  if (!deck) return 0;
+  const raw = (deck.slots||[]).reduce((a,s)=>a+slotCps(s),0);
+  const bonus = deck.bonus===false ? 1 : (1 + collectionBonus()/100);
+  return raw * (Number(deck.mult)||1) * bonus;
+}
+function activeDeck(){
+  ensureDecks(state);
+  return state.decks.list[state.decks.active] || state.decks.list[0];
+}
+function setDeckField(field, value){
+  const d = activeDeck();
+  if (field==="name") d.name = value;
+  if (field==="mult") d.mult = Math.max(0, Number(value)||0);
+  if (field==="bonus") d.bonus = !!value;
+  save(); render();
+}
+function addDeck(){
+  ensureDecks(state);
+  state.decks.list.push(blankDeck("Deck "+(state.decks.list.length+1)));
+  state.decks.active = state.decks.list.length-1;
+  save(); render();
+}
+function switchDeck(i){
+  state.decks.active = Number(i)||0;
+  save(); render();
+}
+function addSlot(){
+  const d = activeDeck();
+  const names = ownedOptions();
+  const name = names[0]||"Mouse";
+  const variant = VARIANTS.find(v => has(name,v) || fuseHas(name,v)) || "Basic";
+  d.slots.push({name, variant, mult:1});
+  save(); render();
+}
+function setSlot(i, field, value){
+  const d = activeDeck();
+  if (!d.slots[i]) return;
+  d.slots[i][field] = field==="mult" ? Math.max(0, Number(value)||0) : value;
+  save(); render();
+}
+function delSlot(i){
+  activeDeck().slots.splice(i,1);
+  save(); render();
+}
+function renderDecks(){
+  const deck = activeDeck();
+  const names = allDeckNames();
+  const owned = new Set(ownedOptions());
+  let html = `<div class="hint">Park the droids you have in a floor right now. Each slot uses that variant’s credits/s. Deck multiplier is rebirth / shop / extra %. Collection bonus is +1% per unique name you have checked in the Droidex.</div>`;
+  html += `<div class="deck-bar">`;
+  state.decks.list.forEach((d,i) => {
+    html += `<button class="${i===state.decks.active?"on":""}" onclick="switchDeck(${i})">${d.name||("Deck "+(i+1))}</button>`;
+  });
+  html += `<button onclick="addDeck()">+ Deck</button></div>`;
+  html += `<article class="card deck-total"><b>${fmtRate(deckCps(deck))}</b><span>Total credits / second</span></article>`;
+  html += `<article class="card"><div class="name">${deck.name||"Deck"}</div>`;
+  html += `<div class="meta" style="margin:8px 0 6px">Deck name</div><input class="deck-field" value="${esc(deck.name||"")}" onchange="setDeckField('name',this.value)">`;
+  html += `<div class="meta" style="margin:8px 0 6px">Deck multiplier (1 = none, 2 = double)</div><input class="deck-field" type="number" min="0" step="0.01" value="${deck.mult||1}" onchange="setDeckField('mult',this.value)">`;
+  html += `<div class="vars" style="grid-template-columns:1fr;margin-top:10px"><label class="chk ${deck.bonus!==false?"on":""}" style="flex-direction:row;text-transform:none;letter-spacing:0"><input type="checkbox" ${deck.bonus!==false?"checked":""} onchange="setDeckField('bonus',this.checked)">Include collection bonus (+${collectionBonus()}%)</label></div>`;
+  html += `</article>`;
+  (deck.slots||[]).forEach((s,i) => {
+    const cps = slotCps(s);
+    html += `<article class="card deck-slot">${picWrap(s.name||"Mouse","Worker","Common")}<div class="slot-fields">`;
+    html += `<select onchange="setSlot(${i},'name',this.value)">`;
+    names.forEach(n => {
+      html += `<option value="${esc(n)}" ${n===s.name?"selected":""}>${owned.has(n)?"● ":""}${n}</option>`;
+    });
+    html += `</select><select onchange="setSlot(${i},'variant',this.value)">`;
+    VARIANTS.forEach(v => {
+      html += `<option value="${v}" ${v===s.variant?"selected":""}>${SHORT[v]||v}</option>`;
+    });
+    html += `</select><input class="deck-field" type="number" min="0" step="0.01" value="${s.mult||1}" onchange="setSlot(${i},'mult',this.value)" title="Slot multiplier">`;
+    html += `<div class="meta">${fmtRate(cps)} raw</div></div><button class="xbtn" onclick="delSlot(${i})">✕</button></article>`;
+  });
+  html += `<div class="act"><button onclick="addSlot()">+ Add droid slot</button></div>`;
+  return html;
+}
+function ensureDecks(st){
+  if (!st.decks || !Array.isArray(st.decks.list) || !st.decks.list.length) {
+    st.decks = {active:0,list:[blankDeck("Deck 1")]};
+  }
+  if (st.decks.active >= st.decks.list.length) st.decks.active = 0;
+  return st;
+}
 let state = JSON.parse(localStorage.getItem(KEY) || localStorage.getItem("droidex-v1") || '{"d":{},"f":{},"i":{},"c":{}}');
 if (!state.rb) state.rb = {};
+ensureDecks(state);
 let tab = "droidex";
 let srbCycle = Number(state.rb.cycle || 1);
 function loadBank(){
@@ -532,6 +758,7 @@ let bank = loadBank();
 if (bank.slots[bank.current] && bank.slots[bank.current].state) {
   state = bank.slots[bank.current].state;
   if (!state.rb) state.rb = {};
+  ensureDecks(state);
   srbCycle = Number(state.rb.cycle || 1);
 }
 function writeBank(){
@@ -549,12 +776,15 @@ function applyState(st){
   if (!state.i) state.i = {};
   if (!state.c) state.c = {};
   if (!state.rb) state.rb = {};
+  ensureDecks(state);
   srbCycle = Number(state.rb.cycle || 1);
 }
 function currentName(){ return (bank.slots[bank.current]||{}).name || "Main"; }
 function updateSaveLabel(){
   const el = document.getElementById("saveLabel");
   if (el) el.textContent = currentName();
+  const el2 = document.getElementById("saveLabel2");
+  if (el2) el2.textContent = currentName();
   const pick = document.getElementById("savePick");
   if (pick){
     pick.innerHTML = Object.keys(bank.slots).map(id => {
@@ -655,7 +885,7 @@ function doSuperRebirth(){
   const id = "s"+Date.now();
   bank.slots[id] = { name:"Before Super Rebirth", updated:Date.now(), state:JSON.parse(JSON.stringify(state)) };
   const paints = state.c || {};
-  const next = (Number(state.rb.cycle || 1) % 4) + 1;
+  const next = (Number(state.rb.cycle || 1) % 5) + 1;
   applyState({d:{},f:{},i:{},c:paints,rb:{cycle:next}});
   writeBank();
   closeModal();
@@ -919,6 +1149,9 @@ function render(){
     if (last) html += `</div>`;
     if (!shown) html += `<div class="empty">Nothing left here. Check Done, or clear search.</div>`;
   }
+  if (tab==="decks") {
+    html += renderDecks();
+  }
   if (tab==="fusion") {
     html += `<div class="hint">17 fusion-only names. Each variant needs the <b>same-tier ingredients</b>. Example: Gold N-UL wants Gold B1 Heavy + Gold Gunrunner + Gold BB. Check the three parts, then check the result. 7/7 moves to Done.</div>`;
     let last="", shown=0;
@@ -931,9 +1164,9 @@ function render(){
   }
   if (tab==="srb") {
     const cyc = CYCLES[srbCycle] || CYCLES[1];
-    html += `<div class="hint">Tap a rebirth to see the droids it wants. Super Rebirth unlocks at <b>Rebirth 12</b> plus one Rainbow Legendary. Cash-out walks Cycle 1→2→3→4→1.</div>`;
+    html += `<div class="hint">Tap a rebirth to see the droids it wants. Super Rebirth unlocks at <b>Rebirth 12</b> plus one Rainbow Legendary. Paths loop <b>1 → 2 → 3 → 4 → 5 → 1</b>.</div>`;
     html += `<div class="cycles">`;
-    [1,2,3,4].forEach(n => {
+    [1,2,3,4,5].forEach(n => {
       html += `<button class="${srbCycle===n?"on":""}" onclick="srbCycle=${n};state.rb.cycle=${n};save();render();">Cycle ${n}</button>`;
     });
     html += `</div>`;
@@ -1009,7 +1242,7 @@ function render(){
   }
   if (tab==="done") {
     html += `<div class="hint">Finished names only. Profiles and file load live on the <b>Profiles</b> tab. Super Rebirth is here.</div>`;
-    html += `<div class="card" style="border-color:#7f1d3a"><div class="name">Super Rebirth</div><div class="meta" style="margin:6px 0 10px">Clears all droid / fusion / iconic / rebirth checks on this save. Keeps a backup so you can reload where you were. Fashion paints stay. Cycle advances ${srbCycle} → ${(srbCycle%4)+1}.</div><div class="act"><button class="danger" onclick="askSuperRebirth()">Super Rebirth</button></div></div>`;
+    html += `<div class="card" style="border-color:#7f1d3a"><div class="name">Super Rebirth</div><div class="meta" style="margin:6px 0 10px">Clears all droid / fusion / iconic / rebirth checks on this save. Keeps a backup so you can reload where you were. Fashion paints stay. Cycle advances ${srbCycle} → ${(srbCycle%5)+1}.</div><div class="act"><button class="danger" onclick="askSuperRebirth()">Super Rebirth</button></div></div>`;
     let shown=0;
     const doneD = DROIDS.filter(([n])=>droidDone(n));
     const doneF = FUSIONS.filter(([n])=>fuseDone(n));
@@ -1058,6 +1291,7 @@ function render(){
     });
   }
   app.innerHTML = html;
+  document.body.dataset.tab = tab;
   updateStats();
   updateSaveLabel();
 }
@@ -1067,8 +1301,10 @@ document.querySelectorAll(".tabs button").forEach(btn => {
     document.querySelectorAll(".tabs button").forEach(b => b.classList.remove("on"));
     btn.classList.add("on");
     tab = btn.dataset.tab;
+    document.body.dataset.tab = tab;
     render();
-    window.scrollTo(0,0);
+    const pane = document.getElementById("app");
+    if (pane) pane.scrollTop = 0;
   };
 });
 document.getElementById("q").addEventListener("input", render);
