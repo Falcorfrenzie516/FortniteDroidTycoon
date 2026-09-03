@@ -1,0 +1,544 @@
+{
+  "updated": "2026-09-03T06:58:00-04:00",
+  "source": "Companion registry \u00b7 FOAD / wiki scans",
+  "droids": [
+    {
+      "name": "Mouse",
+      "type": "Worker",
+      "rarity": "Common"
+    },
+    {
+      "name": "Pit",
+      "type": "Worker",
+      "rarity": "Common"
+    },
+    {
+      "name": "Gonk",
+      "type": "Worker",
+      "rarity": "Common"
+    },
+    {
+      "name": "CB",
+      "type": "Astromech",
+      "rarity": "Common"
+    },
+    {
+      "name": "R3",
+      "type": "Astromech",
+      "rarity": "Common"
+    },
+    {
+      "name": "R5",
+      "type": "Astromech",
+      "rarity": "Common"
+    },
+    {
+      "name": "R8",
+      "type": "Astromech",
+      "rarity": "Common"
+    },
+    {
+      "name": "Imperial Probe",
+      "type": "Battle",
+      "rarity": "Common"
+    },
+    {
+      "name": "B1 Battle",
+      "type": "Battle",
+      "rarity": "Common"
+    },
+    {
+      "name": "DRK-1 Probe",
+      "type": "Battle",
+      "rarity": "Common"
+    },
+    {
+      "name": "ID10",
+      "type": "Battle",
+      "rarity": "Common"
+    },
+    {
+      "name": "BDX Explorer",
+      "type": "Worker",
+      "rarity": "Rare"
+    },
+    {
+      "name": "ARG",
+      "type": "Worker",
+      "rarity": "Rare"
+    },
+    {
+      "name": "Senate Hovercam",
+      "type": "Worker",
+      "rarity": "Rare"
+    },
+    {
+      "name": "BU-4D",
+      "type": "Worker",
+      "rarity": "Rare"
+    },
+    {
+      "name": "Bal-Core",
+      "type": "Worker",
+      "rarity": "Rare"
+    },
+    {
+      "name": "ROLL-R",
+      "type": "Worker",
+      "rarity": "Rare"
+    },
+    {
+      "name": "2BB",
+      "type": "Astromech",
+      "rarity": "Rare"
+    },
+    {
+      "name": "A-LT",
+      "type": "Astromech",
+      "rarity": "Rare"
+    },
+    {
+      "name": "R4",
+      "type": "Astromech",
+      "rarity": "Rare"
+    },
+    {
+      "name": "R9",
+      "type": "Astromech",
+      "rarity": "Rare"
+    },
+    {
+      "name": "B1 Security",
+      "type": "Battle",
+      "rarity": "Rare"
+    },
+    {
+      "name": "NAV-EX",
+      "type": "Battle",
+      "rarity": "Rare"
+    },
+    {
+      "name": "VECT-Arm",
+      "type": "Battle",
+      "rarity": "Rare"
+    },
+    {
+      "name": "HOV-R",
+      "type": "Battle",
+      "rarity": "Rare"
+    },
+    {
+      "name": "Groundmech",
+      "type": "Worker",
+      "rarity": "Epic"
+    },
+    {
+      "name": "LO",
+      "type": "Worker",
+      "rarity": "Epic"
+    },
+    {
+      "name": "AMP Walker",
+      "type": "Worker",
+      "rarity": "Epic"
+    },
+    {
+      "name": "SEN-TRI",
+      "type": "Worker",
+      "rarity": "Epic"
+    },
+    {
+      "name": "Opti-Pod",
+      "type": "Worker",
+      "rarity": "Epic"
+    },
+    {
+      "name": "Gunrunner",
+      "type": "Worker",
+      "rarity": "Epic"
+    },
+    {
+      "name": "BB",
+      "type": "Astromech",
+      "rarity": "Epic"
+    },
+    {
+      "name": "R2",
+      "type": "Astromech",
+      "rarity": "Epic"
+    },
+    {
+      "name": "R6",
+      "type": "Astromech",
+      "rarity": "Epic"
+    },
+    {
+      "name": "TRAK-R",
+      "type": "Astromech",
+      "rarity": "Epic"
+    },
+    {
+      "name": "ORB-Walker",
+      "type": "Astromech",
+      "rarity": "Epic"
+    },
+    {
+      "name": "Util-Tec",
+      "type": "Astromech",
+      "rarity": "Epic"
+    },
+    {
+      "name": "B1 Heavy",
+      "type": "Battle",
+      "rarity": "Epic"
+    },
+    {
+      "name": "B2 Super",
+      "type": "Battle",
+      "rarity": "Epic"
+    },
+    {
+      "name": "B2 Heavy",
+      "type": "Battle",
+      "rarity": "Epic"
+    },
+    {
+      "name": "Strike-Orb",
+      "type": "Battle",
+      "rarity": "Epic"
+    },
+    {
+      "name": "Haul-R",
+      "type": "Battle",
+      "rarity": "Epic"
+    },
+    {
+      "name": "LNG-Shot",
+      "type": "Battle",
+      "rarity": "Epic"
+    },
+    {
+      "name": "Proto-Roller",
+      "type": "Worker",
+      "rarity": "Legendary"
+    },
+    {
+      "name": "Mecha-Droid",
+      "type": "Worker",
+      "rarity": "Legendary"
+    },
+    {
+      "name": "Mono-WLKR",
+      "type": "Worker",
+      "rarity": "Legendary"
+    },
+    {
+      "name": "BB9",
+      "type": "Astromech",
+      "rarity": "Legendary"
+    },
+    {
+      "name": "R7",
+      "type": "Astromech",
+      "rarity": "Legendary"
+    },
+    {
+      "name": "B2-RP",
+      "type": "Battle",
+      "rarity": "Legendary"
+    },
+    {
+      "name": "Cyclo-Grav",
+      "type": "Battle",
+      "rarity": "Legendary"
+    },
+    {
+      "name": "Opti-STRK",
+      "type": "Battle",
+      "rarity": "Legendary"
+    },
+    {
+      "name": "Snow Mouse",
+      "type": "Worker",
+      "rarity": "Mythic"
+    },
+    {
+      "name": "RIC",
+      "type": "Worker",
+      "rarity": "Mythic"
+    },
+    {
+      "name": "RIC-1200",
+      "type": "Worker",
+      "rarity": "Mythic"
+    },
+    {
+      "name": "LEP",
+      "type": "Worker",
+      "rarity": "Mythic"
+    },
+    {
+      "name": "Loadlifter",
+      "type": "Worker",
+      "rarity": "Mythic"
+    },
+    {
+      "name": "DRFT-R",
+      "type": "Astromech",
+      "rarity": "Mythic"
+    },
+    {
+      "name": "MO-TRAK",
+      "type": "Astromech",
+      "rarity": "Mythic"
+    },
+    {
+      "name": "TRI-TEK",
+      "type": "Astromech",
+      "rarity": "Mythic"
+    },
+    {
+      "name": "CYCLENS",
+      "type": "Astromech",
+      "rarity": "Mythic"
+    },
+    {
+      "name": "KX",
+      "type": "Battle",
+      "rarity": "Mythic"
+    },
+    {
+      "name": "IG",
+      "type": "Battle",
+      "rarity": "Mythic"
+    }
+  ],
+  "fusions": [
+    {
+      "name": "WHL-EX",
+      "rarity": "Rare",
+      "type": "Worker",
+      "recipe": [
+        "Mouse",
+        "Mouse",
+        "ARG"
+      ]
+    },
+    {
+      "name": "ZRO-TEC",
+      "rarity": "Rare",
+      "type": "Astromech",
+      "recipe": [
+        "ID10",
+        "ID10",
+        "2BB"
+      ]
+    },
+    {
+      "name": "BTL-R",
+      "rarity": "Rare",
+      "type": "Battle",
+      "recipe": [
+        "B1 Battle",
+        "R9",
+        "BDX Explorer"
+      ]
+    },
+    {
+      "name": "N-UL",
+      "rarity": "Epic",
+      "type": "Worker",
+      "recipe": [
+        "B1 Heavy",
+        "Gunrunner",
+        "BB"
+      ]
+    },
+    {
+      "name": "SCRP-R",
+      "rarity": "Epic",
+      "type": "Astromech",
+      "recipe": [
+        "Gonk",
+        "Groundmech",
+        "R6"
+      ]
+    },
+    {
+      "name": "ARM-CORE",
+      "rarity": "Epic",
+      "type": "Battle",
+      "recipe": [
+        "ARG",
+        "ARG",
+        "B2 Heavy"
+      ]
+    },
+    {
+      "name": "OPT-AR",
+      "rarity": "Epic",
+      "type": "Battle",
+      "recipe": [
+        "R2",
+        "R2",
+        "B2 Super"
+      ]
+    },
+    {
+      "name": "RO-TOR",
+      "rarity": "Legendary",
+      "type": "Worker",
+      "recipe": [
+        "BB9",
+        "Pit",
+        "B1 Battle"
+      ]
+    },
+    {
+      "name": "FUS-3",
+      "rarity": "Legendary",
+      "type": "Worker",
+      "recipe": [
+        "R7",
+        "BU-4D",
+        "BU-4D"
+      ]
+    },
+    {
+      "name": "QIK-BIT",
+      "rarity": "Legendary",
+      "type": "Astromech",
+      "recipe": [
+        "Groundmech",
+        "Groundmech",
+        "BB9"
+      ]
+    },
+    {
+      "name": "ORB-XL",
+      "rarity": "Legendary",
+      "type": "Battle",
+      "recipe": [
+        "CB",
+        "Gunrunner",
+        "B2-RP"
+      ]
+    },
+    {
+      "name": "RIV-3T",
+      "rarity": "Mythic",
+      "type": "Worker",
+      "recipe": [
+        "KX",
+        "IG",
+        "RIC"
+      ]
+    },
+    {
+      "name": "LUG-G",
+      "rarity": "Mythic",
+      "type": "Worker",
+      "recipe": [
+        "Loadlifter",
+        "ID10",
+        "R5"
+      ]
+    },
+    {
+      "name": "LOW-MO",
+      "rarity": "Mythic",
+      "type": "Astromech",
+      "recipe": [
+        "A-LT",
+        "A-LT",
+        "Loadlifter"
+      ]
+    },
+    {
+      "name": "AXL-POD",
+      "rarity": "Mythic",
+      "type": "Astromech",
+      "recipe": [
+        "RIC",
+        "BDX Explorer",
+        "R7"
+      ]
+    },
+    {
+      "name": "SRV-0",
+      "rarity": "Mythic",
+      "type": "Battle",
+      "recipe": [
+        "RIC-1200",
+        "B1 Heavy",
+        "B1 Heavy"
+      ]
+    },
+    {
+      "name": "X-ONK",
+      "rarity": "Mythic",
+      "type": "Battle",
+      "recipe": [
+        "KX",
+        "KX",
+        "Gonk"
+      ]
+    }
+  ],
+  "iconics": [
+    {
+      "name": "BB-8",
+      "type": "Astromech",
+      "event": "BB-8 Event",
+      "how": "Log in / finish the BB-8 event track"
+    },
+    {
+      "name": "R2-D2",
+      "type": "Astromech",
+      "event": "R2-D2 Event",
+      "how": "Collect Data Chips during the event"
+    },
+    {
+      "name": "C-3PO",
+      "type": "Worker",
+      "event": "C-3PO Event",
+      "how": "Collect Scrap Points during the event"
+    },
+    {
+      "name": "DJ R-3X",
+      "type": "Worker",
+      "event": "DJ R-3X Event",
+      "how": "Contribute to parties during the DJ event"
+    },
+    {
+      "name": "CB-23",
+      "type": "Astromech",
+      "event": "Event",
+      "how": "Event-locked iconic"
+    },
+    {
+      "name": "Chopper",
+      "type": "Astromech",
+      "event": "Chopper Event",
+      "how": "Collect Junk Points during the event"
+    },
+    {
+      "name": "IG-11 Marshal",
+      "type": "Battle",
+      "event": "Mandalorian Event",
+      "how": "Complete the Mandalorian event track"
+    },
+    {
+      "name": "Mister Bones",
+      "type": "Battle",
+      "event": "Mister Bones Event",
+      "how": "Defeat Stormtroopers during the event"
+    },
+    {
+      "name": "D-O",
+      "type": "Worker",
+      "event": "D-O Event",
+      "how": "Log in during the 24-hour D-O window"
+    }
+  ]
+}
