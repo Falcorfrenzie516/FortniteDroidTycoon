@@ -193,6 +193,9 @@
   .floor.astromech { border-color:rgba(96,165,250,.4); }
   .floor.battle { border-color:rgba(251,113,133,.4); }
   .floor.lounge { border-color:rgba(251,191,36,.4); }
+  .floor.firing { border-color:rgba(248,113,113,.45); }
+  .floor.companion { border-color:rgba(167,139,250,.45); }
+  .floor.fuse { border-color:rgba(232,121,249,.45); }
   .pads { display:grid; grid-template-columns:repeat(auto-fill,minmax(58px,1fr)); gap:8px; justify-items:center; }
   .pad {
     width:58px; height:72px; padding:0; display:flex; flex-direction:column; align-items:center; justify-content:flex-start;
@@ -339,8 +342,8 @@
   <nav class="tabs">
     <div class="tabrow row1">
       <button class="on" data-tab="droidex"><i class="fill" id="tabFill-droidex"></i><span>Droidex</span></button>
-      <button data-tab="decks"><i class="fill" id="tabFill-decks"></i><span>Decks</span></button>
-      <button data-tab="srb"><i class="fill" id="tabFill-srb"></i><span>SRB</span></button>
+      <button data-tab="decks"><i class="fill" id="tabFill-decks"></i><span>Base</span></button>
+      <button data-tab="srb"><i class="fill" id="tabFill-srb"></i><span>Super Rebirth</span></button>
       <button data-tab="done"><i class="fill" id="tabFill-done"></i><span>Done</span></button>
     </div>
     <div class="tabrow row2">
@@ -679,7 +682,7 @@ const CYCLES = {
 const KEY = "droidex-v2";
 const SAVES_KEY = "droidex-saves";
 function blankState(cycle){ return {d:{},f:{},i:{},c:{},rb:{cycle:cycle||1},decks:{active:0,list:[blankDeck("Deck 1")]}}; }
-function blankDeck(name){ return {name:name||"Deck",mult:1,bonus:true,slots:[]}; }
+function blankDeck(name){ return {name:name||"Base",mult:1,bonus:true,slots:[]}; }
 function allDeckNames(){
   return DROIDS.map(d=>d[0]).concat(FUSIONS.map(d=>d[0])).concat(ICONICS.map(d=>d[0]));
 }
@@ -702,8 +705,17 @@ const FLOORS = [
   {id:"worker", label:"Worker deck", kind:"Worker", count:11},
   {id:"astromech", label:"Astromech deck", kind:"Astromech", count:9},
   {id:"battle", label:"Battle deck", kind:"Battle", count:5},
-  {id:"lounge", label:"Lounge", kind:"Lounge", count:4}
+  {id:"firing", label:"Firing range", kind:"Battle", count:6},
+  {id:"lounge", label:"Lounge · storage only", kind:"Lounge", count:13},
+  {id:"companion", label:"Companion · buff only", kind:"Companion", count:2, group:"base"},
+  {id:"fuse1", label:"Fusion pads", kind:"Fusion", count:3, group:"fusion", lab:1},
+  {id:"chamber1", label:"Chamber", kind:"Chamber", count:1, group:"fusion", lab:1},
+  {id:"fuse2", label:"Fusion pads", kind:"Fusion", count:3, group:"fusion", lab:2},
+  {id:"chamber2", label:"Chamber", kind:"Chamber", count:1, group:"fusion", lab:2}
 ];
+const PAD_TAG = {worker:"W",astromech:"A",battle:"B",firing:"F",lounge:"L",companion:"C",fuse1:"1-",chamber1:"C1-",fuse2:"2-",chamber2:"C2-"};
+const EARN_KINDS = {Worker:1,Astromech:1,Battle:1};
+const PAD_TOTAL = FLOORS.reduce((a,f)=>a+f.count,0);
 function padList(){
   const pads = [];
   FLOORS.forEach(f => {
@@ -733,16 +745,19 @@ function normalizeDeck(deck){
 function padSlot(deck, id){
   return (deck.pads && deck.pads[id]) || null;
 }
+function earnsIncome(kind){ return !!EARN_KINDS[kind]; }
 function slotCps(slot, kind){
   if (!slot || !slot.name) return 0;
+  if (!earnsIncome(kind)) return 0;
   if (isIconic(slot.name)) return 0;
   const raw = rateOf(slot.name, slot.variant||"Basic") * (Number(slot.mult)||1);
-  const match = kind && classOf(slot.name)===kind ? 1.1 : 1;
+  const match = classOf(slot.name)===kind ? 1.1 : 1;
   return raw * match;
 }
 function iconicBoost(deck){
   let n = 0;
   PADS.forEach(p => {
+    if (!earnsIncome(p.kind)) return;
     const s = padSlot(deck,p.id);
     if (s && s.name && isIconic(s.name)) n++;
   });
@@ -769,7 +784,7 @@ function setDeckField(field, value){
 }
 function addDeck(){
   ensureDecks(state);
-  state.decks.list.push(blankDeck("Deck "+(state.decks.list.length+1)));
+  state.decks.list.push(blankDeck("Base "+(state.decks.list.length+1)));
   state.decks.active = state.decks.list.length-1;
   save(); render();
 }
@@ -787,32 +802,22 @@ function setPad(id, name, variant){
 function namesOfType(kind){
   return allDeckNames().filter(n => classOf(n)===kind);
 }
-function filterPick(kind, q){
-  const owned = new Set(ownedOptions());
-  const box = document.getElementById("pick-"+kind);
-  if (!box) return;
-  const qq = String(q||"").trim().toLowerCase();
-  const hits = namesOfType(kind).filter(n => !qq || n.toLowerCase().includes(qq));
-  box.innerHTML = hits.length ? hits.map(n => {
-    const on = window._padPick===n ? "on" : "";
-    return `<button type="button" class="pick-item ${on}" onclick="choosePadName('${esc(n)}')">${owned.has(n)?"● ":""}${n}${isIconic(n)?" ★":""}</button>`;
-  }).join("") : `<div class="meta">No ${kind.toLowerCase()} matches</div>`;
-}
 function choosePadName(n){
-  window._padPick = n;
+  window._padPick = n || "";
   const hid = document.getElementById("padName");
-  if (hid) hid.value = n;
+  if (hid) hid.value = n || "";
   const lab = document.getElementById("padChosen");
   if (lab) lab.textContent = n ? ("Selected: "+n+(isIconic(n)?" · iconic +15%":" · "+classOf(n))) : "No droid selected";
+  const kind = n ? classOf(n) : "";
   ["Worker","Astromech","Battle"].forEach(k => {
-    const inp = document.getElementById("pickQ-"+k);
-    filterPick(k, inp ? inp.value : "");
+    const sel = document.getElementById("pick-"+k);
+    if (sel) sel.value = (k===kind ? n : "");
   });
   const varBox = document.getElementById("padVarBox");
   if (varBox){
-    if (isIconic(n)) varBox.innerHTML = `<input id="padVar" type="hidden" value="Basic"><div class="meta">Iconic · +15% income when parked</div>`;
+    if (n && isIconic(n)) varBox.innerHTML = `<input id="padVar" type="hidden" value="Basic"><div class="meta">Iconic · +15% income when parked</div>`;
     else {
-      let html = `<div class="meta" style="margin:8px 0 6px">Variant</div><select id="padVar" class="deck-field">`;
+      let html = `<div class="meta" style="margin:10px 0 6px">Variant</div><select id="padVar" class="deck-field">`;
       VARIANTS.forEach(v => { html += `<option value="${v}">${v}</option>`; });
       html += `</select>`;
       varBox.innerHTML = html;
@@ -824,16 +829,23 @@ function openPad(id){
   const pad = PADS.find(p=>p.id===id);
   const cur = padSlot(deck, id) || {};
   window._padPick = cur.name || "";
+  const owned = new Set(ownedOptions());
   const box = document.getElementById("modal");
   box.classList.remove("hidden");
-  let html = `<div class="sheet"><h2>${pad.kind} ${pad.n}</h2><p>Search each type separately. Matching type gets +10%.</p>`;
+  let html = `<div class="sheet"><h2>${pad.kind} ${pad.n}</h2><p>Pick from one type list. Matching type gets +10%.</p>`;
   html += `<input id="padName" type="hidden" value="${esc(cur.name||"")}">`;
   html += `<div id="padChosen" class="meta">${cur.name?("Selected: "+cur.name):"No droid selected"}</div>`;
-  html += `<div class="pick-grid">`;
   ["Worker","Astromech","Battle"].forEach(kind => {
-    html += `<div class="pick-col"><h3>${kind}</h3><input id="pickQ-${kind}" class="deck-field" type="search" placeholder="Search ${kind.toLowerCase()}…" oninput="filterPick('${kind}',this.value)"><div class="pick-list" id="pick-${kind}"></div></div>`;
+    html += `<div class="meta" style="margin:10px 0 6px">${kind}</div>`;
+    html += `<select id="pick-${kind}" class="deck-field" onchange="choosePadName(this.value)">`;
+    html += `<option value="">Empty</option>`;
+    namesOfType(kind).forEach(n => {
+      const sel = n===cur.name ? "selected" : "";
+      html += `<option value="${esc(n)}" ${sel}>${owned.has(n)?"● ":""}${n}${isIconic(n)?" ★":""}</option>`;
+    });
+    html += `</select>`;
   });
-  html += `</div><div id="padVarBox">`;
+  html += `<div id="padVarBox">`;
   if (cur.name && isIconic(cur.name)) html += `<input id="padVar" type="hidden" value="Basic"><div class="meta" style="margin-top:8px">Iconic · +15% income when parked</div>`;
   else {
     html += `<div class="meta" style="margin:10px 0 6px">Variant</div><select id="padVar" class="deck-field">`;
@@ -842,25 +854,29 @@ function openPad(id){
   }
   html += `</div><div class="row" style="margin-top:12px"><button onclick="closeModal()">Cancel</button><button class="danger" onclick="setPad('${id}','','');closeModal()">Clear</button><button onclick="setPad('${id}',document.getElementById('padName').value,document.getElementById('padVar').value);closeModal()">Park</button></div></div>`;
   box.innerHTML = html;
-  ["Worker","Astromech","Battle"].forEach(k => filterPick(k,""));
 }
 function renderDecks(){
   const deck = activeDeck();
+  const visiblePads = PADS.filter(p => {
+    const f = FLOORS.find(x=>x.id===p.floor);
+    return !f || f.group!=="fusion" || f.lab===1 || state.decks.secondLab;
+  });
   let parked = 0;
-  PADS.forEach(p => { if (padSlot(deck,p.id) && padSlot(deck,p.id).name) parked++; });
-  let html = `<div class="hint">Mini base map — 11 worker, 9 astromech, 5 battle, 4 lounge. Lounge still earns credits/s but no +10% type bonus. Green = matching type. Gold = off-type.</div>`;
+  visiblePads.forEach(p => { if (padSlot(deck,p.id) && padSlot(deck,p.id).name) parked++; });
+  const visTotal = visiblePads.length;
+  let html = `<div class="hint">Hard caps: 11 worker · 9 astromech · 11 battle (5 + 6 firing range) · 13 lounge · 2 companion. Fusion lab is 3 pads + 1 chamber; a second tank (300 Nova / 1,800 V-Bucks) unlocks another 3+1. Lounge, companions, fusion, and chamber do not earn credits/s. Lounge + fusion/chamber still count for rebirths. Green = matching type +10%.</div>`;
   html += `<div class="deck-bar">`;
   state.decks.list.forEach((d,i) => {
     html += `<button class="${i===state.decks.active?"on":""}" onclick="switchDeck(${i})">${d.name||("Deck "+(i+1))}</button>`;
   });
-  html += `<button onclick="addDeck()">+ Deck</button></div>`;
+  html += `<button onclick="addDeck()">+ Base</button></div>`;
   const icons = iconicBoost(deck);
-  html += `<article class="card deck-total"><b>${fmtRate(deckCps(deck))}</b><span>${parked}/29 parked${icons?` · ${icons} iconic ×15%`:""} · total credits / second</span></article>`;
-  html += `<article class="card"><div class="name">${deck.name||"Deck"}</div>`;
-  html += `<div class="meta" style="margin:8px 0 6px">Deck name</div><input class="deck-field" value="${esc(deck.name||"")}" onchange="setDeckField('name',this.value)">`;
-  html += `<div class="meta" style="margin:8px 0 6px">Deck multiplier (1 = none)</div><input class="deck-field" type="number" min="0" step="0.01" value="${deck.mult||1}" onchange="setDeckField('mult',this.value)">`;
+  html += `<article class="card deck-total"><b>${fmtRate(deckCps(deck))}</b><span>${parked}/${visTotal} parked${icons?` · ${icons} iconic ×15%`:""} · total credits / second</span></article>`;
+  html += `<article class="card"><div class="name">${deck.name||"Base"}</div>`;
+  html += `<div class="meta" style="margin:8px 0 6px">Base name</div><input class="deck-field" value="${esc(deck.name||"")}" onchange="setDeckField('name',this.value)">`;
+  html += `<div class="meta" style="margin:8px 0 6px">Base multiplier (1 = none)</div><input class="deck-field" type="number" min="0" step="0.01" value="${deck.mult||1}" onchange="setDeckField('mult',this.value)">`;
   html += `<div class="vars" style="grid-template-columns:1fr;margin-top:10px"><label class="chk ${deck.bonus!==false?"on":""}" style="flex-direction:row;text-transform:none;letter-spacing:0"><input type="checkbox" ${deck.bonus!==false?"checked":""} onchange="setDeckField('bonus',this.checked)">Collection bonus (+${collectionBonus()}%)</label></div></article>`;
-  FLOORS.forEach(f => {
+  FLOORS.filter(f => f.group!=="fusion").forEach(f => {
     const slice = PADS.filter(p=>p.floor===f.id);
     const used = slice.filter(p => padSlot(deck,p.id) && padSlot(deck,p.id).name).length;
     html += `<section class="floor ${f.id}"><h3>${f.label} · ${used}/${f.count}</h3><div class="pads">`;
@@ -872,18 +888,55 @@ function renderDecks(){
         const tone = !typed ? "lounge" : (match ? "match" : "offtype");
         html += `<button class="pad filled ${tone}" onclick="openPad('${p.id}')">${picWrap(s.name,p.kind,isIconic(s.name)?"Iconic":"Common")}<span class="pad-lab">${isIconic(s.name)?"★ "+s.name:s.name}</span></button>`;
       } else {
-        html += `<button class="pad empty ${p.kind==="Lounge"?"lounge":""}" onclick="openPad('${p.id}')"><div class="pic">+</div><span class="pad-lab">${p.kind==="Lounge"?"L"+p.n:p.kind[0]+p.n}</span></button>`;
+        html += `<button class="pad empty ${p.kind==="Lounge"||p.kind==="Companion"?"lounge":""}" onclick="openPad('${p.id}')"><div class="pic">+</div><span class="pad-lab">${(PAD_TAG[p.floor]||p.kind[0])+p.n}</span></button>`;
       }
     });
     html += `</div></section>`;
   });
+  html += renderFusionLabs(deck);
   return html;
+}
+function padButton(p, deck){
+  const s = padSlot(deck,p.id);
+  if (s && s.name){
+    const typed = p.kind==="Worker"||p.kind==="Astromech"||p.kind==="Battle";
+    const match = typed && classOf(s.name)===p.kind;
+    const tone = !typed ? "lounge" : (match ? "match" : "offtype");
+    return `<button class="pad filled ${tone}" onclick="openPad('${p.id}')">${picWrap(s.name,p.kind,isIconic(s.name)?"Iconic":"Common")}<span class="pad-lab">${isIconic(s.name)?"★ "+s.name:s.name}</span></button>`;
+  }
+  const tag = (PAD_TAG[p.floor]||p.kind[0]) + p.n;
+  return `<button class="pad empty lounge" onclick="openPad('${p.id}')"><div class="pic">+</div><span class="pad-lab">${tag}</span></button>`;
+}
+function renderFusionLabs(deck){
+  const second = !!state.decks.secondLab;
+  function labBlock(lab){
+    const fuse = PADS.filter(p=>p.floor==="fuse"+lab);
+    const cham = PADS.filter(p=>p.floor==="chamber"+lab);
+    const used = fuse.concat(cham).filter(p => padSlot(deck,p.id)&&padSlot(deck,p.id).name).length;
+    let h = `<div class="meta" style="margin:10px 0 6px">Lab ${lab} · ${used}/4 · 3 fusion pads + chamber</div><div class="pads">`;
+    fuse.forEach(p => h += padButton(p,deck));
+    cham.forEach(p => h += padButton(p,deck));
+    h += `</div>`;
+    return h;
+  }
+  let html = `<section class="floor fuse"><h3>Fusion lab</h3>`;
+  html += `<p class="meta">Park the 3 recipe droids on the fusion pads. Chamber is the tank cooking the result. These pads do not earn credits/s. They do count for rebirth if a droid is sitting here.</p>`;
+  html += labBlock(1);
+  html += `<div class="vars" style="grid-template-columns:1fr;margin-top:12px"><label class="chk ${second?"on":""}" style="flex-direction:row;text-transform:none;letter-spacing:0"><input type="checkbox" ${second?"checked":""} onchange="toggleSecondLab(this.checked)">Second fusion tank bought (300 Nova or 1,800 V-Bucks)</label></div>`;
+  if (second) html += labBlock(2);
+  html += `</section>`;
+  return html;
+}
+function toggleSecondLab(on){
+  state.decks.secondLab = !!on;
+  save(); render();
 }
 
 function ensureDecks(st){
   if (!st.decks || !Array.isArray(st.decks.list) || !st.decks.list.length) {
-    st.decks = {active:0,list:[blankDeck("Deck 1")]};
+    st.decks = {active:0,list:[blankDeck("Base 1")], secondLab:false};
   }
+  if (st.decks.secondLab == null) st.decks.secondLab = false;
   if (st.decks.active >= st.decks.list.length) st.decks.active = 0;
   st.decks.list.forEach(normalizeDeck);
   return st;
@@ -1116,6 +1169,7 @@ function parkedBest(n){
     const deck = activeDeck();
     let best = -1;
     PADS.forEach(p => {
+      if (p.kind==="Companion") return;
       const s = padSlot(deck, p.id);
       if (!s || s.name !== n) return;
       if (isIconic(n)) { best = Math.max(best, 0); return; }
