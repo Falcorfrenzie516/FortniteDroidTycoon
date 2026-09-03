@@ -54,7 +54,7 @@
   body[data-tab="srb"] .toolbar { display:none; }
   h1 { margin:0; font-size:0; line-height:0; }
   h1.show { font-size:22px; line-height:1.1; text-align:center; font-family:Orbitron,sans-serif; letter-spacing:.12em; text-transform:uppercase; color:#f5d0fe; }
-  .brand { display:block; width:min(360px,86vw); max-height:64px; object-fit:cover; object-position:center; height:auto; margin:0 auto 2px; border-radius:10px; }
+  .brand { display:block; width:min(520px,94vw); max-height:none; object-fit:contain; object-position:center top; height:auto; margin:0 auto 2px; border-radius:12px; }
   .dash { margin:0 0 6px; border:1px solid var(--line); border-radius:14px; background:rgba(12,10,24,.55); }
   .dash > summary { list-style:none; cursor:pointer; padding:8px 10px; font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); font-family:Orbitron,sans-serif; }
   .dash > summary::-webkit-details-marker { display:none; }
@@ -62,6 +62,10 @@
   .dash .dash-body { padding:0 8px 8px; }
   .sub { color:var(--muted); font-size:11px; margin-top:2px; text-align:center; font-family:Orbitron,sans-serif; letter-spacing:.16em; text-transform:uppercase; }
   .belts { display:grid; grid-template-columns:repeat(3,1fr); gap:7px; margin-top:10px; }
+  .belts.has-evt { grid-template-columns:repeat(2,1fr); }
+  @media (min-width:720px){ .belts.has-evt { grid-template-columns:repeat(4,1fr); } }
+  .belt.evt { border-color:rgba(226,195,109,.45); background:radial-gradient(circle at 50% 0%, rgba(226,195,109,.18), transparent 70%); }
+  .belt.hidden { display:none; }
   .belt { background:var(--card); border:1px solid var(--line); border-radius:16px; padding:10px 6px; text-align:center; }
   .belt b { display:block; font-size:16px; font-variant-numeric:tabular-nums; color:var(--gold2); font-family:Orbitron,sans-serif; letter-spacing:.08em; }
   .belt span { font-size:9px; color:var(--muted); letter-spacing:.18em; text-transform:uppercase; font-family:Orbitron,sans-serif; }
@@ -341,6 +345,7 @@
     <div class="belt gal" id="beltGal"><b>--</b><span>Galactic</span></div>
     <div class="belt myth" id="beltMyth"><b>--</b><span>Mythic</span></div>
     <div class="belt stel" id="beltStel"><b>--</b><span>Stellar</span></div>
+    <div class="belt evt hidden" id="beltEvt"><b>--</b><span id="beltEvtName">Event</span></div>
   </div>
   <div class="stats">
     <div class="stat"><i class="fill" id="fillNames"></i><b id="sNames">0</b><span>Droids</span></div>
@@ -1896,10 +1901,12 @@ const FOAD_HISTORY = [
   {name:"Mister Bones", when:"May 16–17, 2026", windows:"24h world window"},
   {name:"DJ R-3X", when:"Jun 13–14, 2026", windows:"Sat 4PM–10PM ET · Sun encore"},
   {name:"R2-D2", when:"Jun 27–28, 2026", windows:"Sat 4PM–10PM ET · Sun 6AM–4PM ET"},
-  {name:"D-O", when:"Aug 29–31, 2026", windows:"Event weekend · fusion time perk"}
+  {name:"D-O", when:"Aug 29, 2026", windows:"First 24h run · 4PM ET" },
+  {name:"D-O rerun", when:"Sep 5–6, 2026", windows:"Sat 4PM ET 24h · 1PM PT"}
 ];
 const FOAD_EVENTS = [
-  {name:"D-O Event", start:"2026-08-29T10:00:00-04:00", end:"2026-08-31T22:00:00-04:00", rewards:["D-O Iconic"], bonuses:["½ fusion time"], how:"Play the island during the event window"},
+  {name:"D-O Event rerun", start:"2026-09-05T16:00:00-04:00", end:"2026-09-06T16:00:00-04:00", rewards:["D-O Iconic","D-O Base Paint","Nova Crystals"], bonuses:["2× credits","2× chips","2× flawless"], how:"24 hours · Sat 4PM ET / 1PM PT · FOAD official"},
+  {name:"D-O Event", start:"2026-08-29T16:00:00-04:00", end:"2026-08-30T16:00:00-04:00", rewards:["D-O Iconic"], bonuses:["½ fusion time","2× credits"], how:"First run Aug 29"},
   {name:"Droid Fusion weekend", start:"2026-08-22T16:00:00-04:00", end:"2026-08-24T22:00:00-04:00", rewards:["Fusion recipes live"], bonuses:["2× credits"], how:"Fusion lab unlocked from RB 3"}
 ];
 function eventStatus(ev, now){
@@ -1967,6 +1974,27 @@ function tickBelts(){
     el.classList.toggle("soon", left <= 60000);
     el.querySelector("b").textContent = fmtLeft(left);
   });
+  const evBelt = document.getElementById("beltEvt");
+  const wrap = document.querySelector(".belts");
+  let hit = null;
+  computeFoadEvents(now).forEach(ev => {
+    if (ev.status==="ended") return;
+    const t = ev.status==="live" ? Date.parse(ev.end) : Date.parse(ev.start);
+    const ms = t - now;
+    if (ms < 0) return;
+    if (!hit || ms < hit.ms) hit = {ev, ms, live: ev.status==="live"};
+  });
+  const show = !!(hit && hit.ms <= 2*3600*1000);
+  if (evBelt){
+    evBelt.classList.toggle("hidden", !show);
+    if (show){
+      evBelt.querySelector("b").textContent = fmtLeft(hit.ms);
+      const lab = document.getElementById("beltEvtName");
+      if (lab) lab.textContent = hit.live ? (hit.ev.name+" ends") : hit.ev.name;
+      evBelt.classList.toggle("soon", hit.ms <= 60000);
+    }
+  }
+  if (wrap) wrap.classList.toggle("has-evt", show);
   checkAlarms();
   tickEvents();
 }
