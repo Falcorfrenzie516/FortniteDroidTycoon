@@ -61,6 +61,10 @@
   .dash[open] > summary { color:var(--gold2); }
   .dash .dash-body { padding:0 8px 8px; }
   .sub { color:var(--muted); font-size:11px; margin-top:2px; text-align:center; font-family:Orbitron,sans-serif; letter-spacing:.16em; text-transform:uppercase; }
+  .epic-pill { display:inline-block; font-size:9px; letter-spacing:.08em; text-transform:uppercase; padding:2px 8px; border-radius:999px; border:1px solid var(--line); color:var(--muted); text-decoration:none; vertical-align:middle; }
+  .epic-pill.operational { color:#4ade80; border-color:#4ade80; }
+  .epic-pill.degraded_performance,.epic-pill.partial_outage,.epic-pill.minor { color:#fbbf24; border-color:#fbbf24; }
+  .epic-pill.major_outage,.epic-pill.under_maintenance,.epic-pill.critical { color:#f87171; border-color:#f87171; }
   .belts { display:grid; grid-template-columns:repeat(3,1fr); gap:7px; margin-top:10px; }
   .belts.has-evt { grid-template-columns:repeat(2,1fr); }
   @media (min-width:720px){ .belts.has-evt { grid-template-columns:repeat(4,1fr); } }
@@ -353,7 +357,7 @@
 <header>
   <h1>Pocket Droid Tycoon Companion</h1>
   <details class="dash">
-    <summary>Title · belts · stats · <span id="saveLabel">Main</span></summary>
+    <summary>Title · belts · stats · <span id="saveLabel">Main</span> · <a id="epicStatus" class="epic-pill unknown" href="https://status.epicgames.com" target="_blank" rel="noopener" onclick="event.stopPropagation()">Epic · …</a></summary>
     <div class="dash-body">
   <img class="brand" src="img/pocket-droidex.jpg" alt="Pocket Droid Tycoon Companion" onerror="this.style.display='none';document.querySelector('h1').classList.add('show')" />
   <div class="sub">Profile: <span id="saveLabel2">Main</span></div>
@@ -2362,6 +2366,27 @@ setInterval(tickBelts, 1000);
 scanAnnouncedEvents(true).then(ok => { if (ok) { tickBelts(); if (tab==="alarms") render(); } });
 scanRegistry(true);
 scanPatches(true);
+refreshEpicStatus();
+setInterval(refreshEpicStatus, 120000);
+async function refreshEpicStatus(){
+  const el = document.getElementById("epicStatus");
+  if (!el) return;
+  try {
+    const res = await fetch("https://status.epicgames.com/api/v2/summary.json", {cache:"no-store"});
+    const data = await res.json();
+    const fn = (data.components||[]).find(c => c.name==="Fortnite" && c.group) || (data.components||[]).find(c => c.name==="Fortnite");
+    const raw = (fn && fn.status) || (data.status && data.status.indicator) || "unknown";
+    const map = {none:"operational", operational:"operational", minor:"degraded_performance", major:"major_outage", critical:"major_outage"};
+    const st = map[raw] || raw;
+    const label = st==="operational" ? "Epic · Up" : st==="degraded_performance"||st==="partial_outage" ? "Epic · Issues" : st==="under_maintenance" ? "Epic · Maint" : st==="major_outage" ? "Epic · Down" : "Epic · …";
+    el.className = "epic-pill "+st;
+    el.textContent = label;
+    el.title = (data.status && data.status.description) || "Epic Games Public Status";
+  } catch(e){
+    el.className = "epic-pill unknown";
+    el.textContent = "Epic · ?";
+  }
+}
 (function spaceBG(){
   const c = document.getElementById("space");
   if (!c || !c.getContext) return;
