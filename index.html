@@ -202,11 +202,11 @@
   .floor.fuse { border-color:rgba(232,121,249,.45); }
   .floor.mission-floor { border-color:rgba(251,191,36,.55); }
   .pads { display:grid; grid-template-columns:repeat(auto-fill,minmax(58px,1fr)); gap:8px; justify-items:center; }
-  header, main { box-sizing:border-box; }
-  header { display:flex; flex-direction:column; align-items:center; }
-  header > h1, header > .dash, header > .toolbar, header > nav { width:min(960px,100%); }
-  main { display:flex; justify-content:center; }
-  #app { width:min(960px,100%); }
+  header > h1, header > .dash, header > .toolbar, header > nav, main {
+    width:min(960px,100%);
+    margin-left:auto;
+    margin-right:auto;
+  }
   .pad {
     width:58px; height:72px; padding:0; display:flex; flex-direction:column; align-items:center; justify-content:flex-start;
     background:rgba(6,4,14,.7); border:2px dotted #5b5388; border-radius:14px; color:var(--muted); touch-action:none;
