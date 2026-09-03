@@ -237,6 +237,12 @@
   }
   .card-pop.hidden { display:none; }
   .card-pop .pop-card { width:min(640px,100%); }
+  .evt-count { font-variant-numeric:tabular-nums; font-size:20px; color:var(--gold2); margin:8px 0 6px; font-family:Orbitron,sans-serif; }
+  .badge.live { color:#4ade80; border-color:#4ade80; }
+  .badge.upcoming { color:#7dd3fc; border-color:#7dd3fc; }
+  .badge.ended { color:var(--muted); border-color:var(--line); }
+  .evt-table { width:100%; border-collapse:collapse; font-size:11px; margin-top:8px; }
+  .evt-table th,.evt-table td { text-align:left; padding:6px 4px; border-bottom:1px solid var(--line); color:var(--muted); }
   .card { position:relative; overflow:hidden; background:rgba(12,10,24,.78); border:1px solid var(--line); border-radius:16px; padding:12px; }
   .card > i.fill { position:absolute; left:0; top:0; height:76px; bottom:auto; width:0; background:linear-gradient(90deg,#365314,#84cc16 70%,#d9f99d); opacity:.28; pointer-events:none; }
   details.drop > i.fill { display:none; }
@@ -365,7 +371,7 @@
     <div class="tabrow row2">
       <button data-tab="cosmetics"><i class="fill" id="tabFill-cosmetics"></i><span>Paint</span></button>
       <button data-tab="saves"><i class="fill" id="tabFill-saves"></i><span>Profiles</span></button>
-      <button data-tab="alarms"><i class="fill" id="tabFill-alarms"></i><span>Alarms</span></button>
+      <button data-tab="alarms"><i class="fill" id="tabFill-alarms"></i><span>Events</span></button>
     </div>
   </nav>
 </header>
@@ -1655,7 +1661,24 @@ function render(){
     if (!shown) html += `<div class="empty">Nothing completed yet. Finish all 7 variants on a droid, or own an iconic.</div>`;
   }
   if (tab==="alarms") {
-    html += `<div class="hint">Keep this page open for alerts. Each drop has its own timer. Pick how many minutes early to warn, then Vibrate, Sound, or Both. iPhone cannot vibrate from a webpage — use Sound there.</div>`;
+    html += `<div class="hint">Times in Eastern. FOAD weekend windows are community-posted — not an official Epic calendar. Blueprint drops tick every second if you leave this page open.</div>`;
+    computeFoadEvents().forEach((ev,i) => {
+      const extra = [
+        ev.rewards ? "Claim: "+ev.rewards.join(" · ") : "",
+        ev.bonuses ? "Bonuses: "+ev.bonuses.join(" · ") : "",
+        ev.how || ""
+      ].filter(Boolean).join(" · ");
+      html += `<article class="card"><div class="top"><div class="grow"><div class="name">${ev.name}</div></div><span class="badge ${ev.status}" id="evtFoadBadge${i}">${ev.status}</span></div><div class="evt-count" id="evtFoad${i}">${ev.countdownLabel}</div><div class="meta">${extra}</div></article>`;
+    });
+    html += `<article class="card theme-gal"><div class="top"><div class="grow"><div class="name">Galactic blueprints</div></div><span class="badge live">recurring</span></div><div class="evt-count" id="evtGal">Next in ${fmtLeft(nextGalactic()-Date.now())}</div><div class="meta">Every :15 and :45 Eastern-local clock</div></article>`;
+    html += `<article class="card theme-myth"><div class="top"><div class="grow"><div class="name">Mythic blueprints</div></div><span class="badge live">recurring</span></div><div class="evt-count" id="evtMyth">Next in ${fmtLeft(nextHourly(55)-Date.now())}</div><div class="meta">Hourly at :55</div></article>`;
+    html += `<article class="card theme-stel"><div class="top"><div class="grow"><div class="name">Stellar blueprints</div></div><span class="badge live">recurring</span></div><div class="evt-count" id="evtStel">Next in ${fmtLeft(nextHourly(0)-Date.now())}</div><div class="meta">Hourly at :00</div></article>`;
+    html += `<details class="card drop"><summary><div class="grow"><div class="name">Past iconic weekends</div><div class="meta">FOAD history</div></div><span class="chev">▸</span></summary><div class="drop-body"><table class="evt-table"><tr><th>Event</th><th>When</th><th>Window</th></tr>`;
+    FOAD_HISTORY.forEach(h => {
+      html += `<tr><td>${h.name}</td><td>${h.when}</td><td>${h.windows}</td></tr>`;
+    });
+    html += `</table></div></details>`;
+    html += `<div class="hint">Blueprint alarms — keep this page open. iPhone cannot vibrate from a webpage; use Sound there.</div>`;
     [["Galactic","Every :15 and :45"],["Mythic","Hourly at :55"],["Stellar","Hourly at :00"]].forEach(([name,when]) => {
       const a = alarms[name];
       const at = name==="Galactic" ? nextGalactic() : nextHourly(name==="Mythic"?55:0);
@@ -1867,6 +1890,62 @@ function nextGalactic(){
   else { t.setHours(t.getHours()+1); t.setMinutes(15); }
   return t;
 }
+const FOAD_HISTORY = [
+  {name:"BB-8 Weekend", when:"May 2026", windows:"Sat + Sun blocks"},
+  {name:"Mandalorian / IG-11 Marshal", when:"May 23–24, 2026", windows:"Sat 10AM–4PM ET · Sun 4PM–10PM ET"},
+  {name:"Mister Bones", when:"May 16–17, 2026", windows:"24h world window"},
+  {name:"DJ R-3X", when:"Jun 13–14, 2026", windows:"Sat 4PM–10PM ET · Sun encore"},
+  {name:"R2-D2", when:"Jun 27–28, 2026", windows:"Sat 4PM–10PM ET · Sun 6AM–4PM ET"},
+  {name:"D-O", when:"Aug 29–31, 2026", windows:"Event weekend · fusion time perk"}
+];
+const FOAD_EVENTS = [
+  {name:"D-O Event", start:"2026-08-29T10:00:00-04:00", end:"2026-08-31T22:00:00-04:00", rewards:["D-O Iconic"], bonuses:["½ fusion time"], how:"Play the island during the event window"},
+  {name:"Droid Fusion weekend", start:"2026-08-22T16:00:00-04:00", end:"2026-08-24T22:00:00-04:00", rewards:["Fusion recipes live"], bonuses:["2× credits"], how:"Fusion lab unlocked from RB 3"}
+];
+function eventStatus(ev, now){
+  const a = Date.parse(ev.start), b = Date.parse(ev.end);
+  if (now >= a && now < b) return "live";
+  if (now < a) return "upcoming";
+  return "ended";
+}
+function fmtLeftLong(ms){
+  if (ms < 0) ms = 0;
+  const s = Math.floor(ms/1000);
+  const d = Math.floor(s/86400);
+  const h = Math.floor((s%86400)/3600);
+  const m = Math.floor((s%3600)/60);
+  const sec = s%60;
+  if (d) return d+"d "+h+"h "+m+"m";
+  if (h) return h+"h "+String(m).padStart(2,"0")+"m";
+  return m+":"+String(sec).padStart(2,"0");
+}
+function computeFoadEvents(now){
+  now = now || Date.now();
+  return FOAD_EVENTS.map(ev => {
+    const st = eventStatus(ev, now);
+    const a = Date.parse(ev.start), b = Date.parse(ev.end);
+    let countdownLabel = "";
+    if (st==="live") countdownLabel = "Ends in "+fmtLeftLong(b-now);
+    else if (st==="upcoming") countdownLabel = "Starts in "+fmtLeftLong(a-now);
+    else countdownLabel = "Ended";
+    return Object.assign({}, ev, {status:st, countdownLabel});
+  }).sort((x,y) => { const o={live:0,upcoming:1,ended:2}; return (o[x.status]-o[y.status]) || (Date.parse(x.start)-Date.parse(y.start)); });
+}
+function tickEvents(){
+  const now = Date.now();
+  const g = document.getElementById("evtGal");
+  const m = document.getElementById("evtMyth");
+  const s = document.getElementById("evtStel");
+  if (g) g.textContent = "Next in "+fmtLeft(nextGalactic()-now);
+  if (m) m.textContent = "Next in "+fmtLeft(nextHourly(55)-now);
+  if (s) s.textContent = "Next in "+fmtLeft(nextHourly(0)-now);
+  computeFoadEvents(now).forEach((ev,i) => {
+    const el = document.getElementById("evtFoad"+i);
+    if (el) el.textContent = ev.countdownLabel;
+    const b = document.getElementById("evtFoadBadge"+i);
+    if (b){ b.className = "badge "+ev.status; b.textContent = ev.status; }
+  });
+}
 function fmtLeft(ms){
   if (ms < 0) ms = 0;
   const s = Math.floor(ms/1000);
@@ -1889,6 +1968,7 @@ function tickBelts(){
     el.querySelector("b").textContent = fmtLeft(left);
   });
   checkAlarms();
+  tickEvents();
 }
 tickBelts();
 setInterval(tickBelts, 1000);
