@@ -215,8 +215,12 @@
   .pad.mission.filled { border-style:solid; }
   .pad.drag { opacity:.45; }
   .pad.drop { outline:2px solid #c4b5fd; outline-offset:2px; }
-  .pad.need-ok { border-style:solid; border-color:#00f6ff; box-shadow:0 0 10px #00f6ff, 0 0 22px rgba(0,246,255,.45); }
-  .pad.need-low { border-style:solid; border-color:#ff8a00; box-shadow:0 0 10px #ff8a00, 0 0 22px rgba(255,138,0,.4); }
+  .pad.need-ok { border-style:solid; border-color:#00f6ff; box-shadow:0 0 8px #00f6ff, 0 0 16px rgba(0,246,255,.35); }
+  .pad.need-low { border-style:solid; border-color:#ff8a00; box-shadow:0 0 8px #ff8a00, 0 0 16px rgba(255,138,0,.32); }
+  .pad.need-ok.need-solo { border-width:3px; box-shadow:0 0 14px #00f6ff, 0 0 32px #00f6ff, 0 0 54px rgba(0,246,255,.85); animation:pulseOk 1.4s ease-in-out infinite; }
+  .pad.need-low.need-solo { border-width:3px; box-shadow:0 0 14px #ff8a00, 0 0 32px #ff8a00, 0 0 54px rgba(255,138,0,.85); animation:pulseLow 1.4s ease-in-out infinite; }
+  @keyframes pulseOk { 50% { box-shadow:0 0 20px #00f6ff, 0 0 48px #00f6ff, 0 0 72px rgba(0,246,255,1); } }
+  @keyframes pulseLow { 50% { box-shadow:0 0 20px #ff8a00, 0 0 48px #ff8a00, 0 0 72px rgba(255,138,0,1); } }
   .pad .pic { width:44px; height:44px; margin-top:4px; border-radius:10px; border-style:dotted; }
   .pad .pad-lab { font-size:8px; letter-spacing:.04em; text-transform:uppercase; font-family:Orbitron,sans-serif; max-width:54px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .pad.empty .pic { background:transparent; border:2px dotted #3f3a63; display:flex; align-items:center; justify-content:center; color:#5b5388; font-size:16px; }
@@ -872,6 +876,21 @@ function switchDeck(i){
   state.decks.active = Number(i)||0;
   save(); render();
 }
+function renameDeck(){
+  const d = activeDeck();
+  const n = prompt("Base name", d.name||"Base");
+  if (n==null) return;
+  d.name = String(n).trim() || d.name;
+  save(); render();
+}
+function deleteDeck(){
+  ensureDecks(state);
+  if (state.decks.list.length<2) return;
+  if (!confirm("Delete this base map?")) return;
+  state.decks.list.splice(state.decks.active,1);
+  if (state.decks.active >= state.decks.list.length) state.decks.active = state.decks.list.length-1;
+  save(); render();
+}
 function parkedIconics(exceptId){
   const d = activeDeck();
   const used = new Set();
@@ -972,11 +991,7 @@ function renderDecks(){
   visiblePads.forEach(p => { if (padSlot(deck,p.id) && padSlot(deck,p.id).name) parked++; });
   const visTotal = visiblePads.length;
   let html = `<div class="hint">Hard caps: 11 worker · 9 astromech · 11 battle (5 + 6 firing range) · 13 lounge · 2 companion. Fusion lab is 3 pads + 1 chamber; a second tank (300 Nova / 1,800 V-Bucks) unlocks another 3+1. Lounge, companions, fusion, and chamber do not earn credits/s. Lounge + fusion/chamber still count for rebirths. Green = matching type +10%. Neon blue pad = ready for an upcoming rebirth. Orange pad = needed name, variant too low.</div>`;
-  html += `<div class="deck-bar">`;
-  state.decks.list.forEach((d,i) => {
-    html += `<button class="${i===state.decks.active?"on":""}" onclick="switchDeck(${i})">${d.name||("Deck "+(i+1))}</button>`;
-  });
-  html += `<button onclick="addDeck()">+ Base</button></div>`;
+  html += `<div class="meta" style="margin:0 0 8px">Active base: <b>${esc(deck.name||"Base")}</b> · switch bases on Profiles</div>`;
   const icons = iconicBoost(deck);
   html += `<article class="card deck-total"><b>${fmtRate(deckCps(deck))}</b><span>${parked}/${visTotal} parked${icons?` · ${icons} iconic ×15%`:""} · total credits / second</span></article>`;
   html += `<article class="card"><div class="name">${deck.name||"Base"}</div>`;
@@ -1153,6 +1168,15 @@ function savePanel(){
   html += `</select><div class="meta" style="margin:10px 0 6px">Highlight next rebirths (1–10)</div><select class="deck-field" onchange="setRbSetting('ahead',this.value)">`;
   for (let n=1;n<=10;n++) html += `<option value="${n}" ${highlightAhead()===n?"selected":""}>${n} rebirth${n>1?"s":""} ahead</option>`;
   html += `</select></article>`;
+  html += `<article class="card"><div class="name">Bases</div><div class="meta" style="margin:6px 0 8px">Each base is its own pad map and multiplier. The Base tab shows the active one.</div>`;
+  html += `<div class="meta" style="margin:8px 0 6px">Active base</div><select class="deck-field" onchange="switchDeck(this.value)">`;
+  state.decks.list.forEach((d,i) => {
+    html += `<option value="${i}" ${i===state.decks.active?"selected":""}>${d.name||("Base "+(i+1))}</option>`;
+  });
+  html += `</select><div class="act" style="margin-top:10px"><button onclick="addDeck()">+ Base</button>`;
+  html += `<button onclick="renameDeck()">Rename</button>`;
+  if (state.decks.list.length>1) html += `<button class="danger" onclick="deleteDeck()">Delete active</button>`;
+  html += `</div></article>`;
   html += `<div class="card"><div class="name">${currentName()}</div><div class="meta" style="margin:4px 0 8px">Active profile on this device</div><div class="saves">`;
   html += `<select onchange="switchSave(this.value)">`;
   Object.keys(bank.slots).forEach(id => {
@@ -1363,12 +1387,22 @@ function upcomingNeeds(){
   }
   return need;
 }
+function copiesOnBase(name){
+  const d = activeDeck();
+  let n = 0;
+  PADS.forEach(p => {
+    const s = padSlot(d, p.id);
+    if (s && s.name===name) n++;
+  });
+  return n;
+}
 function padNeedClass(slot){
   if (!slot || !slot.name) return "";
   const need = upcomingNeeds();
   if (!(slot.name in need)) return "";
   const have = isIconic(slot.name) ? 6 : (TIER_I[slot.variant||"Basic"] ?? -1);
-  return have >= need[slot.name] ? "need-ok" : "need-low";
+  const tone = have >= need[slot.name] ? "need-ok" : "need-low";
+  return copiesOnBase(slot.name)===1 ? tone+" need-solo" : tone;
 }
 function setRbSetting(field, value){
   if (!state.rb) state.rb = {};
