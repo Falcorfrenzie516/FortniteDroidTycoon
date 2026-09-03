@@ -749,6 +749,26 @@ function classOf(name){
   if (ic) return ic[1];
   return "";
 }
+const RARITY_RANK = {Common:0,Rare:1,Epic:2,Legendary:3,Mythic:4,Iconic:5,Fusion:2};
+function rarityOf(name){
+  const d = DROIDS.find(x=>x[0]===name);
+  if (d) return d[2];
+  const f = FUSIONS.find(x=>x[0]===name);
+  if (f) return f[1];
+  if (ICONICS.some(x=>x[0]===name)) return "Iconic";
+  return "";
+}
+function rarityMark(r){
+  if (!r) return "";
+  return ` <span class="${r}">(${r})</span>`;
+}
+function sortByRarity(names){
+  return names.slice().sort((a,b) => {
+    const ra = RARITY_RANK[rarityOf(a)] ?? 9;
+    const rb = RARITY_RANK[rarityOf(b)] ?? 9;
+    return ra-rb || a.localeCompare(b);
+  });
+}
 function normalizeDeck(deck){
   if (!deck.pads) deck.pads = {};
   if (Array.isArray(deck.slots) && deck.slots.length && !Object.keys(deck.pads).length){
@@ -823,7 +843,7 @@ function choosePadName(n){
   const hid = document.getElementById("padName");
   if (hid) hid.value = n || "";
   const lab = document.getElementById("padChosen");
-  if (lab) lab.textContent = n ? ("Selected: "+n+(isIconic(n)?" · iconic +15%":" · "+classOf(n))) : "No droid selected";
+  if (lab) lab.innerHTML = n ? ("Selected: "+n+rarityMark(rarityOf(n))+(isIconic(n)?" · iconic +15%":" · "+classOf(n))) : "No droid selected";
   const kind = n ? classOf(n) : "";
   ["Worker","Astromech","Battle"].forEach(k => {
     const sel = document.getElementById("pick-"+k);
@@ -855,9 +875,16 @@ function openPad(id){
     html += `<div class="meta" style="margin:10px 0 6px">${kind}</div>`;
     html += `<select id="pick-${kind}" class="deck-field" onchange="choosePadName(this.value)">`;
     html += `<option value="">Empty</option>`;
-    namesOfType(kind).forEach(n => {
-      const sel = n===cur.name ? "selected" : "";
-      html += `<option value="${esc(n)}" ${sel}>${owned.has(n)?"● ":""}${n}${isIconic(n)?" ★":""}</option>`;
+    const groups = ["Common","Rare","Epic","Legendary","Mythic","Iconic"];
+    groups.forEach(r => {
+      const list = sortByRarity(namesOfType(kind)).filter(n => rarityOf(n)===r);
+      if (!list.length) return;
+      html += `<optgroup label="${r}">`;
+      list.forEach(n => {
+        const sel = n===cur.name ? "selected" : "";
+        html += `<option value="${esc(n)}" ${sel}>${owned.has(n)?"● ":""}${n} (${r})${isIconic(n)?" ★":""}</option>`;
+      });
+      html += `</optgroup>`;
     });
     html += `</select>`;
   });
@@ -1312,7 +1339,7 @@ function renderDroidCard(name,typ,rar,hideDone){
   const opened = openD[name] ? "open" : "";
   const fl = has(name,"Flawless");
   const allOn = tiers===7;
-  let html = `<details class="card drop ${tiers===7?"done":""} ${rarTheme(rar)}" ${opened} ontoggle="openD['${esc(name)}']=this.open"><summary><i class="fill" style="width:${(tiers/7*100).toFixed(1)}%"></i><div class="top" style="flex:1">${picWrap(name,typ,rar)}<div class="grow"><div class="name">${name.toUpperCase()}</div><div class="meta">${typ.toUpperCase()} · ${tiers}/7</div></div><div class="pills"><label class="fl-pill ${fl?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${fl?"checked":""} onchange="toggle('${esc(name)}','Flawless')">Flawless</label><label class="fl-pill ${allOn?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${allOn?"checked":""} onchange="completeAll('${esc(name)}')">Complete All</label></div></div><span class="chev">▸</span></summary><div class="drop-body"><div class="vars">`;
+  let html = `<details class="card drop ${tiers===7?"done":""} ${rarTheme(rar)}" ${opened} ontoggle="openD['${esc(name)}']=this.open"><summary><i class="fill" style="width:${(tiers/7*100).toFixed(1)}%"></i><div class="top" style="flex:1">${picWrap(name,typ,rar)}<div class="grow"><div class="name">${name.toUpperCase()}${rarityMark(rar)}</div><div class="meta">${typ.toUpperCase()} · ${tiers}/7</div></div><div class="pills"><label class="fl-pill ${fl?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${fl?"checked":""} onchange="toggle('${esc(name)}','Flawless')">Flawless</label><label class="fl-pill ${allOn?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${allOn?"checked":""} onchange="completeAll('${esc(name)}')">Complete All</label></div></div><span class="chev">▸</span></summary><div class="drop-body"><div class="vars">`;
   VARIANTS.forEach(v => {
     const on = has(name,v);
     html += `<label class="chk ${on?"on":""} ${vTheme(v)}"><input type="checkbox" ${on?"checked":""} onchange="toggle('${esc(name)}','${v}')">${SHORT[v]}</label>`;
@@ -1332,7 +1359,7 @@ function renderFusionCard(name,rar,typ,ings,hideDone){
   const opened = openF[name] ? "open" : "";
   const allOn = VARIANTS.every(v => fuseHas(name,v));
   const fl = fuseHas(name,"Flawless");
-  let html = `<details class="card drop ${tiers===7?"done":""} ${rarTheme(rar)}" ${opened} ontoggle="openF['${esc(name)}']=this.open"><summary><i class="fill" style="width:${(tiers/7*100).toFixed(1)}%"></i><div class="top" style="flex:1">${picWrap(name,"Fusion",rar)}<div class="grow"><div class="name">${name}</div><div class="meta">${typ} · ${tiers}/7 variants</div></div><div class="pills"><label class="fl-pill ${fl?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${fl?"checked":""} onchange="state.f['${esc(name)}|Flawless']=this.checked;save();render();">Flawless</label><label class="fl-pill ${allOn?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${allOn?"checked":""} onchange="completeFusion('${esc(name)}')">Complete All</label></div></div><span class="chev">▸</span></summary><div class="drop-body">`;
+  let html = `<details class="card drop ${tiers===7?"done":""} ${rarTheme(rar)}" ${opened} ontoggle="openF['${esc(name)}']=this.open"><summary><i class="fill" style="width:${(tiers/7*100).toFixed(1)}%"></i><div class="top" style="flex:1">${picWrap(name,"Fusion",rar)}<div class="grow"><div class="name">${name}${rarityMark(rar)}</div><div class="meta">${typ} · ${tiers}/7 variants</div></div><div class="pills"><label class="fl-pill ${fl?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${fl?"checked":""} onchange="state.f['${esc(name)}|Flawless']=this.checked;save();render();">Flawless</label><label class="fl-pill ${allOn?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${allOn?"checked":""} onchange="completeFusion('${esc(name)}')">Complete All</label></div></div><span class="chev">▸</span></summary><div class="drop-body">`;
   VARIANTS.forEach(v => {
     const own = fuseHas(name,v);
     const got = ings.map((_,i)=>fuseIng(name,v,i));
@@ -1356,7 +1383,7 @@ function renderIconicCard(name,typ,ev,how,hideDone){
   const on = iconOwned(name);
   const fl = !!(state.i && state.i[name+"|fl"]);
   const base = !!(state.i && state.i[name+"|base"]);
-  let html = `<details class="card drop ${on?"done":""}"><summary><i class="fill" style="width:${on?100:0}%"></i><div class="top" style="flex:1">${picWrap(name,"Iconic","Iconic")}<div class="grow"><div class="name">${name.toUpperCase()}</div><div class="meta">${typ.toUpperCase()} · ${ev}</div></div><div class="pills"><label class="fl-pill ${fl?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${fl?"checked":""} onchange="state.i['${esc(name)}|fl']=this.checked;save();render();">Flawless</label><label class="fl-pill ${on?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${on?"checked":""} onchange="state.i['${esc(name)}']=this.checked;save();render();">Complete All</label></div></div><span class="chev">▸</span></summary><div class="drop-body"><div class="meta">${how}</div><div class="vars" style="margin-top:8px"><label class="chk ${base?"on":""}"><input type="checkbox" ${base?"checked":""} onchange="state.i['${esc(name)}|base']=!state.i['${esc(name)}|base'];save();render();">In base</label></div></div></details>`;
+  let html = `<details class="card drop ${on?"done":""}"><summary><i class="fill" style="width:${on?100:0}%"></i><div class="top" style="flex:1">${picWrap(name,"Iconic","Iconic")}<div class="grow"><div class="name">${name.toUpperCase()}${rarityMark("Iconic")}</div><div class="meta">${typ.toUpperCase()} · ${ev}</div></div><div class="pills"><label class="fl-pill ${fl?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${fl?"checked":""} onchange="state.i['${esc(name)}|fl']=this.checked;save();render();">Flawless</label><label class="fl-pill ${on?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${on?"checked":""} onchange="state.i['${esc(name)}']=this.checked;save();render();">Complete All</label></div></div><span class="chev">▸</span></summary><div class="drop-body"><div class="meta">${how}</div><div class="vars" style="margin-top:8px"><label class="chk ${base?"on":""}"><input type="checkbox" ${base?"checked":""} onchange="state.i['${esc(name)}|base']=!state.i['${esc(name)}|base'];save();render();">In base</label></div></div></details>`;
   return html;
 }
 let openPop = null;
@@ -1368,7 +1395,7 @@ function openCardPop(kind,name){
 }
 function closeCardPop(){ openPop=null; render(); }
 function renderMiniTile(name,typ,rar,kind){
-  return `<button class="mini-tile" onclick="openCardPop('${kind}','${esc(name)}')">${picWrap(name,typ,rar)}<span class="mini-name">${name}</span><span class="mini-meta">${typ}</span></button>`;
+  return `<button class="mini-tile" onclick="openCardPop('${kind}','${esc(name)}')">${picWrap(name,typ,rar)}<span class="mini-name">${name}${rarityMark(rar)}</span><span class="mini-meta">${typ}</span></button>`;
 }
 function popInner(){
   if (!openPop) return "";
