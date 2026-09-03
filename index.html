@@ -1934,15 +1934,31 @@ function expandRecurring(now){
   });
   return out;
 }
+function eventDayKey(ev){
+  const t = Date.parse(ev.start);
+  if (!t) return ev.name||"";
+  const parts = new Intl.DateTimeFormat("en-US",{timeZone:"America/New_York", year:"numeric", month:"2-digit", day:"2-digit"}).formatToParts(new Date(t));
+  const map = {}; parts.forEach(p => map[p.type]=p.value);
+  return (ev.name||"")+"|"+map.year+"-"+map.month+"-"+map.day;
+}
+function dedupeEvents(list){
+  const seen = new Set();
+  const out = [];
+  (list||[]).forEach(ev => {
+    const k = eventDayKey(ev);
+    if (seen.has(k)) return;
+    seen.add(k);
+    out.push(ev);
+  });
+  return out;
+}
 function applyEventPack(pack){
   if (!pack) return;
   if (Array.isArray(pack.history) && pack.history.length) FOAD_HISTORY = pack.history;
   if (Array.isArray(pack.recurring) && pack.recurring.length) FOAD_RECURRING = pack.recurring;
   const rec = expandRecurring();
   const up = Array.isArray(pack.upcoming) ? pack.upcoming.filter(ev => ev && ev.start && ev.end) : [];
-  const names = new Set(up.map(e => e.name+"|"+e.start));
-  rec.forEach(ev => { if (!names.has(ev.name+"|"+ev.start)) up.push(ev); });
-  FOAD_EVENTS = up;
+  FOAD_EVENTS = dedupeEvents(up.concat(rec));
   if (pack.updated) state._eventsUpdated = pack.updated;
 }
 function loadCachedEvents(){
@@ -2015,7 +2031,7 @@ function computeFoadEvents(now){
     }
     live.push(ev);
   });
-  FOAD_EVENTS = live;
+  FOAD_EVENTS = dedupeEvents(live);
   return FOAD_EVENTS.map(ev => {
     const st = eventStatus(ev, now);
     const a = Date.parse(ev.start), b = Date.parse(ev.end);
