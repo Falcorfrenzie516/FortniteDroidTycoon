@@ -1668,7 +1668,7 @@ function render(){
   if (tab==="alarms") {
     html += `<div class="hint">Times in Eastern. Upcoming list only includes <b>announced</b> FOAD windows. Scan pulls events.json (updated daily) and archives anything already ended into Past.</div>`;
     html += `<div class="row" style="margin-bottom:10px"><button onclick="scanAnnouncedEvents(false)">Scan announced events</button><span class="meta">${state._eventsUpdated?("Updated "+state._eventsUpdated.replace("T"," ").slice(0,16)):""}</span></div>`;
-    computeFoadEvents().forEach((ev,i) => {
+    computeFoadEvents().filter(ev => ev.status!=="ended").forEach((ev,i) => {
       const extra = [
         ev.rewards ? "Claim: "+ev.rewards.join(" · ") : "",
         ev.bonuses ? "Bonuses: "+ev.bonuses.join(" · ") : "",
@@ -1906,9 +1906,8 @@ let FOAD_HISTORY = [
   {name:"D-O rerun", when:"Sep 5–6, 2026", windows:"Sat 4PM ET 24h · 1PM PT"}
 ];
 let FOAD_EVENTS = [
-  {name:"D-O Event rerun", start:"2026-09-05T16:00:00-04:00", end:"2026-09-06T16:00:00-04:00", rewards:["D-O Iconic","D-O Base Paint","Nova Crystals"], bonuses:["2× credits","2× chips","2× flawless"], how:"24 hours · Sat 4PM ET / 1PM PT · FOAD official"},
-  {name:"D-O Event", start:"2026-08-29T16:00:00-04:00", end:"2026-08-30T16:00:00-04:00", rewards:["D-O Iconic"], bonuses:["½ fusion time","2× credits"], how:"First run Aug 29"},
-  {name:"Droid Fusion weekend", start:"2026-08-22T16:00:00-04:00", end:"2026-08-24T22:00:00-04:00", rewards:["Fusion recipes live"], bonuses:["2× credits"], how:"Fusion lab unlocked from RB 3"}
+  {name:"Mega Crate Mini Event", start:"2026-09-03T16:00:00-04:00", end:"2026-09-03T22:00:00-04:00", rewards:["Chopper mega crate loot"], bonuses:["2× upgrade chips"], how:"Weekly Thursday mini · 4PM–10PM ET · FOAD v1.28"},
+  {name:"D-O Event rerun", start:"2026-09-05T16:00:00-04:00", end:"2026-09-06T16:00:00-04:00", rewards:["D-O Iconic","D-O Base Paint","Nova Crystals"], bonuses:["2× credits","2× chips","2× flawless"], how:"24 hours · Sat 4PM ET / 1PM PT · FOAD official"}
 ];
 const EVENTS_KEY = "droidex-events-cache";
 let FOAD_RECURRING = [
@@ -2005,6 +2004,18 @@ function fmtLeftLong(ms){
 }
 function computeFoadEvents(now){
   now = now || Date.now();
+  const live = [];
+  FOAD_EVENTS.forEach(ev => {
+    const st = eventStatus(ev, now);
+    if (st==="ended"){
+      if (!FOAD_HISTORY.some(h => h.name===ev.name)){
+        FOAD_HISTORY.unshift({name:ev.name, when:new Date(Date.parse(ev.start)).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"}), windows:ev.how||"Ended window"});
+      }
+      return;
+    }
+    live.push(ev);
+  });
+  FOAD_EVENTS = live;
   return FOAD_EVENTS.map(ev => {
     const st = eventStatus(ev, now);
     const a = Date.parse(ev.start), b = Date.parse(ev.end);
