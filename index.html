@@ -1272,16 +1272,6 @@ function updateSaveLabel(){
 }
 function savePanel(){
   let html = `<div class="hint">Each profile is a separate checklist. Download a file to keep a copy. Load a file to come back to that point.</div>`;
-  html += `<article class="card"><div class="name">Scan patch notes</div><div class="meta" style="margin:6px 0 8px">Reads FOAD patch notes for slot changes (firing range, lounge, fusion tanks, companions) and applies new pad counts on Base.</div><div class="act"><button onclick="scanPatches(false)">Scan patch notes</button></div><div class="meta">${state._patchUpdated?("Patches "+state._patchUpdated.replace("T"," ").slice(0,16)):""}</div>`;
-  if (state._patchNotes && state._patchNotes.length){
-    html += `<div class="meta" style="margin-top:8px">`;
-    state._patchNotes.slice(0,4).forEach(n => {
-      html += `<div><b>v${n.ver}</b> · ${n.date||""} · ${(n.items||[]).join(" · ")}</div>`;
-    });
-    html += `</div>`;
-  }
-  html += `</article>`;
-  html += `<article class="card"><div class="name">Scan new droids</div><div class="meta" style="margin:6px 0 8px">Pulls registry.json (updated daily from FOAD / wiki). New names land in the right rarity, fusion, or iconic list with a placeholder portrait until you drop a sprite in img/.</div><div class="act"><button onclick="scanRegistry(false)">Scan variants · iconics · rarity</button></div><div class="meta">${state._regUpdated?("Registry "+state._regUpdated.replace("T"," ").slice(0,16)):""}</div></article>`;
   html += `<article class="card"><div class="name">Rebirth highlight</div><div class="meta" style="margin:6px 0 8px">Cycle plus how many unfinished rebirths ahead to mark on Base. Neon blue = parked at the needed variant. Orange = parked but too low.</div>`;
   html += `<div class="meta" style="margin:8px 0 6px">Current cycle</div><select class="deck-field" onchange="setRbSetting('cycle',this.value)">`;
   [1,2,3,4,5].forEach(n => { html += `<option value="${n}" ${srbCycle===n?"selected":""}>Cycle ${n}</option>`; });
@@ -1926,7 +1916,7 @@ function render(){
   }
   if (tab==="alarms") {
     html += `<div class="hint">Times in Eastern. Upcoming list only includes <b>announced</b> FOAD windows. Scan pulls events.json (updated daily) and archives anything already ended into Past.</div>`;
-    html += `<div class="row" style="margin-bottom:10px"><button onclick="scanAnnouncedEvents(false)">Scan announced events</button><span class="meta">${state._eventsUpdated?("Updated "+state._eventsUpdated.replace("T"," ").slice(0,16)):""}</span></div>`;
+
     computeFoadEvents().filter(ev => ev.status!=="ended").forEach((ev,i) => {
       const extra = [
         ev.rewards ? "Claim: "+ev.rewards.join(" · ") : "",
@@ -2366,6 +2356,7 @@ setInterval(tickBelts, 1000);
 scanAnnouncedEvents(true).then(ok => { if (ok) { tickBelts(); if (tab==="alarms") render(); } });
 scanRegistry(true);
 scanPatches(true);
+setInterval(() => { scanAnnouncedEvents(true); scanRegistry(true); scanPatches(true); }, 30*60*1000);
 refreshEpicStatus();
 setInterval(refreshEpicStatus, 120000);
 async function refreshEpicStatus(){
