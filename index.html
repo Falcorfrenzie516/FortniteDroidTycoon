@@ -178,6 +178,31 @@
     width:100%; background:#100d22; color:var(--ink); border:1px solid var(--line);
     border-radius:12px; padding:8px; font-size:12px; font-family:Orbitron,sans-serif;
   }
+  .floor {
+    margin-top:10px; padding:10px;
+    background:
+      radial-gradient(circle at 12% 0%, rgba(196,181,253,.08), transparent 42%),
+      repeating-linear-gradient(0deg, transparent 0 18px, rgba(196,181,253,.05) 18px 19px),
+      repeating-linear-gradient(90deg, transparent 0 18px, rgba(196,181,253,.05) 18px 19px),
+      rgba(8,6,18,.72);
+    border:1px dashed rgba(196,181,253,.35);
+    border-radius:18px;
+  }
+  .floor h3 { margin:0 0 8px; font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--gold2); font-family:Orbitron,sans-serif; }
+  .floor.worker { border-color:rgba(74,222,128,.35); }
+  .floor.astromech { border-color:rgba(96,165,250,.4); }
+  .floor.battle { border-color:rgba(251,113,133,.4); }
+  .pads { display:grid; grid-template-columns:repeat(auto-fill,minmax(58px,1fr)); gap:8px; justify-items:center; }
+  .pad {
+    width:58px; height:72px; padding:0; display:flex; flex-direction:column; align-items:center; justify-content:flex-start;
+    background:rgba(6,4,14,.7); border:2px dotted #5b5388; border-radius:14px; color:var(--muted);
+  }
+  .pad .pic { width:44px; height:44px; margin-top:4px; border-radius:10px; border-style:dotted; }
+  .pad .pad-lab { font-size:8px; letter-spacing:.04em; text-transform:uppercase; font-family:Orbitron,sans-serif; max-width:54px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .pad.empty .pic { background:transparent; border:2px dotted #3f3a63; display:flex; align-items:center; justify-content:center; color:#5b5388; font-size:16px; }
+  .pad.filled { border-style:solid; border-color:#a78bfa; background:rgba(20,12,40,.85); }
+  .pad.match { border-color:#4ade80; }
+  .pad.offtype { border-color:#fbbf24; }
   .deck-bar { display:flex; gap:6px; flex-wrap:wrap; margin:0 0 10px; align-items:center; }
   .deck-bar button { background:var(--card); color:var(--muted); border:1px solid var(--line); border-radius:14px; padding:7px 10px; font-size:10px; font-weight:700; font-family:Orbitron,sans-serif; letter-spacing:.1em; text-transform:uppercase; }
   .deck-bar button.on { color:#0b1220; background:var(--gold); border-color:var(--gold); }
@@ -185,7 +210,15 @@
   .grid { display:grid; grid-template-columns:1fr; gap:8px; }
   @media (min-width:720px){ .grid { grid-template-columns:1fr 1fr; } }
   .card { position:relative; overflow:hidden; background:rgba(12,10,24,.78); border:1px solid var(--line); border-radius:16px; padding:12px; }
-  .card > i.fill { position:absolute; left:0; top:0; bottom:0; width:0; background:linear-gradient(90deg,#365314,#84cc16 70%,#d9f99d); opacity:.28; pointer-events:none; }
+  .card > i.fill { position:absolute; left:0; top:0; height:76px; bottom:auto; width:0; background:linear-gradient(90deg,#365314,#84cc16 70%,#d9f99d); opacity:.28; pointer-events:none; }
+  details.drop > i.fill { display:none; }
+  details.drop > summary > i.fill {
+    position:absolute; left:0; top:0; bottom:0; height:auto; width:0;
+    background:linear-gradient(90deg,#365314,#84cc16 70%,#d9f99d);
+    opacity:.38; pointer-events:none;
+  }
+  details.drop > summary { border-bottom:1px solid rgba(43,37,80,.85); }
+  details.drop:not([open]) > summary { border-bottom:0; }
   .card.done { border-color:rgba(74,222,128,.35); }
   .top { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
   .pic { width:52px; height:52px; border-radius:10px; overflow:hidden; flex:none; background:#000; border:1px solid var(--line); position:relative; }
@@ -209,7 +242,7 @@
   .ings { display:flex; flex-direction:column; gap:5px; padding:0 8px 8px; }
   .ings .chk { flex-direction:row; justify-content:flex-start; text-transform:none; letter-spacing:0; font-size:12px; min-height:0; padding:7px 8px; }
   details.drop { padding:0; }
-  details.drop > summary { list-style:none; cursor:pointer; padding:12px; display:flex; gap:8px; align-items:center; }
+  details.drop > summary { list-style:none; cursor:pointer; padding:12px; display:flex; gap:8px; align-items:center; position:relative; overflow:hidden; }
   details.drop > summary::-webkit-details-marker { display:none; }
   details.drop .drop-body { padding:0 12px 12px; }
   .chev { margin-left:auto; color:var(--muted); font-size:16px; transition:transform .15s; }
@@ -653,19 +686,56 @@ function collectionBonus(){
   ICONICS.forEach(([nm]) => { if (state.i && state.i[nm]) n++; });
   return n;
 }
-function slotCps(slot){
+const FLOORS = [
+  {id:"worker", label:"Worker deck", kind:"Worker", count:11},
+  {id:"astromech", label:"Astromech deck", kind:"Astromech", count:9},
+  {id:"battle", label:"Battle deck", kind:"Battle", count:5}
+];
+function padList(){
+  const pads = [];
+  FLOORS.forEach(f => {
+    for (let i=0;i<f.count;i++) pads.push({id:f.id+i, kind:f.kind, floor:f.id, n:i+1});
+  });
+  return pads;
+}
+const PADS = padList();
+function classOf(name){
+  const d = DROIDS.find(x=>x[0]===name);
+  if (d) return d[1];
+  const f = FUSIONS.find(x=>x[0]===name);
+  if (f) return f[2];
+  const ic = ICONICS.find(x=>x[0]===name);
+  if (ic) return ic[1];
+  return "";
+}
+function normalizeDeck(deck){
+  if (!deck.pads) deck.pads = {};
+  if (Array.isArray(deck.slots) && deck.slots.length && !Object.keys(deck.pads).length){
+    deck.slots.forEach((s,i) => {
+      if (s && s.name && PADS[i]) deck.pads[PADS[i].id] = {name:s.name, variant:s.variant||"Basic", mult:s.mult||1};
+    });
+  }
+  return deck;
+}
+function padSlot(deck, id){
+  return (deck.pads && deck.pads[id]) || null;
+}
+function slotCps(slot, kind){
   if (!slot || !slot.name || !slot.variant) return 0;
-  return rateOf(slot.name, slot.variant) * (Number(slot.mult)||1);
+  const raw = rateOf(slot.name, slot.variant) * (Number(slot.mult)||1);
+  const match = kind && classOf(slot.name)===kind ? 1.1 : 1;
+  return raw * match;
 }
 function deckCps(deck){
   if (!deck) return 0;
-  const raw = (deck.slots||[]).reduce((a,s)=>a+slotCps(s),0);
+  normalizeDeck(deck);
+  const raw = PADS.reduce((a,p)=>a+slotCps(padSlot(deck,p.id), p.kind),0);
   const bonus = deck.bonus===false ? 1 : (1 + collectionBonus()/100);
   return raw * (Number(deck.mult)||1) * bonus;
 }
 function activeDeck(){
   ensureDecks(state);
-  return state.decks.list[state.decks.active] || state.decks.list[0];
+  return normalizeDeck(state.decks.list[state.decks.active] || state.decks.list[0]);
 }
 function setDeckField(field, value){
   const d = activeDeck();
@@ -684,62 +754,73 @@ function switchDeck(i){
   state.decks.active = Number(i)||0;
   save(); render();
 }
-function addSlot(){
+function setPad(id, name, variant){
   const d = activeDeck();
-  const names = ownedOptions();
-  const name = names[0]||"Mouse";
-  const variant = VARIANTS.find(v => has(name,v) || fuseHas(name,v)) || "Basic";
-  d.slots.push({name, variant, mult:1});
+  if (!d.pads) d.pads = {};
+  if (!name) delete d.pads[id];
+  else d.pads[id] = {name, variant: variant||"Basic", mult:1};
   save(); render();
 }
-function setSlot(i, field, value){
-  const d = activeDeck();
-  if (!d.slots[i]) return;
-  d.slots[i][field] = field==="mult" ? Math.max(0, Number(value)||0) : value;
-  save(); render();
-}
-function delSlot(i){
-  activeDeck().slots.splice(i,1);
-  save(); render();
+function openPad(id){
+  const deck = activeDeck();
+  const pad = PADS.find(p=>p.id===id);
+  const cur = padSlot(deck, id) || {};
+  const names = allDeckNames();
+  const owned = new Set(ownedOptions());
+  const box = document.getElementById("modal");
+  box.classList.remove("hidden");
+  let html = `<div class="sheet"><h2>${pad.kind} ${pad.n}</h2><p>Tap a name. Matching type gets +10%.</p>`;
+  html += `<select id="padName" class="deck-field">`;
+  html += `<option value="">Empty pad</option>`;
+  names.forEach(n => {
+    html += `<option value="${esc(n)}" ${n===cur.name?"selected":""}>${owned.has(n)?"● ":""}${n} · ${classOf(n)}</option>`;
+  });
+  html += `</select><div class="meta" style="margin:10px 0 6px">Variant</div><select id="padVar" class="deck-field">`;
+  VARIANTS.forEach(v => {
+    html += `<option value="${v}" ${v===(cur.variant||"Basic")?"selected":""}>${v}</option>`;
+  });
+  html += `</select><div class="row" style="margin-top:12px"><button onclick="closeModal()">Cancel</button><button class="danger" onclick="setPad('${id}','','');closeModal()">Clear</button><button onclick="setPad('${id}',document.getElementById('padName').value,document.getElementById('padVar').value);closeModal()">Park</button></div></div>`;
+  box.innerHTML = html;
 }
 function renderDecks(){
   const deck = activeDeck();
-  const names = allDeckNames();
-  const owned = new Set(ownedOptions());
-  let html = `<div class="hint">Park the droids you have in a floor right now. Each slot uses that variant’s credits/s. Deck multiplier is rebirth / shop / extra %. Collection bonus is +1% per unique name you have checked in the Droidex.</div>`;
+  let parked = 0;
+  PADS.forEach(p => { if (padSlot(deck,p.id) && padSlot(deck,p.id).name) parked++; });
+  let html = `<div class="hint">Mini base map — 11 worker, 9 astromech, 5 battle pads. Dotted pads are empty. Green border = parked on its own type (+10%). Gold border = off-type.</div>`;
   html += `<div class="deck-bar">`;
   state.decks.list.forEach((d,i) => {
     html += `<button class="${i===state.decks.active?"on":""}" onclick="switchDeck(${i})">${d.name||("Deck "+(i+1))}</button>`;
   });
   html += `<button onclick="addDeck()">+ Deck</button></div>`;
-  html += `<article class="card deck-total"><b>${fmtRate(deckCps(deck))}</b><span>Total credits / second</span></article>`;
+  html += `<article class="card deck-total"><b>${fmtRate(deckCps(deck))}</b><span>${parked}/25 parked · total credits / second</span></article>`;
   html += `<article class="card"><div class="name">${deck.name||"Deck"}</div>`;
   html += `<div class="meta" style="margin:8px 0 6px">Deck name</div><input class="deck-field" value="${esc(deck.name||"")}" onchange="setDeckField('name',this.value)">`;
-  html += `<div class="meta" style="margin:8px 0 6px">Deck multiplier (1 = none, 2 = double)</div><input class="deck-field" type="number" min="0" step="0.01" value="${deck.mult||1}" onchange="setDeckField('mult',this.value)">`;
-  html += `<div class="vars" style="grid-template-columns:1fr;margin-top:10px"><label class="chk ${deck.bonus!==false?"on":""}" style="flex-direction:row;text-transform:none;letter-spacing:0"><input type="checkbox" ${deck.bonus!==false?"checked":""} onchange="setDeckField('bonus',this.checked)">Include collection bonus (+${collectionBonus()}%)</label></div>`;
-  html += `</article>`;
-  (deck.slots||[]).forEach((s,i) => {
-    const cps = slotCps(s);
-    html += `<article class="card deck-slot">${picWrap(s.name||"Mouse","Worker","Common")}<div class="slot-fields">`;
-    html += `<select onchange="setSlot(${i},'name',this.value)">`;
-    names.forEach(n => {
-      html += `<option value="${esc(n)}" ${n===s.name?"selected":""}>${owned.has(n)?"● ":""}${n}</option>`;
+  html += `<div class="meta" style="margin:8px 0 6px">Deck multiplier (1 = none)</div><input class="deck-field" type="number" min="0" step="0.01" value="${deck.mult||1}" onchange="setDeckField('mult',this.value)">`;
+  html += `<div class="vars" style="grid-template-columns:1fr;margin-top:10px"><label class="chk ${deck.bonus!==false?"on":""}" style="flex-direction:row;text-transform:none;letter-spacing:0"><input type="checkbox" ${deck.bonus!==false?"checked":""} onchange="setDeckField('bonus',this.checked)">Collection bonus (+${collectionBonus()}%)</label></div></article>`;
+  FLOORS.forEach(f => {
+    const slice = PADS.filter(p=>p.floor===f.id);
+    const used = slice.filter(p => padSlot(deck,p.id) && padSlot(deck,p.id).name).length;
+    html += `<section class="floor ${f.id}"><h3>${f.label} · ${used}/${f.count}</h3><div class="pads">`;
+    slice.forEach(p => {
+      const s = padSlot(deck,p.id);
+      if (s && s.name){
+        const match = classOf(s.name)===p.kind;
+        html += `<button class="pad filled ${match?"match":"offtype"}" onclick="openPad('${p.id}')">${picWrap(s.name,p.kind,"Common")}<span class="pad-lab">${s.name}</span></button>`;
+      } else {
+        html += `<button class="pad empty" onclick="openPad('${p.id}')"><div class="pic">+</div><span class="pad-lab">${p.kind[0]}${p.n}</span></button>`;
+      }
     });
-    html += `</select><select onchange="setSlot(${i},'variant',this.value)">`;
-    VARIANTS.forEach(v => {
-      html += `<option value="${v}" ${v===s.variant?"selected":""}>${SHORT[v]||v}</option>`;
-    });
-    html += `</select><input class="deck-field" type="number" min="0" step="0.01" value="${s.mult||1}" onchange="setSlot(${i},'mult',this.value)" title="Slot multiplier">`;
-    html += `<div class="meta">${fmtRate(cps)} raw</div></div><button class="xbtn" onclick="delSlot(${i})">✕</button></article>`;
+    html += `</div></section>`;
   });
-  html += `<div class="act"><button onclick="addSlot()">+ Add droid slot</button></div>`;
   return html;
 }
+
 function ensureDecks(st){
   if (!st.decks || !Array.isArray(st.decks.list) || !st.decks.list.length) {
     st.decks = {active:0,list:[blankDeck("Deck 1")]};
   }
   if (st.decks.active >= st.decks.list.length) st.decks.active = 0;
+  st.decks.list.forEach(normalizeDeck);
   return st;
 }
 let state = JSON.parse(localStorage.getItem(KEY) || localStorage.getItem("droidex-v1") || '{"d":{},"f":{},"i":{},"c":{}}');
@@ -1070,7 +1151,7 @@ function renderDroidCard(name,typ,rar,hideDone){
   const opened = openD[name] ? "open" : "";
   const fl = has(name,"Flawless");
   const allOn = tiers===7;
-  let html = `<details class="card drop ${tiers===7?"done":""} ${rarTheme(rar)}" ${opened} ontoggle="openD['${esc(name)}']=this.open"><i class="fill" style="width:${(tiers/7*100).toFixed(1)}%"></i><summary><div class="top" style="flex:1">${picWrap(name,typ,rar)}<div class="grow"><div class="name">${name.toUpperCase()}</div><div class="meta">${typ.toUpperCase()} · ${tiers}/7</div></div><label class="fl-pill ${fl?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${fl?"checked":""} onchange="toggle('${esc(name)}','Flawless')">Flawless</label></div><span class="chev">▸</span></summary><div class="drop-body"><div class="vars">`;
+  let html = `<details class="card drop ${tiers===7?"done":""} ${rarTheme(rar)}" ${opened} ontoggle="openD['${esc(name)}']=this.open"><summary><i class="fill" style="width:${(tiers/7*100).toFixed(1)}%"></i><div class="top" style="flex:1">${picWrap(name,typ,rar)}<div class="grow"><div class="name">${name.toUpperCase()}</div><div class="meta">${typ.toUpperCase()} · ${tiers}/7</div></div><label class="fl-pill ${fl?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${fl?"checked":""} onchange="toggle('${esc(name)}','Flawless')">Flawless</label></div><span class="chev">▸</span></summary><div class="drop-body"><div class="vars">`;
   VARIANTS.forEach(v => {
     const on = has(name,v);
     html += `<label class="chk ${on?"on":""} ${vTheme(v)}"><input type="checkbox" ${on?"checked":""} onchange="toggle('${esc(name)}','${v}')">${SHORT[v]}</label>`;
@@ -1090,7 +1171,7 @@ function renderFusionCard(name,rar,typ,ings,hideDone){
   const opened = openF[name] ? "open" : "";
   const allOn = VARIANTS.every(v => fuseHas(name,v));
   const fl = fuseHas(name,"Flawless");
-  let html = `<details class="card drop ${tiers===7?"done":""} ${rarTheme(rar)}" ${opened} ontoggle="openF['${esc(name)}']=this.open"><i class="fill" style="width:${(tiers/7*100).toFixed(1)}%"></i><summary><div class="top" style="flex:1">${picWrap(name,"Fusion",rar)}<div class="grow"><div class="name">${name}</div><div class="meta">${typ} · ${tiers}/7 variants</div></div><label class="fl-pill ${fl?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${fl?"checked":""} onchange="state.f['${esc(name)}|Flawless']=this.checked;save();render();">Flawless</label><label class="fl-pill ${allOn?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${allOn?"checked":""} onchange="completeFusion('${esc(name)}')">Complete All</label><span class="badge Fusion">${rar}</span></div><span class="chev">▸</span></summary><div class="drop-body">`;
+  let html = `<details class="card drop ${tiers===7?"done":""} ${rarTheme(rar)}" ${opened} ontoggle="openF['${esc(name)}']=this.open"><summary><i class="fill" style="width:${(tiers/7*100).toFixed(1)}%"></i><div class="top" style="flex:1">${picWrap(name,"Fusion",rar)}<div class="grow"><div class="name">${name}</div><div class="meta">${typ} · ${tiers}/7 variants</div></div><label class="fl-pill ${fl?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${fl?"checked":""} onchange="state.f['${esc(name)}|Flawless']=this.checked;save();render();">Flawless</label><label class="fl-pill ${allOn?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${allOn?"checked":""} onchange="completeFusion('${esc(name)}')">Complete All</label><span class="badge Fusion">${rar}</span></div><span class="chev">▸</span></summary><div class="drop-body">`;
   VARIANTS.forEach(v => {
     const own = fuseHas(name,v);
     const got = ings.map((_,i)=>fuseIng(name,v,i));
