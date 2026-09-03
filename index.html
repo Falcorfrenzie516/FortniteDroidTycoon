@@ -200,11 +200,21 @@
   .floor.firing { border-color:rgba(248,113,113,.45); }
   .floor.companion { border-color:rgba(167,139,250,.45); }
   .floor.fuse { border-color:rgba(232,121,249,.45); }
+  .floor.mission-floor { border-color:rgba(251,191,36,.55); }
   .pads { display:grid; grid-template-columns:repeat(auto-fill,minmax(58px,1fr)); gap:8px; justify-items:center; }
+  header, main { box-sizing:border-box; }
+  header { display:flex; flex-direction:column; align-items:center; }
+  header > h1, header > .dash, header > .toolbar, header > nav { width:min(960px,100%); }
+  main { display:flex; justify-content:center; }
+  #app { width:min(960px,100%); }
   .pad {
     width:58px; height:72px; padding:0; display:flex; flex-direction:column; align-items:center; justify-content:flex-start;
-    background:rgba(6,4,14,.7); border:2px dotted #5b5388; border-radius:14px; color:var(--muted);
+    background:rgba(6,4,14,.7); border:2px dotted #5b5388; border-radius:14px; color:var(--muted); touch-action:none;
   }
+  .pad.mission { border-color:#fbbf24; background:rgba(80,50,8,.55); box-shadow:inset 0 0 12px rgba(251,191,36,.18); }
+  .pad.mission.filled { border-style:solid; }
+  .pad.drag { opacity:.45; }
+  .pad.drop { outline:2px solid #c4b5fd; outline-offset:2px; }
   .pad .pic { width:44px; height:44px; margin-top:4px; border-radius:10px; border-style:dotted; }
   .pad .pad-lab { font-size:8px; letter-spacing:.04em; text-transform:uppercase; font-family:Orbitron,sans-serif; max-width:54px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .pad.empty .pic { background:transparent; border:2px dotted #3f3a63; display:flex; align-items:center; justify-content:center; color:#5b5388; font-size:16px; }
@@ -756,7 +766,10 @@ const PAD_TOTAL = FLOORS.reduce((a,f)=>a+f.count,0);
 function padList(){
   const pads = [];
   FLOORS.forEach(f => {
-    for (let i=0;i<f.count;i++) pads.push({id:f.id+i, kind:f.kind, floor:f.id, n:i+1});
+    for (let i=0;i<f.count;i++){
+      const n = i+1;
+      pads.push({id:f.id+i, kind:f.kind, floor:f.id, n, mission: f.id==="astromech" && n>=5});
+    }
   });
   return pads;
 }
@@ -810,8 +823,9 @@ function padSlot(deck, id){
   return (deck.pads && deck.pads[id]) || null;
 }
 function earnsIncome(kind){ return !!EARN_KINDS[kind]; }
-function slotCps(slot, kind){
+function slotCps(slot, kind, pad){
   if (!slot || !slot.name) return 0;
+  if (pad && pad.mission) return 0;
   if (!earnsIncome(kind)) return 0;
   if (isIconic(slot.name)) return 0;
   const raw = rateOf(slot.name, slot.variant||"Basic") * (Number(slot.mult)||1);
@@ -830,7 +844,7 @@ function iconicBoost(deck){
 function deckCps(deck){
   if (!deck) return 0;
   normalizeDeck(deck);
-  const raw = PADS.reduce((a,p)=>a+slotCps(padSlot(deck,p.id), p.kind),0);
+  const raw = PADS.reduce((a,p)=>a+slotCps(padSlot(deck,p.id), p.kind, p),0);
   const bonus = deck.bonus===false ? 1 : (1 + collectionBonus()/100);
   const icon = 1 + iconicBoost(deck)*0.15;
   return raw * (Number(deck.mult)||1) * bonus * icon;
@@ -970,18 +984,20 @@ function renderDecks(){
   FLOORS.filter(f => f.group!=="fusion").forEach(f => {
     const slice = PADS.filter(p=>p.floor===f.id);
     const used = slice.filter(p => padSlot(deck,p.id) && padSlot(deck,p.id).name).length;
+    if (f.id==="astromech"){
+      const deckPads = slice.filter(p=>!p.mission);
+      const missPads = slice.filter(p=>p.mission);
+      const du = deckPads.filter(p => padSlot(deck,p.id)&&padSlot(deck,p.id).name).length;
+      const mu = missPads.filter(p => padSlot(deck,p.id)&&padSlot(deck,p.id).name).length;
+      html += `<section class="floor astromech"><h3>Astromech deck · ${du}/4</h3><div class="pads">`;
+      deckPads.forEach(p => html += padButton(p,deck));
+      html += `</div></section><section class="floor mission-floor"><h3>Astromech missions · ${mu}/5 · no credits/s</h3><div class="pads">`;
+      missPads.forEach(p => html += padButton(p,deck));
+      html += `</div></section>`;
+      return;
+    }
     html += `<section class="floor ${f.id}"><h3>${f.label} · ${used}/${f.count}</h3><div class="pads">`;
-    slice.forEach(p => {
-      const s = padSlot(deck,p.id);
-      if (s && s.name){
-        const typed = p.kind==="Worker"||p.kind==="Astromech"||p.kind==="Battle";
-        const match = typed && classOf(s.name)===p.kind;
-        const tone = !typed ? "lounge" : (match ? "match" : "offtype");
-        html += `<button class="pad filled ${tone}" onclick="openPad('${p.id}')">${picWrap(s.name,p.kind,isIconic(s.name)?"Iconic":"Common")}<span class="pad-lab">${isIconic(s.name)?"★ "+s.name:s.name}</span></button>`;
-      } else {
-        html += `<button class="pad empty ${p.kind==="Lounge"||p.kind==="Companion"?"lounge":""}" onclick="openPad('${p.id}')"><div class="pic">+</div><span class="pad-lab">${(PAD_TAG[p.floor]||p.kind[0])+p.n}</span></button>`;
-      }
-    });
+    slice.forEach(p => { html += padButton(p,deck); });
     html += `</div></section>`;
   });
   html += renderFusionLabs(deck);
@@ -989,14 +1005,56 @@ function renderDecks(){
 }
 function padButton(p, deck){
   const s = padSlot(deck,p.id);
+  const mission = p.mission ? "mission" : "";
+  const drag = `onpointerdown="padGrab(event,'${p.id}')" onpointerup="padRelease(event,'${p.id}')" ondragover="event.preventDefault()" ondrop="swapPads('${p.id}')"`;
   if (s && s.name){
     const typed = p.kind==="Worker"||p.kind==="Astromech"||p.kind==="Battle";
     const match = typed && classOf(s.name)===p.kind;
-    const tone = !typed ? "lounge" : (match ? "match" : "offtype");
-    return `<button class="pad filled ${tone}" onclick="openPad('${p.id}')">${picWrap(s.name,p.kind,isIconic(s.name)?"Iconic":"Common")}<span class="pad-lab">${isIconic(s.name)?"★ "+s.name:s.name}</span></button>`;
+    const tone = p.mission ? "mission" : (!typed ? "lounge" : (match ? "match" : "offtype"));
+    const lab = p.mission ? ("M"+p.n+" "+(isIconic(s.name)?"★ ":"")+s.name) : (isIconic(s.name)?"★ "+s.name:s.name);
+    return `<button class="pad filled ${tone} ${mission}" data-pad="${p.id}" ${drag}>${picWrap(s.name,p.kind,isIconic(s.name)?"Iconic":"Common")}<span class="pad-lab">${lab}</span></button>`;
   }
-  const tag = (PAD_TAG[p.floor]||p.kind[0]) + p.n;
-  return `<button class="pad empty lounge" onclick="openPad('${p.id}')"><div class="pic">+</div><span class="pad-lab">${tag}</span></button>`;
+  const tag = p.mission ? ("M"+p.n) : ((PAD_TAG[p.floor]||p.kind[0])+p.n);
+  return `<button class="pad empty ${p.kind==="Lounge"||p.kind==="Companion"||p.mission?"lounge":""} ${mission}" data-pad="${p.id}" ${drag}><div class="pic">+</div><span class="pad-lab">${tag}</span></button>`;
+}
+let _grab = null;
+function padGrab(ev, id){
+  const s = padSlot(activeDeck(), id);
+  _grab = {id, x:ev.clientX, y:ev.clientY, moved:false, filled:!!(s&&s.name)};
+  const el = ev.currentTarget;
+  if (el) el.classList.add("drag");
+  try { ev.currentTarget.setPointerCapture(ev.pointerId); } catch(e){}
+}
+function padRelease(ev, id){
+  const g = _grab;
+  _grab = null;
+  document.querySelectorAll(".pad.drag,.pad.drop").forEach(n => n.classList.remove("drag","drop"));
+  if (!g) return;
+  if (Math.hypot((ev.clientX||0)-g.x, (ev.clientY||0)-g.y) > 12 && g.filled){
+    const hit = document.elementFromPoint(ev.clientX, ev.clientY);
+    const btn = hit && hit.closest ? hit.closest("[data-pad]") : null;
+    const dest = btn ? btn.getAttribute("data-pad") : id;
+    if (dest && dest !== g.id){ swapPads(dest, g.id); return; }
+  }
+  if (!g.moved && Math.hypot((ev.clientX||0)-g.x, (ev.clientY||0)-g.y) < 12) openPad(id);
+}
+function swapPads(dest, src){
+  src = src || (_grab && _grab.id);
+  if (!src || !dest || src===dest) return;
+  const d = activeDeck();
+  if (!d.pads) d.pads = {};
+  const a = d.pads[src];
+  const b = d.pads[dest];
+  if (a) d.pads[dest] = a; else delete d.pads[dest];
+  if (b) d.pads[src] = b; else delete d.pads[src];
+  if (a && isIconic(a.name)) {
+    PADS.forEach(p => {
+      if (p.id===dest) return;
+      const s = d.pads[p.id];
+      if (s && s.name===a.name && p.id!==src) delete d.pads[p.id];
+    });
+  }
+  save(); render();
 }
 function renderFusionLabs(deck){
   const second = !!state.decks.secondLab;
