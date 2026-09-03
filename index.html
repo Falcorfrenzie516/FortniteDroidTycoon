@@ -440,7 +440,7 @@ let FUSIONS = [
   ["ORB-XL","Legendary","Battle",["CB","Gunrunner","B2-RP"]],
   ["RIV-3T","Mythic","Worker",["KX","IG","RIC"]],
   ["LUG-G","Mythic","Worker",["Loadlifter","ID10","R5"]],
-  ["LOW-MO","Mythic","Astromech",["A-LT","A-LT","Loadlifter"]],
+  ["LOW-MO","Mythic","Worker",["A-LT","A-LT","Loadlifter"]],
   ["AXL-POD","Mythic","Astromech",["RIC","BDX Explorer","R7"]],
   ["SRV-0","Mythic","Battle",["RIC-1200","B1 Heavy","B1 Heavy"]],
   ["X-ONK","Mythic","Battle",["KX","KX","Gonk"]]
@@ -2146,21 +2146,29 @@ function nextGalactic(){
   return t;
 }
 let FOAD_HISTORY = [
-  {name:"BB-8 Weekend", when:"May 2026", windows:"Sat + Sun blocks"},
-  {name:"Mandalorian / IG-11 Marshal", when:"May 23–24, 2026", windows:"Sat 10AM–4PM ET · Sun 4PM–10PM ET"},
+  {name:"BB-8 Weekend", when:"May 9–10, 2026", windows:"First iconic weekend"},
   {name:"Mister Bones", when:"May 16–17, 2026", windows:"24h world window"},
-  {name:"DJ R-3X", when:"Jun 13–14, 2026", windows:"Sat 4PM–10PM ET · Sun encore"},
-  {name:"R2-D2", when:"Jun 27–28, 2026", windows:"Sat 4PM–10PM ET · Sun 6AM–4PM ET"},
-  {name:"D-O", when:"Aug 29, 2026", windows:"First 24h run · 4PM ET" },
-  {name:"D-O rerun", when:"Sep 5–6, 2026", windows:"Sat 4PM ET 24h · 1PM PT"}
+  {name:"Mandalorian / IG-11 Marshal", when:"May 23–24, 2026", windows:"Sat 10AM–4PM ET · Sun 4PM–10PM ET"},
+  {name:"Beskar Event", when:"May 30–31, 2026", windows:"Rerun Jun 3–4"},
+  {name:"DJ R-3X", when:"Jun 13–14, 2026", windows:"Rerun Jun 20–21"},
+  {name:"R2-D2", when:"Jun 27–28, 2026", windows:"Rerun Jul 4–5"},
+  {name:"C-3PO", when:"Jul 11–12, 2026", windows:"Rerun Jul 18–19"},
+  {name:"Galactic Event", when:"Jul 25–26, 2026", windows:"24h Galactic weekend"},
+  {name:"Chopper", when:"Aug 1–2, 2026", windows:"Rerun Aug 8–9"},
+  {name:"Stellar Event", when:"Aug 15–16, 2026", windows:"New Stellar variant"},
+  {name:"Droid Fusion weekend", when:"Aug 22–24, 2026", windows:"Fusion lab live"},
+  {name:"D-O first run", when:"Aug 29, 2026", windows:"24h from Sat 4PM ET"}
 ];
 let FOAD_EVENTS = [
   {name:"Mega Crate Mini Event", start:"2026-09-03T16:00:00-04:00", end:"2026-09-03T22:00:00-04:00", rewards:["Chopper mega crate loot"], bonuses:["2× upgrade chips"], how:"Weekly Thursday mini · 4PM–10PM ET · FOAD v1.28"},
-  {name:"D-O Event rerun", start:"2026-09-05T16:00:00-04:00", end:"2026-09-06T16:00:00-04:00", rewards:["D-O Iconic","D-O Base Paint","Nova Crystals"], bonuses:["2× credits","2× chips","2× flawless"], how:"24 hours · Sat 4PM ET / 1PM PT · FOAD official"}
+  {name:"D-O Event rerun", start:"2026-09-05T16:00:00-04:00", end:"2026-09-06T16:00:00-04:00", rewards:["D-O Iconic","D-O Base Paint","Nova Crystals"], bonuses:["2× credits","2× chips","2× flawless"], how:"24 hours · Sat 4PM ET / 1PM PT · FOAD official"},
+  {name:"Mega Crate Mini Event", start:"2026-09-10T16:00:00-04:00", end:"2026-09-10T22:00:00-04:00", rewards:["Chopper mega crate loot"], bonuses:["2× upgrade chips"], how:"Weekly Thursday mini · 4PM–10PM ET · FOAD v1.28"}
 ];
 const EVENTS_KEY = "droidex-events-cache";
 let FOAD_RECURRING = [
-  {name:"Mega Crate Mini Event", weekday:4, startHourET:16, durationHours:6, rewards:["Chopper mega crate loot"], bonuses:["2× upgrade chips"], how:"Weekly Thursday · FOAD v1.28"}
+  {name:"Mega Crate Mini Event", weekday:4, startHourET:16, durationHours:6, rewards:["Chopper mega crate loot"], bonuses:["2× upgrade chips"], how:"Weekly Thursday · FOAD v1.28"},
+  {name:"Dance Party Mini Event", weekday:2, startHourET:8, durationHours:3, rewards:[], bonuses:[], how:"Every Tuesday morning · Sandcrawler · FOAD"},
+  {name:"Dance Party Mini Event", weekday:2, startHourET:20, durationHours:3, rewards:[], bonuses:[], how:"Every Tuesday evening · Sandcrawler · FOAD"}
 ];
 function pad2(n){ return String(n).padStart(2,"0"); }
 function expandRecurring(now){

@@ -447,7 +447,7 @@
     {
       "name": "LOW-MO",
       "rarity": "Mythic",
-      "type": "Astromech",
+      "type": "Worker",
       "recipe": [
         "A-LT",
         "A-LT",
