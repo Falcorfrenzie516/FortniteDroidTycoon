@@ -215,6 +215,8 @@
   .pad.mission.filled { border-style:solid; }
   .pad.drag { opacity:.45; }
   .pad.drop { outline:2px solid #c4b5fd; outline-offset:2px; }
+  .pad.need-ok { border-style:solid; border-color:#00f6ff; box-shadow:0 0 10px #00f6ff, 0 0 22px rgba(0,246,255,.45); }
+  .pad.need-low { border-style:solid; border-color:#ff8a00; box-shadow:0 0 10px #ff8a00, 0 0 22px rgba(255,138,0,.4); }
   .pad .pic { width:44px; height:44px; margin-top:4px; border-radius:10px; border-style:dotted; }
   .pad .pad-lab { font-size:8px; letter-spacing:.04em; text-transform:uppercase; font-family:Orbitron,sans-serif; max-width:54px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .pad.empty .pic { background:transparent; border:2px dotted #3f3a63; display:flex; align-items:center; justify-content:center; color:#5b5388; font-size:16px; }
@@ -969,7 +971,7 @@ function renderDecks(){
   let parked = 0;
   visiblePads.forEach(p => { if (padSlot(deck,p.id) && padSlot(deck,p.id).name) parked++; });
   const visTotal = visiblePads.length;
-  let html = `<div class="hint">Hard caps: 11 worker · 9 astromech · 11 battle (5 + 6 firing range) · 13 lounge · 2 companion. Fusion lab is 3 pads + 1 chamber; a second tank (300 Nova / 1,800 V-Bucks) unlocks another 3+1. Lounge, companions, fusion, and chamber do not earn credits/s. Lounge + fusion/chamber still count for rebirths. Green = matching type +10%.</div>`;
+  let html = `<div class="hint">Hard caps: 11 worker · 9 astromech · 11 battle (5 + 6 firing range) · 13 lounge · 2 companion. Fusion lab is 3 pads + 1 chamber; a second tank (300 Nova / 1,800 V-Bucks) unlocks another 3+1. Lounge, companions, fusion, and chamber do not earn credits/s. Lounge + fusion/chamber still count for rebirths. Green = matching type +10%. Neon blue pad = ready for an upcoming rebirth. Orange pad = needed name, variant too low.</div>`;
   html += `<div class="deck-bar">`;
   state.decks.list.forEach((d,i) => {
     html += `<button class="${i===state.decks.active?"on":""}" onclick="switchDeck(${i})">${d.name||("Deck "+(i+1))}</button>`;
@@ -1012,7 +1014,7 @@ function padButton(p, deck){
     const match = typed && classOf(s.name)===p.kind;
     const tone = p.mission ? "mission" : (!typed ? "lounge" : (match ? "match" : "offtype"));
     const lab = p.mission ? ("M"+p.n+" "+(isIconic(s.name)?"★ ":"")+s.name) : (isIconic(s.name)?"★ "+s.name:s.name);
-    return `<button class="pad filled ${tone} ${mission}" data-pad="${p.id}" ${drag}>${picWrap(s.name,p.kind,isIconic(s.name)?"Iconic":"Common")}<span class="pad-lab">${lab}</span></button>`;
+    return `<button class="pad filled ${tone} ${mission} ${padNeedClass(s)}" data-pad="${p.id}" ${drag}>${picWrap(s.name,p.kind,isIconic(s.name)?"Iconic":"Common")}<span class="pad-lab">${lab}</span></button>`;
   }
   const tag = p.mission ? ("M"+p.n) : ((PAD_TAG[p.floor]||p.kind[0])+p.n);
   return `<button class="pad empty ${p.kind==="Lounge"||p.kind==="Companion"||p.mission?"lounge":""} ${mission}" data-pad="${p.id}" ${drag}><div class="pic">+</div><span class="pad-lab">${tag}</span></button>`;
@@ -1092,6 +1094,8 @@ function ensureDecks(st){
 }
 let state = JSON.parse(localStorage.getItem(KEY) || localStorage.getItem("droidex-v1") || '{"d":{},"f":{},"i":{},"c":{}}');
 if (!state.rb) state.rb = {};
+if (!state.rb.ahead) state.rb.ahead = 3;
+if (!state.rb.cycle) state.rb.cycle = 1;
 ensureDecks(state);
 let tab = "droidex";
 let srbCycle = Number(state.rb.cycle || 1);
@@ -1143,6 +1147,12 @@ function updateSaveLabel(){
 }
 function savePanel(){
   let html = `<div class="hint">Each profile is a separate checklist. Download a file to keep a copy. Load a file to come back to that point.</div>`;
+  html += `<article class="card"><div class="name">Rebirth highlight</div><div class="meta" style="margin:6px 0 8px">Cycle plus how many unfinished rebirths ahead to mark on Base. Neon blue = parked at the needed variant. Orange = parked but too low.</div>`;
+  html += `<div class="meta" style="margin:8px 0 6px">Current cycle</div><select class="deck-field" onchange="setRbSetting('cycle',this.value)">`;
+  [1,2,3,4,5].forEach(n => { html += `<option value="${n}" ${srbCycle===n?"selected":""}>Cycle ${n}</option>`; });
+  html += `</select><div class="meta" style="margin:10px 0 6px">Highlight next rebirths (1–10)</div><select class="deck-field" onchange="setRbSetting('ahead',this.value)">`;
+  for (let n=1;n<=10;n++) html += `<option value="${n}" ${highlightAhead()===n?"selected":""}>${n} rebirth${n>1?"s":""} ahead</option>`;
+  html += `</select></article>`;
   html += `<div class="card"><div class="name">${currentName()}</div><div class="meta" style="margin:4px 0 8px">Active profile on this device</div><div class="saves">`;
   html += `<select onchange="switchSave(this.value)">`;
   Object.keys(bank.slots).forEach(id => {
@@ -1332,6 +1342,43 @@ function meets(n, min){
   const need = TIER_I[min];
   if (need === undefined) return parkedBest(n) >= 0;
   return parkedBest(n) >= need;
+}
+function highlightAhead(){
+  return Math.min(10, Math.max(1, Number(state.rb.ahead||3)));
+}
+function upcomingNeeds(){
+  const cyc = CYCLES[srbCycle] || CYCLES[1];
+  const need = {};
+  let left = highlightAhead();
+  for (let rb=1; rb<=35 && left>0; rb++){
+    if (state.rb["c"+srbCycle+"r"+rb]) continue;
+    const req = cyc[rb-1];
+    if (!req) continue;
+    req.forEach(([n,tier]) => {
+      const i = TIER_I[tier];
+      if (i===undefined) return;
+      if (need[n]===undefined || i>need[n]) need[n]=i;
+    });
+    left--;
+  }
+  return need;
+}
+function padNeedClass(slot){
+  if (!slot || !slot.name) return "";
+  const need = upcomingNeeds();
+  if (!(slot.name in need)) return "";
+  const have = isIconic(slot.name) ? 6 : (TIER_I[slot.variant||"Basic"] ?? -1);
+  return have >= need[slot.name] ? "need-ok" : "need-low";
+}
+function setRbSetting(field, value){
+  if (!state.rb) state.rb = {};
+  if (field==="cycle"){
+    srbCycle = Math.min(5, Math.max(1, Number(value)||1));
+    state.rb.cycle = srbCycle;
+  } else if (field==="ahead"){
+    state.rb.ahead = Math.min(10, Math.max(1, Number(value)||3));
+  }
+  save(); render();
 }
 
 function hash(s){ let h=0; for(let i=0;i<s.length;i++) h=s.charCodeAt(i)+((h<<5)-h); return Math.abs(h); }
