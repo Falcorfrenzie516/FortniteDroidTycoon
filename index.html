@@ -1666,7 +1666,8 @@ function render(){
     if (!shown) html += `<div class="empty">Nothing completed yet. Finish all 7 variants on a droid, or own an iconic.</div>`;
   }
   if (tab==="alarms") {
-    html += `<div class="hint">Times in Eastern. FOAD weekend windows are community-posted — not an official Epic calendar. Blueprint drops tick every second if you leave this page open.</div>`;
+    html += `<div class="hint">Times in Eastern. Upcoming list only includes <b>announced</b> FOAD windows. Scan pulls events.json (updated daily) and archives anything already ended into Past.</div>`;
+    html += `<div class="row" style="margin-bottom:10px"><button onclick="scanAnnouncedEvents(false)">Scan announced events</button><span class="meta">${state._eventsUpdated?("Updated "+state._eventsUpdated.replace("T"," ").slice(0,16)):""}</span></div>`;
     computeFoadEvents().forEach((ev,i) => {
       const extra = [
         ev.rewards ? "Claim: "+ev.rewards.join(" · ") : "",
@@ -1895,7 +1896,7 @@ function nextGalactic(){
   else { t.setHours(t.getHours()+1); t.setMinutes(15); }
   return t;
 }
-const FOAD_HISTORY = [
+let FOAD_HISTORY = [
   {name:"BB-8 Weekend", when:"May 2026", windows:"Sat + Sun blocks"},
   {name:"Mandalorian / IG-11 Marshal", when:"May 23–24, 2026", windows:"Sat 10AM–4PM ET · Sun 4PM–10PM ET"},
   {name:"Mister Bones", when:"May 16–17, 2026", windows:"24h world window"},
@@ -1904,11 +1905,87 @@ const FOAD_HISTORY = [
   {name:"D-O", when:"Aug 29, 2026", windows:"First 24h run · 4PM ET" },
   {name:"D-O rerun", when:"Sep 5–6, 2026", windows:"Sat 4PM ET 24h · 1PM PT"}
 ];
-const FOAD_EVENTS = [
+let FOAD_EVENTS = [
   {name:"D-O Event rerun", start:"2026-09-05T16:00:00-04:00", end:"2026-09-06T16:00:00-04:00", rewards:["D-O Iconic","D-O Base Paint","Nova Crystals"], bonuses:["2× credits","2× chips","2× flawless"], how:"24 hours · Sat 4PM ET / 1PM PT · FOAD official"},
   {name:"D-O Event", start:"2026-08-29T16:00:00-04:00", end:"2026-08-30T16:00:00-04:00", rewards:["D-O Iconic"], bonuses:["½ fusion time","2× credits"], how:"First run Aug 29"},
   {name:"Droid Fusion weekend", start:"2026-08-22T16:00:00-04:00", end:"2026-08-24T22:00:00-04:00", rewards:["Fusion recipes live"], bonuses:["2× credits"], how:"Fusion lab unlocked from RB 3"}
 ];
+const EVENTS_KEY = "droidex-events-cache";
+let FOAD_RECURRING = [
+  {name:"Mega Crate Mini Event", weekday:4, startHourET:16, durationHours:6, rewards:["Chopper mega crate loot"], bonuses:["2× upgrade chips"], how:"Weekly Thursday · FOAD v1.28"}
+];
+function pad2(n){ return String(n).padStart(2,"0"); }
+function expandRecurring(now){
+  now = now || Date.now();
+  const out = [];
+  (FOAD_RECURRING||[]).forEach(r => {
+    for (let i=0;i<16;i++){
+      const probe = new Date(now + i*86400000);
+      const parts = new Intl.DateTimeFormat("en-US",{timeZone:"America/New_York", weekday:"short", year:"numeric", month:"2-digit", day:"2-digit"}).formatToParts(probe);
+      const map = {}; parts.forEach(p => map[p.type]=p.value);
+      const dow = {Sun:0,Mon:1,Tue:2,Wed:3,Thu:4,Fri:5,Sat:6}[map.weekday];
+      if (dow !== r.weekday) continue;
+      const y=map.year, mo=map.month, da=map.day;
+      const start = Date.parse(`${y}-${mo}-${da}T${pad2(r.startHourET||16)}:00:00-04:00`);
+      const end = start + (r.durationHours||6)*3600000;
+      if (end <= now) continue;
+      out.push({name:r.name, start:new Date(start).toISOString(), end:new Date(end).toISOString(), rewards:r.rewards||[], bonuses:r.bonuses||[], how:r.how||"Recurring mini"});
+      break;
+    }
+  });
+  return out;
+}
+function applyEventPack(pack){
+  if (!pack) return;
+  if (Array.isArray(pack.history) && pack.history.length) FOAD_HISTORY = pack.history;
+  if (Array.isArray(pack.recurring) && pack.recurring.length) FOAD_RECURRING = pack.recurring;
+  const rec = expandRecurring();
+  const up = Array.isArray(pack.upcoming) ? pack.upcoming.filter(ev => ev && ev.start && ev.end) : [];
+  const names = new Set(up.map(e => e.name+"|"+e.start));
+  rec.forEach(ev => { if (!names.has(ev.name+"|"+ev.start)) up.push(ev); });
+  FOAD_EVENTS = up;
+  if (pack.updated) state._eventsUpdated = pack.updated;
+}
+function loadCachedEvents(){
+  try {
+    const raw = localStorage.getItem(EVENTS_KEY);
+    if (raw) applyEventPack(JSON.parse(raw));
+  } catch(e){}
+}
+async function scanAnnouncedEvents(silent){
+  const urls = ["events.json?t="+Date.now()];
+  let pack = null, err = "";
+  for (const url of urls){
+    try {
+      const res = await fetch(url, {cache:"no-store"});
+      if (!res.ok) continue;
+      pack = await res.json();
+      break;
+    } catch(e){ err = String(e); }
+  }
+  if (!pack){
+    if (!silent) alert("Could not refresh events.json. Keep that file next to index.html on GitHub Pages.");
+    return false;
+  }
+  const now = Date.now();
+  if (Array.isArray(pack.upcoming)){
+    pack.upcoming = pack.upcoming.filter(ev => ev && ev.start && ev.end);
+    const still = [], past = pack.history ? pack.history.slice() : FOAD_HISTORY.slice();
+    pack.upcoming.forEach(ev => {
+      if (Date.parse(ev.end) < now){
+        past.unshift({name:ev.name, when:new Date(Date.parse(ev.start)).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"}), windows:ev.how||"Announced window"});
+      } else still.push(ev);
+    });
+    pack.upcoming = still;
+    pack.history = past;
+  }
+  pack.updated = pack.updated || new Date().toISOString();
+  try { localStorage.setItem(EVENTS_KEY, JSON.stringify(pack)); } catch(e){}
+  applyEventPack(pack);
+  if (!silent) render();
+  return true;
+}
+loadCachedEvents();
 function eventStatus(ev, now){
   const a = Date.parse(ev.start), b = Date.parse(ev.end);
   if (now >= a && now < b) return "live";
@@ -2000,6 +2077,7 @@ function tickBelts(){
 }
 tickBelts();
 setInterval(tickBelts, 1000);
+scanAnnouncedEvents(true).then(ok => { if (ok) { /* lists refreshed */ tickBelts(); if (tab==="alarms") render(); } });
 (function spaceBG(){
   const c = document.getElementById("space");
   if (!c || !c.getContext) return;

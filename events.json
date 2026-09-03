@@ -1,0 +1,46 @@
+{
+  "updated": "2026-09-03T06:27:00-04:00",
+  "source": "FOAD / community announcements",
+  "upcoming": [
+    {
+      "name": "Mega Crate Mini Event",
+      "start": "2026-09-03T16:00:00-04:00",
+      "end": "2026-09-03T22:00:00-04:00",
+      "rewards": ["Chopper mega crate loot"],
+      "bonuses": ["2× upgrade chips"],
+      "how": "Weekly Thursday mini · 4PM–10PM ET · smash Chopper mega crates · FOAD v1.28"
+    },
+    {
+      "name": "D-O Event rerun",
+      "start": "2026-09-05T16:00:00-04:00",
+      "end": "2026-09-06T16:00:00-04:00",
+      "rewards": ["D-O Iconic", "D-O Base Paint", "Nova Crystals"],
+      "bonuses": ["2× credits", "2× chips", "2× flawless"],
+      "how": "24 hours · Sat 4PM ET / 1PM PT · announced by @FoadZone Sep 2"
+    }
+  ],
+  "recurring": [
+    {
+      "name": "Mega Crate Mini Event",
+      "weekday": 4,
+      "startHourET": 16,
+      "durationHours": 6,
+      "rewards": ["Chopper mega crate loot"],
+      "bonuses": ["2× upgrade chips"],
+      "how": "Weekly Thursday · FOAD v1.28 · Destroy Chopper mega crates"
+    }
+  ],
+  "history": [
+    {"name": "BB-8 Weekend", "when": "May 9–10, 2026", "windows": "First iconic weekend"},
+    {"name": "Mister Bones", "when": "May 16–17, 2026", "windows": "24h world window"},
+    {"name": "Mandalorian / IG-11 Marshal", "when": "May 23–24, 2026", "windows": "Sat 10AM–4PM ET · Sun 4PM–10PM ET"},
+    {"name": "Beskar Event", "when": "May 30–31, 2026", "windows": "Rerun Jun 3–4"},
+    {"name": "DJ R-3X", "when": "Jun 13–14, 2026", "windows": "Rerun Jun 20–21"},
+    {"name": "R2-D2", "when": "Jun 27–28, 2026", "windows": "Rerun Jul 4–5"},
+    {"name": "C-3PO", "when": "Jul 11–12, 2026", "windows": "Rerun Jul 18–19"},
+    {"name": "Galactic Event", "when": "Jul 25–26, 2026", "windows": "24h Galactic weekend"},
+    {"name": "Chopper", "when": "Aug 1–2, 2026", "windows": "Rerun Aug 8–9"},
+    {"name": "Droid Fusion weekend", "when": "Aug 22–24, 2026", "windows": "Fusion lab live"},
+    {"name": "D-O first run", "when": "Aug 29, 2026", "windows": "24h from Sat 4PM ET"}
+  ]
+}
