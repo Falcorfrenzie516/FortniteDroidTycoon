@@ -1412,11 +1412,12 @@ function render(){
   if (tab==="srb") {
     const cyc = CYCLES[srbCycle] || CYCLES[1];
     html += `<div class="hint">Tap a rebirth to see the droids it wants. A row only checks off if that droid is <b>parked on Decks or Lounge</b> at that variant or better — owning it in the Droidex is not enough. Super Rebirth unlocks at <b>Rebirth 12</b> plus one Rainbow Legendary. Paths loop <b>1 → 2 → 3 → 4 → 5 → 1</b>.</div>`;
-    html += `<div class="cycles">`;
+    html += `<article class="card"><div class="meta" style="margin:0 0 6px">Current cycle</div>`;
+    html += `<select class="deck-field" onchange="srbCycle=Number(this.value)||1;state.rb.cycle=srbCycle;save();render();">`;
     [1,2,3,4,5].forEach(n => {
-      html += `<button class="${srbCycle===n?"on":""}" onclick="srbCycle=${n};state.rb.cycle=${n};save();render();">Cycle ${n}</button>`;
+      html += `<option value="${n}" ${srbCycle===n?"selected":""}>Cycle ${n}${n===5?" → loops back to 1":""}</option>`;
     });
-    html += `</div>`;
+    html += `</select></article>`;
     const qq = document.getElementById("q").value.trim().toLowerCase();
     const groups = [
       {id:"early", title:"Rebirths 1–11", from:1, to:11},
