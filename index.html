@@ -1183,20 +1183,85 @@ function swapPads(dest, src){
   }
   save(); render();
 }
+const RARITY_UP = {Common:"Rare",Rare:"Epic",Epic:"Legendary",Legendary:"Mythic"};
+function labFuseSlots(deck, lab){
+  return PADS.filter(p=>p.floor==="fuse"+lab).map(p => padSlot(deck,p.id)).filter(s => s && s.name);
+}
+function predictFusion(deck, lab){
+  const slots = labFuseSlots(deck, lab);
+  if (slots.length !== 3) return {ok:false, label:"Park 3 droids to preview"};
+  const names = slots.map(s=>s.name);
+  const variants = slots.map(s=>s.variant||"Basic");
+  const sorted = names.slice().sort().join("|");
+  for (const f of FUSIONS){
+    if ((f[3]||[]).slice().sort().join("|") === sorted){
+      const variant = variants.reduce((a,b)=> (TIER_I[a]||0)<=(TIER_I[b]||0)?a:b);
+      return {ok:true, kind:"secret", name:f[0], rarity:f[1], type:f[2], variant, label:"Secret fusion: "+variant+" "+f[0]+" ("+f[1]+")"};
+    }
+  }
+  const sameName = names.every(n=>n===names[0]);
+  const sameVar = variants.every(v=>v===variants[0]);
+  if (sameName && sameVar){
+    const i = TIER_I[variants[0]] ?? 0;
+    if (i >= 6) return {ok:false, label:"Already Stellar — cannot variant-up"};
+    const next = VARIANTS[i+1];
+    return {ok:true, kind:"variant", name:names[0], variant:next, rarity:rarityOf(names[0]), label:"Variant upgrade: "+names[0]+" → "+next};
+  }
+  const rares = names.map(rarityOf);
+  if (rares.every(r=>r && r===rares[0] && r!=="Iconic")){
+    const next = RARITY_UP[rares[0]];
+    if (!next) return {ok:false, label:"No rarity above Mythic"};
+    const variant = sameVar ? variants[0] : variants.reduce((a,b)=> (TIER_I[a]||0)<=(TIER_I[b]||0)?a:b);
+    const pool = DROIDS.filter(d=>d[2]===next).map(d=>[d[0],d[1],d[2]])
+      .concat(FUSIONS.filter(f=>f[1]===next).map(f=>[f[0],f[2],f[1]]));
+    return {ok:true, kind:"rarity", nextRarity:next, variant, pool, label:"Rarity upgrade: pick a "+variant+" "+next};
+  }
+  return {ok:false, label:"No match — need a secret recipe, 3 of the same droid+variant, or 3 of the same rarity"};
+}
+function runFusion(lab, pick){
+  const deck = activeDeck();
+  const pred = predictFusion(deck, lab);
+  if (!pred.ok) return;
+  let name = pred.name, variant = pred.variant, rarity = pred.rarity;
+  if (pred.kind==="rarity"){
+    name = pick || pred.pool[0] && pred.pool[0][0];
+    if (!name) return;
+    rarity = pred.nextRarity;
+    variant = pred.variant;
+  }
+  const fuse = PADS.filter(p=>p.floor==="fuse"+lab);
+  fuse.forEach(p => { if (deck.pads) delete deck.pads[p.id]; });
+  const cham = PADS.find(p=>p.floor==="chamber"+lab);
+  if (cham){
+    if (!deck.pads) deck.pads = {};
+    deck.pads[cham.id] = {name, variant: isIconic(name)?"Iconic":(variant||"Basic")};
+  }
+  save(); render();
+}
 function renderFusionLabs(deck){
   const second = !!state.decks.secondLab;
   function labBlock(lab){
     const fuse = PADS.filter(p=>p.floor==="fuse"+lab);
     const cham = PADS.filter(p=>p.floor==="chamber"+lab);
     const used = fuse.concat(cham).filter(p => padSlot(deck,p.id)&&padSlot(deck,p.id).name).length;
+    const pred = predictFusion(deck, lab);
     let h = `<div class="meta" style="margin:10px 0 6px">Lab ${lab} · ${used}/4 · 3 fusion pads + chamber</div><div class="pads">`;
     fuse.forEach(p => h += padButton(p,deck));
     cham.forEach(p => h += padButton(p,deck));
-    h += `</div>`;
+    h += `</div><div class="meta" style="margin:8px 0">${pred.label}</div>`;
+    if (pred.ok && pred.kind==="rarity"){
+      h += `<div class="row"><select id="fusePick${lab}" class="deck-field">`;
+      (pred.pool||[]).forEach(([n,typ,rar]) => {
+        h += `<option value="${n}">${n} (${rar}${typ?" · "+typ:""})</option>`;
+      });
+      h += `</select><button onclick="runFusion(${lab}, document.getElementById('fusePick${lab}').value)">Fuse</button></div>`;
+    } else if (pred.ok){
+      h += `<div class="act"><button onclick="runFusion(${lab})">Fuse</button></div>`;
+    }
     return h;
   }
   let html = `<section class="floor fuse"><h3>Fusion lab</h3>`;
-  html += `<p class="meta">Park the 3 recipe droids on the fusion pads. Chamber is the tank cooking the result. These pads do not earn credits/s. They do count for rebirth if a droid is sitting here.</p>`;
+  html += `<p class="meta">3 same droid + variant → next variant. 3 same rarity → pick a random of the next rarity (keeps variant). Exact recipe → named fusion droid. Result goes in the chamber.</p>`;
   html += labBlock(1);
   html += `<div class="vars" style="grid-template-columns:1fr;margin-top:12px"><label class="chk ${second?"on":""}" style="flex-direction:row;text-transform:none;letter-spacing:0"><input type="checkbox" ${second?"checked":""} onchange="toggleSecondLab(this.checked)">Second fusion tank bought (300 Nova or 1,800 V-Bucks)</label></div>`;
   if (second) html += labBlock(2);
