@@ -206,10 +206,14 @@
   .floor.fuse { border-color:rgba(232,121,249,.45); }
   .floor.mission-floor { border-color:rgba(251,191,36,.55); }
   .worker-split { display:grid; grid-template-columns:minmax(0,1fr) minmax(190px,auto); gap:10px; align-items:start; }
-  .astro-split { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; align-items:start; }
+  .astro-split { display:grid; grid-template-columns:0.7fr 1fr 1.4fr 1fr 0.7fr; gap:8px; align-items:start; }
+  .zone.deck { border-color:rgba(196,181,253,.4); }
+  @media (max-width:900px){ .astro-split { grid-template-columns:1fr 1fr; } }
   @media (max-width:720px){ .worker-split, .astro-split { grid-template-columns:1fr; } }
   .zone { border:2px dashed rgba(45,212,191,.7); border-radius:16px; padding:10px 8px 8px; background:rgba(6,20,22,.25); }
   .zone-h { font-size:10px; letter-spacing:.16em; text-transform:uppercase; color:#5eead4; margin:0 0 8px; font-family:Orbitron,sans-serif; }
+  .floor.battle-wrap { display:flex; flex-direction:column; gap:10px; border:2px dashed rgba(45,212,191,.7); }
+  .floor.battle-wrap .zone { border-color:rgba(45,212,191,.45); }
   .pads { display:grid; grid-template-columns:repeat(auto-fill,minmax(58px,1fr)); gap:8px; justify-items:center; }
   header > h1, header > .dash, header > .toolbar, header > nav, main {
     width:min(960px,100%);
@@ -789,7 +793,8 @@ function padList(){
   FLOORS.forEach(f => {
     for (let i=0;i<f.count;i++){
       const n = i+1;
-      pads.push({id:f.id+i, kind:f.kind, floor:f.id, n, mission: false, zone: f.id==="worker" ? (n<=8?"carousel":"control") : (f.id==="astromech" ? "m"+Math.ceil(n/3) : "")});
+      const astroM = f.id==="astromech" && [1,4,5,6,9].includes(n);
+      pads.push({id:f.id+i, kind:f.kind, floor:f.id, n, mission: astroM, zone: f.id==="worker" ? (n<=8?"carousel":"control") : (f.id==="astromech" ? (astroM?"mission":"deck") : "")});
     }
   });
   return pads;
@@ -1136,15 +1141,35 @@ function renderDecks(){
       return;
     }
     if (f.id==="astromech"){
+      const groups = [
+        {title:"Mission", ids:[1]},
+        {title:"Deck", ids:[2,3]},
+        {title:"Mission", ids:[4,5,6]},
+        {title:"Deck", ids:[7,8]},
+        {title:"Mission", ids:[9]}
+      ];
       html += `<section class="floor astromech"><h3>Astromech deck · ${used}/${f.count}</h3><div class="astro-split">`;
-      ["m1","m2","m3"].forEach((z,i) => {
-        const group = slice.filter(p=>p.zone===z);
+      groups.forEach(g => {
+        const group = slice.filter(p=>g.ids.includes(p.n));
         const gu = group.filter(p => padSlot(deck,p.id)&&padSlot(deck,p.id).name).length;
-        html += `<div class="zone mission"><div class="zone-h">Mission (${gu}/3)</div><div class="pads">`;
+        const mission = g.title==="Mission";
+        html += `<div class="zone ${mission?"mission":"deck"}"><div class="zone-h">${g.title} (${gu}/${g.ids.length})${mission?" · no credits/s":""}</div><div class="pads">`;
         group.forEach(p => html += padButton(p,deck));
         html += `</div></div>`;
       });
       html += `</div></section>`;
+      return;
+    }
+    if (f.id==="firing") return;
+    if (f.id==="battle"){
+      const fire = PADS.filter(p=>p.floor==="firing");
+      const bu = used;
+      const fu = fire.filter(p => padSlot(deck,p.id)&&padSlot(deck,p.id).name).length;
+      html += `<section class="floor battle-wrap"><h3>Battle deck · ${bu}/5</h3><div class="zone battle-zone"><div class="pads">`;
+      slice.forEach(p => html += padButton(p,deck));
+      html += `</div></div><div class="zone firing-zone"><div class="zone-h">Firing Range (${fu}/6)</div><div class="pads">`;
+      fire.forEach(p => html += padButton(p,deck));
+      html += `</div></div></section>`;
       return;
     }
     html += `<section class="floor ${f.id}"><h3>${f.label} · ${used}/${f.count}</h3><div class="pads">`;
