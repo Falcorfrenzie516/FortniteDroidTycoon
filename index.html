@@ -168,6 +168,7 @@
   .tabs button.on { color:#fff; background:rgba(196,181,253,.12); border-color:#c4b5fd; }
   .tabs button[data-tab="droidex"] .fill { background:linear-gradient(90deg,#0e7490,#67e8f9); }
   .tabs button[data-tab="fusion"] .fill { background:linear-gradient(90deg,#0f766e,#2dd4bf); }
+  .tabs button[data-tab="fusion"].on { border-color:#facc15; color:#fde047; background:rgba(250,204,21,.12); }
   .tabs button[data-tab="srb"] .fill { background:linear-gradient(90deg,#c2410c,#fb923c); }
   .tabs button[data-tab="done"] .fill { background:linear-gradient(90deg,#166534,#4ade80); }
   .tabs button[data-tab="iconics"] .fill { background:linear-gradient(90deg,#9d174d,#f472b6); }
@@ -1629,7 +1630,7 @@ if (!state.rb.cycle) state.rb.cycle = 1;
 if (!state.alerts) state.alerts = {};
 if (!state.fusePlan) state.fusePlan = {pick:[], rarity:"all"};
 ensureDecks(state);
-let tab = "droidex";
+let tab = localStorage.getItem(KEY+"-tab") || "droidex";
 let srbCycle = Number(state.rb.cycle || 1);
 function loadBank(){
   try {
@@ -2200,7 +2201,7 @@ function toggleFuseNeed(n,v){
 }
 function renderFusionTracker(){
   const plan = fusePlan();
-  let html = `<div class="rarity-h Fusion">Fusion planner</div><details class="floor fuse" open><summary>10 fusion slots</summary>`;
+  let html = `<div class="rarity-h Fusion">FUSION PLANNER</div><p class="meta">This is not Droidex. Pick up to 10 fusion targets, then check ingredients below.</p><details class="floor fuse" open><summary>10 fusion slots</summary>`;
   html += `<p class="meta">Pick a fusion name and variant in each slot. The list below is every ingredient those slots need, split by type.</p>`;
   plan.slots.forEach((s,i) => {
     html += `<div class="fuse-slot"><span class="meta">#${i+1}</span>`;
@@ -2575,13 +2576,18 @@ function render(){
   updateSaveLabel();
 }
 
+document.querySelectorAll(".tabs button").forEach(b => b.classList.toggle("on", b.dataset.tab===tab));
 document.querySelectorAll(".tabs button").forEach(btn => {
   btn.onclick = () => {
     document.querySelectorAll(".tabs button").forEach(b => b.classList.remove("on"));
     btn.classList.add("on");
     tab = btn.dataset.tab;
+    try { localStorage.setItem(KEY+"-tab", tab); } catch(e){}
     document.body.dataset.tab = tab;
-    render();
+    try { render(); } catch(err) {
+      const pane = document.getElementById("app");
+      if (pane) pane.innerHTML = '<div class="hint">Render error on '+tab+': '+err+'</div>';
+    }
     const pane = document.getElementById("app");
     if (pane) pane.scrollTop = 0;
   };
