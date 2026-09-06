@@ -387,7 +387,9 @@
   .fuse-table td:first-child { display:flex; align-items:center; gap:6px; }
   .fuse-table td:first-child .pic { width:28px; height:28px; }
   .fuse-table td.have-var { color:#4ade80; font-weight:800; font-size:16px; }
-  .fuse-board { margin:12px 0; padding:12px; border:2px dashed var(--line); border-radius:16px; }
+  .fuse-boards { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px; }
+  @media (max-width:720px){ .fuse-boards { grid-template-columns:1fr; } }
+  .fuse-board { margin:0; padding:12px; border:2px dashed var(--line); border-radius:16px; min-width:0; }
   .fuse-board.v-gld { border-color:#ca8a04; }
   .fuse-board.v-dia { border-color:#7dd3fc; }
   .fuse-board.v-rbw { border-color:#e879f9; }
@@ -1021,8 +1023,9 @@ function variantPoolNames(scope){
   return craftNames();
 }
 function variantHave(tier, scope){
+  if (scope==="fusion") return FUSIONS.filter(([nm]) => fuseHas(nm, tier)).length;
   let n = variantPoolNames(scope).filter(nm => ownedAtLeast(nm, tier)).length;
-  if (scope!=="fusion" && tier==="Basic") ICONICS.forEach(([nm]) => { if (iconOwned(nm)) n++; });
+  if (tier==="Basic") ICONICS.forEach(([nm]) => { if (iconOwned(nm)) n++; });
   return n;
 }
 function variantTotal(tier, scope){
@@ -2270,11 +2273,11 @@ function renderFusionTracker(){
   let html = renderVariantBonuses("fusion");
   html += `<details class="floor fuse" open><summary>Fusion select · ${nPick}/10</summary>`;
   html += `<div class="meta" style="margin:0 0 8px">Check a variant to track it. Max 10. Recipes drop in below.</div>`;
-  html += `<div class="fuse-table-wrap"><table class="fuse-table"><thead><tr><th>Droid</th>`;
+  html += `<div class="fuse-table-wrap"><table class="fuse-table"><thead><tr><th>Droid</th><th>Rarity</th>`;
   VARIANTS.forEach(v => { html += `<th class="${vTheme(v)}">${vName(v)}</th>`; });
   html += `</tr></thead><tbody>`;
   FUSIONS.forEach(([n,r,ty]) => {
-    html += `<tr><td>${picWrap(n,ty,r)}<span>${n}</span></td>`;
+    html += `<tr><td>${picWrap(n,ty,r)}<span>${n}</span></td><td class="${r}">${r}</td>`;
     VARIANTS.forEach(v => {
       if (fuseHas(n,v)){
         html += `<td class="have-var">✓</td>`;
@@ -2292,6 +2295,7 @@ function renderFusionTracker(){
     html += `<div class="empty">Check up to 10 variants above. Each one gets a 3-part recipe card here.</div>`;
     return html;
   }
+  html += `<div class="fuse-boards">`;
   plan.picks.forEach(pk => {
     const row = FUSIONS.find(x => x[0]===pk.name);
     if (!row) return;
@@ -2312,6 +2316,7 @@ function renderFusionTracker(){
     });
     html += `</div></section>`;
   });
+  html += `</div>`;
   return html;
 }
 function renderFusionCard(name,rar,typ,ings,hideDone){
