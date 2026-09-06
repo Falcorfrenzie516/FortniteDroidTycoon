@@ -2535,28 +2535,17 @@ function render(){
     const doneI = ICONICS.filter(([n])=>iconDone(n));
     const order = ["Common","Rare","Epic","Legendary","Mythic"];
     order.forEach(r => {
-      const full = doneD.filter(([n,t,rr]) => rr===r && !has(n,"Flawless"));
-      const mini = doneD.filter(([n,t,rr]) => rr===r && has(n,"Flawless"));
-      const fFull = doneF.filter(([n,rr]) => rr===r && !fuseHas(n,"Flawless"));
-      const fMini = doneF.filter(([n,rr]) => rr===r && fuseHas(n,"Flawless"));
-      if (!full.length && !mini.length && !fFull.length && !fMini.length) return;
-      html += `<div class="rarity-h ${r}">${r}</div>`;
-      if (full.length || fFull.length){
-        html += `<div class="grid">`;
-        full.forEach(([n,t]) => { html += renderDroidCard(n,t,r,false); shown++; });
-        fFull.forEach(([n,rr,ty,ings]) => { html += renderFusionCard(n,rr,ty,ings,false); shown++; });
-        html += `</div>`;
-      }
-      if (mini.length || fMini.length){
-        html += `<div class="mini-grid">`;
-        mini.forEach(([n,ty]) => { html += renderMiniTile(n,ty,r,"d"); shown++; });
-        fMini.forEach(([n,rr,ty]) => { html += renderMiniTile(n,ty,rr,"f"); shown++; });
-        html += `</div>`;
-      }
+      const listD = doneD.filter(([n,t,rr]) => rr===r);
+      const listF = doneF.filter(([n,rr]) => rr===r);
+      if (!listD.length && !listF.length) return;
+      html += `<div class="rarity-h ${r}">${r}</div><div class="mini-grid">`;
+      listD.forEach(([n,ty]) => { html += renderMiniTile(n,ty,r,"d"); shown++; });
+      listF.forEach(([n,rr,ty]) => { html += renderMiniTile(n,ty,rr,"f"); shown++; });
+      html += `</div>`;
     });
     if (doneI.length){
       html += `<div class="rarity-h Iconic">Iconic</div><div class="mini-grid">`;
-      doneI.forEach(([n,t]) => { html += renderMiniTile(n,t,"Iconic","i"); shown++; });
+      doneI.forEach(([n,ty]) => { html += renderMiniTile(n,ty,"Iconic","i"); shown++; });
       html += `</div>`;
     }
     if (!shown) html += `<div class="empty">Nothing completed yet. Finish all 7 variants on a droid, or own an iconic.</div>`;
