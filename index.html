@@ -368,7 +368,15 @@
   .mini-tile.t-battle .mini-meta { color:#fca5a5; }
   .mini-tile.picked { outline:2px solid #2dd4bf; box-shadow:0 0 12px rgba(45,212,191,.45); }
   .mini-tile.dim { opacity:.4; }
-  .fuse-filters { display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin:0 0 10px; }
+  .fuse-slot { display:flex; gap:8px; align-items:center; margin:0 0 8px; }
+  .fuse-slot select { flex:1; min-width:0; }
+  .need-list { display:flex; flex-direction:column; gap:6px; }
+  .need-row { display:flex; align-items:center; gap:8px; background:rgba(8,6,18,.7); border:1px solid var(--line); border-radius:12px; padding:6px 8px; }
+  .need-row.on { border-color:#4ade80; }
+  .need-row.have b { color:#4ade80; }
+  .need-row .pic { width:36px; height:36px; flex:none; }
+  .need-row span { display:flex; flex-direction:column; min-width:0; }
+  .need-row i { font-style:normal; font-size:10px; color:var(--muted); }
   .fuse-filters button { font-size:11px; letter-spacing:.08em; text-transform:uppercase; }
   .swatches { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin:6px 0 8px; }
   .swatch { width:22px; height:22px; border-radius:50%; border:2px solid #1e1b2e; padding:0; cursor:pointer; }
@@ -2170,53 +2178,76 @@ const openG = {};
 const openR = {};
 
 function fusePlan(){
-  if (!state.fusePlan) state.fusePlan = {pick:[], rarity:"all"};
-  if (!Array.isArray(state.fusePlan.pick)) state.fusePlan.pick = [];
+  if (!state.fusePlan) state.fusePlan = {slots:[]};
+  if (!Array.isArray(state.fusePlan.slots)) state.fusePlan.slots = [];
+  while (state.fusePlan.slots.length<10) state.fusePlan.slots.push({name:"", variant:"Basic"});
+  state.fusePlan.slots = state.fusePlan.slots.slice(0,10);
+  state.fusePlan.slots.forEach(s => { if (!s.variant) s.variant="Basic"; });
   return state.fusePlan;
 }
-function setFuseRarity(r){
-  fusePlan().rarity = r;
+function setFuseSlot(i, field, val){
+  const p = fusePlan();
+  if (!p.slots[i]) p.slots[i] = {name:"", variant:"Basic"};
+  p.slots[i][field] = val;
   save(); render();
 }
-function toggleFuseTrack(name){
-  const p = fusePlan();
-  const i = p.pick.indexOf(name);
-  if (i>=0) p.pick.splice(i,1);
-  else {
-    if (p.pick.length>=10) return;
-    p.pick.push(name);
-  }
+function fuseNeedKey(n,v){ return "fp|"+n+"|"+v; }
+function toggleFuseNeed(n,v){
+  state.f = state.f || {};
+  const k = fuseNeedKey(n,v);
+  state.f[k] = !state.f[k];
   save(); render();
 }
 function renderFusionTracker(){
   const plan = fusePlan();
-  const rar = plan.rarity||"all";
-  const order = ["Rare","Epic","Legendary","Mythic"];
-  let html = `<div class="rarity-h Fusion">Fusion planner</div>`;
-  html += `<div class="meta" style="margin:0 0 8px">Fusion names only. Tap up to 10 to track. Cards below get the same-tier recipe checks.</div>`;
-  html += `<div class="fuse-filters">`;
-  [["all","All"],["Rare","Rare"],["Epic","Epic"],["Legendary","Legendary"],["Mythic","Mythic"]].forEach(([id,lab]) => {
-    html += `<button class="${rar===id?"on":""}" onclick="setFuseRarity('${id}')">${lab}</button>`;
-  });
-  html += `<span class="meta">${plan.pick.length}/10 tracking</span></div>`;
-  const pool = FUSIONS.filter(([n,rr]) => rar==="all" || rr===rar);
-  html += `<div class="mini-grid">`;
-  pool.forEach(([n,rr,ty]) => {
-    const on = plan.pick.indexOf(n)>=0;
-    const locked = !on && plan.pick.length>=10;
-    html += `<button class="mini-tile t-${String(ty).toLowerCase()} ${on?"picked":""} ${locked?"dim":""}" onclick="toggleFuseTrack('${esc(n)}')">${picWrap(n,ty,rr)}<span class="mini-name">${n}${rarityMark(rr)}</span><span class="mini-meta">${ty} · ${fuseTiers(n)}/7</span></button>`;
-  });
-  html += `</div>`;
-  if (plan.pick.length){
-    html += `<div class="rarity-h Fusion">Tracking</div><div class="grid">`;
-    plan.pick.forEach(name => {
-      const row = FUSIONS.find(x=>x[0]===name);
-      if (row) html += renderFusionCard(row[0],row[1],row[2],row[3],false);
+  let html = `<details class="floor fuse" open><summary>Fusion plan · 10 slots</summary>`;
+  html += `<p class="meta">Pick a fusion name and variant in each slot. The list below is every ingredient those slots need, split by type.</p>`;
+  plan.slots.forEach((s,i) => {
+    html += `<div class="fuse-slot"><span class="meta">#${i+1}</span>`;
+    html += `<select class="deck-field" onchange="setFuseSlot(${i},'name',this.value)"><option value="">Empty</option>`;
+    FUSIONS.forEach(([n,r,ty]) => {
+      html += `<option value="${esc(n)}" ${s.name===n?"selected":""}>${n} (${r} ${ty})</option>`;
     });
-    html += `</div>`;
-  } else {
-    html += `<div class="empty">Select fusion droids above to build your checklist.</div>`;
-  }
+    html += `</select><select class="deck-field" onchange="setFuseSlot(${i},'variant',this.value)">`;
+    VARIANTS.forEach(v => { html += `<option value="${v}" ${s.variant===v?"selected":""}>${vName(v)}</option>`; });
+    html += `</select></div>`;
+  });
+  html += `</details>`;
+
+  const need = [];
+  const seen = {};
+  plan.slots.forEach(s => {
+    if (!s.name) return;
+    const row = FUSIONS.find(x=>x[0]===s.name);
+    if (!row) return;
+    const v = s.variant||"Basic";
+    row[3].forEach(ing => {
+      const key = ing+"|"+v;
+      if (seen[key]) { seen[key].from.push(s.name); return; }
+      seen[key] = {name:ing, variant:v, type:classOf(ing)||"", from:[s.name]};
+      need.push(seen[key]);
+    });
+  });
+
+  ["Worker","Astromech","Battle"].forEach(ty => {
+    const list = need.filter(x => x.type===ty);
+    html += `<details class="floor ${ty==="Worker"?"worker":ty==="Astromech"?"astromech":"battle-wrap"}" ${list.length?"open":""}><summary>${ty} needed · ${list.length}</summary>`;
+    if (!list.length) html += `<div class="meta">Nothing from your 10 slots.</div>`;
+    else {
+      html += `<div class="need-list">`;
+      list.forEach(item => {
+        const owned = (has(item.name,item.variant)||fuseHas(item.name,item.variant));
+        const tick = !!(state.f && state.f[fuseNeedKey(item.name,item.variant)]);
+        html += `<label class="need-row ${tick?"on":""} ${owned?"have":""}">`;
+        html += `<input type="checkbox" ${tick?"checked":""} onchange="toggleFuseNeed('${esc(item.name)}','${item.variant}')">`;
+        html += `${picWrap(item.name,item.type,rarityOf(item.name)||"")} `;
+        html += `<span><b>${vName(item.variant)} ${item.name}</b><i>${owned?"owned in Droidex":"not owned"} · for ${item.from.join(", ")}</i></span>`;
+        html += `</label>`;
+      });
+      html += `</div>`;
+    }
+    html += `</details>`;
+  });
   return html;
 }
 function renderFusionCard(name,rar,typ,ings,hideDone){
