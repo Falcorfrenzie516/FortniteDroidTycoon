@@ -228,20 +228,30 @@
   .worker-split .zone.control { flex:1 1 180px; }
   .astro-split .zone { flex:1 1 110px; }
   .bench-split .zone { flex:1 1 160px; }
-  .zone { border:2px dashed rgba(45,212,191,.55); border-radius:16px; padding:10px 8px 8px; background:rgba(6,20,22,.25); }
-  .zone.worker, .zone.carousel, .zone.control { border-color:#2dd4bf; }
-  .zone.astromech, .zone.mission { border-color:#a78bfa; }
-  .zone.deck { border-color:#7c3aed; }
-  .zone.battle, .zone.battle-zone, .zone.firing-zone { border-color:#f87171; }
+  .zone { border:2px dashed currentColor; border-radius:16px; padding:10px 8px 8px; background:rgba(8,6,18,.35); }
   .zone-h { font-size:clamp(9px,1.4vw,11px); letter-spacing:.14em; text-transform:uppercase; color:inherit; margin:0 0 8px; font-family:Orbitron,sans-serif; }
-  .floor.worker .zone-h { color:#5eead4; }
-  .floor.astromech .zone-h { color:#e9d5ff; }
-  .floor.battle-wrap .zone-h { color:#fecaca; }
-  .floor.benches .zone.worker .zone-h { color:#5eead4; }
-  .floor.benches .zone.astromech .zone-h { color:#e9d5ff; }
-  .floor.benches .zone.battle .zone-h { color:#fecaca; }
-  .floor.battle-wrap { display:flex; flex-direction:column; gap:10px; }
-  .floor.battle-wrap .zone { border-color:rgba(45,212,191,.45); }
+  .floor.worker, .floor.worker .zone, .zone.worker, .zone.carousel, .zone.control { color:#5eead4; border-color:#5eead4; }
+  .floor.worker .zone { background:rgba(6,40,36,.35); }
+  .floor.astromech, .floor.astromech .zone, .zone.astromech, .zone.mission, .zone.deck { color:#d8b4fe; border-color:#c084fc; }
+  .floor.astromech .zone { background:rgba(40,16,56,.35); }
+  .floor.astromech .zone.deck { border-color:#a78bfa; }
+  .floor.battle-wrap { display:flex; flex-direction:column; gap:10px; color:#fca5a5; }
+  .floor.battle-wrap .zone, .zone.battle, .zone.battle-zone, .zone.firing-zone { color:#fca5a5; border-color:#f87171; background:rgba(48,12,16,.35); }
+  .floor.lounge { color:#fcd34d; }
+  .floor.lounge .pads { color:#fcd34d; }
+  .floor.companion { color:#e2e8f0; }
+  .floor.fuse { color:#fde047; }
+  .floor.benches { color:#a5f3fc; }
+  .floor.benches .zone.worker { color:#5eead4; border-color:#5eead4; background:rgba(6,40,36,.35); }
+  .floor.benches .zone.astromech { color:#d8b4fe; border-color:#c084fc; background:rgba(40,16,56,.35); }
+  .floor.benches .zone.battle { color:#fca5a5; border-color:#f87171; background:rgba(48,12,16,.35); }
+  .floor.worker .pad.empty { border-color:#2dd4bf; }
+  .floor.astromech .pad.empty { border-color:#a78bfa; }
+  .floor.battle-wrap .pad.empty { border-color:#f87171; }
+  .floor.lounge .pad.empty { border-color:#fbbf24; }
+  .floor.companion .pad.empty { border-color:#cbd5e1; }
+  .floor.fuse .pad.empty { border-color:#facc15; }
+  .floor.benches .pad.empty { border-color:#67e8f9; }
   
   header > h1, header > .dash, header > .toolbar, header > nav, main {
     width:min(960px,100%);
@@ -289,13 +299,19 @@
   .pick-item.on { border-color:#c4b5fd; background:rgba(196,181,253,.16); color:#f5d0fe; }
   .grid { display:grid; grid-template-columns:1fr; gap:8px; }
   @media (min-width:720px){ .grid { grid-template-columns:1fr 1fr; } }
-  .mini-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(112px,1fr)); gap:8px; margin-top:8px; }
+  .mini-grid { display:flex; flex-wrap:wrap; justify-content:center; gap:8px; margin-top:8px; }
   .mini-tile {
-    display:flex; flex-direction:column; align-items:flex-start; gap:6px;
-    background:rgba(12,10,24,.92); border:1px solid var(--line); border-radius:14px;
-    padding:8px; text-align:left; color:var(--ink); cursor:pointer;
+    display:flex; flex-direction:column; align-items:center; gap:6px;
+    width:118px; background:rgba(12,10,24,.92); border:1px solid var(--line); border-radius:14px;
+    padding:8px; text-align:center; color:var(--ink); cursor:pointer;
   }
-  .mini-tile .pic { width:48px; height:48px; }
+  .mini-tile .pic { width:48px; height:48px; margin:0 auto; }
+  .mini-tile.t-worker { border-color:#2dd4bf; }
+  .mini-tile.t-astromech { border-color:#c084fc; }
+  .mini-tile.t-battle { border-color:#f87171; }
+  .mini-tile.t-worker .mini-meta { color:#5eead4; }
+  .mini-tile.t-astromech .mini-meta { color:#d8b4fe; }
+  .mini-tile.t-battle .mini-meta { color:#fca5a5; }
   .mini-name { font-family:Orbitron,sans-serif; font-size:11px; letter-spacing:.08em; text-transform:uppercase; }
   .mini-meta { font-size:9px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); }
   .card-pop {
@@ -1935,7 +1951,8 @@ function openCardPop(kind,name){
 }
 function closeCardPop(){ openPop=null; render(); }
 function renderMiniTile(name,typ,rar,kind){
-  return `<button class="mini-tile" onclick="openCardPop('${kind}','${esc(name)}')">${picWrap(name,typ,rar)}<span class="mini-name">${name}${rarityMark(rar)}</span><span class="mini-meta">${typ}</span></button>`;
+  const tc = String(typ||'').toLowerCase();
+  return `<button class="mini-tile t-${tc}" onclick="openCardPop('${kind}','${esc(name)}')">${picWrap(name,typ,rar)}<span class="mini-name">${name}${rarityMark(rar)}</span><span class="mini-meta">${typ}</span></button>`;
 }
 function popInner(){
   if (!openPop) return "";
