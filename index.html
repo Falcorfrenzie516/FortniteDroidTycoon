@@ -389,7 +389,7 @@
   .fuse-table td.have-var { color:#4ade80; font-weight:800; font-size:16px; }
   .fuse-board { margin:12px 0; padding:12px; border:2px dashed var(--line); border-radius:16px; }
   .fuse-board.v-gld { border-color:#ca8a04; }
-  .fuse-board.v-dia { border-color:#22d3ee; }
+  .fuse-board.v-dia { border-color:#7dd3fc; }
   .fuse-board.v-rbw { border-color:#e879f9; }
   .fuse-board.v-bsk { border-color:#94a3b8; }
   .fuse-board.v-gal { border-color:#c084fc; }
@@ -397,14 +397,22 @@
   .fuse-board h3 { margin:0 0 10px; font-family:Orbitron,sans-serif; letter-spacing:.08em; font-size:16px; }
   .fuse-board h3 em { font-style:normal; }
   .fuse-board.v-gld h3 em { color:#facc15; }
-  .fuse-board.v-dia h3 em { color:#22d3ee; }
+  .fuse-board.v-dia h3 em { color:#7dd3fc; }
   .fuse-board.v-rbw h3 em { color:#e879f9; }
   .fuse-board.v-gal h3 em { color:#c084fc; }
   .fuse-board.v-stel h3 em { color:#fbbf24; }
   .fuse-ings { display:flex; flex-wrap:wrap; gap:10px; }
-  .fuse-ing { display:flex; flex-direction:column; align-items:center; gap:4px; width:88px; padding:8px 6px; border-radius:14px; border:2px solid var(--line); background:rgba(8,6,18,.8); }
-  .fuse-ing.on { outline:2px solid #4ade80; }
+  .fuse-ing { display:flex; flex-direction:column; align-items:center; gap:4px; width:92px; padding:8px 6px; border-radius:14px; border:2px solid #64748b; background:rgba(8,6,18,.8); }
+  .fuse-ing.v-def { border-color:#94a3b8; }
+  .fuse-ing.v-gld { border-color:#f59e0b; }
+  .fuse-ing.v-dia { border-color:#7dd3fc; }
+  .fuse-ing.v-rbw { border-color:#e879f9; }
+  .fuse-ing.v-bsk { border-color:#cbd5e1; }
+  .fuse-ing.v-gal { border-color:#c084fc; }
+  .fuse-ing.v-stel { border-color:#fbbf24; }
+  .fuse-ing.on { box-shadow:0 0 10px currentColor; }
   .fuse-ing .pic { width:56px; height:56px; }
+  .fuse-ing .ing-name { font-size:10px; line-height:1.2; text-align:center; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:#e2e8f0; }
 
   .fuse-filters button { font-size:11px; letter-spacing:.08em; text-transform:uppercase; }
   .swatches { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin:6px 0 8px; }
@@ -2300,7 +2308,7 @@ function renderFusionTracker(){
       html += `<label class="fuse-ing ${vTheme(v)} ${tick?"on":""}">`;
       html += `<input type="checkbox" ${tick?"checked":""} onchange="toggleFuseNeed('${esc(ing)}','${v}')">`;
       html += `${picWrap(ing,typ,rar)}`;
-      html += `<span class="mini-meta">${owned?"owned":"need"}</span></label>`;
+      html += `<span class="ing-name">${ing}</span></label>`;
     });
     html += `</div></section>`;
   });
