@@ -1727,17 +1727,27 @@ function parkedBest(n){
     PADS.forEach(p => {
       if (p.kind==="Companion") return;
       const s = padSlot(deck, p.id);
-      if (!s || s.name !== n) return;
-      if (isIconic(n)) { best = Math.max(best, 0); return; }
-      const i = TIER_I[s.variant||"Basic"];
-      if (typeof i === "number") best = Math.max(best, i);
+      if (!s || !nameEq(s.name, n)) return;
+      if (isIconic(n) || isIconic(s.name)) { best = Math.max(best, 6); return; }
+      const i = tierOf(s.variant||"Basic");
+      if (i >= 0) best = Math.max(best, i);
     });
     return best;
   } catch(e){ return -1; }
 }
+function normName(n){ return String(n||"").toLowerCase().replace(/[^a-z0-9]/g,""); }
+function nameEq(a,b){ return normName(a)===normName(b); }
+function tierOf(v){
+  if (v==null || v==="") return -1;
+  if (typeof v==="number") return v;
+  if (TIER_I[v]!==undefined) return TIER_I[v];
+  const k = String(v).toLowerCase();
+  const map = {def:0,basic:0,default:0,gld:1,gold:1,dia:2,diamond:2,rbw:3,rainbow:3,bsk:4,beskar:4,glc:5,gal:5,galactic:5,stl:6,stel:6,stellar:6,icn:6,iconic:6};
+  return map[k] ?? -1;
+}
 function meets(n, min){
-  const need = TIER_I[min];
-  if (need === undefined) return parkedBest(n) >= 0;
+  const need = tierOf(min);
+  if (need < 0) return parkedBest(n) >= 0;
   return parkedBest(n) >= need;
 }
 function highlightAhead(){
@@ -1752,9 +1762,10 @@ function upcomingNeeds(){
     const req = cyc[rb-1];
     if (!req) continue;
     req.forEach(([n,tier]) => {
-      const i = TIER_I[tier];
-      if (i===undefined) return;
-      if (need[n]===undefined || i>need[n]) need[n]=i;
+      const i = tierOf(tier);
+      if (i<0) return;
+      const key = n;
+      if (need[key]===undefined || i>need[key]) need[key]=i;
     });
     left--;
   }
@@ -1789,9 +1800,10 @@ function padNeedClass(slot){
   if (!slot || !slot.name) return "";
   const cls = [];
   const need = upcomingNeeds();
-  if (slot.name in need){
-    const have = isIconic(slot.name) ? 6 : (TIER_I[slot.variant||"Basic"] ?? -1);
-    const tone = have >= need[slot.name] ? "need-ok" : "need-low";
+  const want = Object.keys(need).find(k => nameEq(k, slot.name));
+  if (want){
+    const have = isIconic(slot.name) ? 6 : tierOf(slot.variant||"Basic");
+    const tone = have >= need[want] ? "need-ok" : "need-low";
     cls.push(tone);
     if (copiesOnBase(slot.name)===1) cls.push("need-solo");
   }
@@ -2130,7 +2142,7 @@ function render(){
         html += `<details class="tier ${done?"done":""}" ${ropen} ontoggle="openR['${key}']=this.open"><i class="fill" style="width:${done?100:(need.length?have/need.length*100:0)}%"></i><summary><label class="fl-pill ${done?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${done?"checked":""} onchange="toggleRebirth('${key}',this.checked)"></label><span>Rebirth ${rb}</span><span style="color:var(--muted);font-weight:600;letter-spacing:0;text-transform:none">${have}/${need.length}</span><span class="rb-cost">${CREDITS[rb-1]||""}${nova}</span>${ready&&!done?'<span class="ready" style="margin:0">READY</span>':''}${done?'<span style="color:var(--green);font-size:10px">DONE</span>':''}${rb>=12?'<span class="srb">SRB</span>':''}<span class="chev">▸</span></summary><div class="ings srb-cards">`;
         need.forEach(([n,t]) => {
           const ok = meets(n,t);
-          const owned = bestTier(n) >= (TIER_I[t] ?? -1);
+          const owned = bestTier(n) >= tierOf(t);
           const typ = classOf(n)||"";
           const rar = rarityOf(n)||"";
           const kind = isIconic(n) ? "i" : (FUSIONS.some(x=>x[0]===n) ? "f" : "d");
