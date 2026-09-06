@@ -221,6 +221,8 @@
   .floor.benches { border-color:#67e8f9; }
   .floor.benches > summary { color:#a5f3fc; }
   .floor.build { border-color:#94a3b8; }
+  .floor.stats { border-color:#c4b5fd; }
+  .floor.stats > summary { color:#e9d5ff; }
   .worker-split, .astro-split, .bench-split { display:flex; flex-wrap:wrap; gap:8px; align-items:stretch; }
   .worker-split .zone.carousel { flex:1 1 260px; }
   .worker-split .zone.control { flex:1 1 180px; }
@@ -1172,11 +1174,14 @@ function renderDecks(){
   let html = `<div class="hint">Hard caps: 11 worker · 9 astromech · 11 battle (5 + 6 firing range) · 13 lounge · 2 companion. Fusion lab is 3 pads + 1 chamber; a second tank (300 Nova / 1,800 V-Bucks) unlocks another 3+1. Lounge, companions, fusion, and chamber do not earn credits/s. Lounge + fusion/chamber still count for rebirths. Green = matching type +10%. Neon blue pad = ready for an upcoming rebirth. Orange pad = needed name, variant too low.</div>`;
   html += `<div class="meta" style="margin:0 0 8px">Active base: <b>${esc(deck.name||"Base")}</b> · switch bases on Profiles</div>`;
   const icons = iconicBoost(deck);
-  html += `<article class="card deck-total"><b>${fmtRate(deckCps(deck))}</b><span>${parked}/${visTotal} parked${icons?` · ${icons} iconic ×15%`:""} · total credits / second</span></article>`;
+  const rate = fmtRate(deckCps(deck));
+  html += `<details class="floor stats" ${floorOpen("stats",true)?"open":""} ontoggle="toggleFloor('stats',this.open)">`;
+  html += `<summary>${esc(deck.name||"Base")} · ${rate} · ${parked}/${visTotal}</summary>`;
+  html += `<article class="card deck-total"><b>${rate}</b><span>${parked}/${visTotal} parked${icons?` · ${icons} iconic ×15%`:""} · total credits / second</span></article>`;
   html += `<article class="card"><div class="name">${deck.name||"Base"}</div>`;
   html += `<div class="meta" style="margin:8px 0 6px">Base name</div><input class="deck-field" value="${esc(deck.name||"")}" onchange="setDeckField('name',this.value)">`;
   html += `<div class="meta" style="margin:8px 0 6px">Base multiplier (1 = none)</div><input class="deck-field" type="number" min="0" step="0.01" value="${deck.mult||1}" onchange="setDeckField('mult',this.value)">`;
-  html += `<div class="vars" style="grid-template-columns:1fr;margin-top:10px"><label class="chk ${deck.bonus!==false?"on":""}" style="flex-direction:row;text-transform:none;letter-spacing:0"><input type="checkbox" ${deck.bonus!==false?"checked":""} onchange="setDeckField('bonus',this.checked)">Collection bonus (+${collectionBonus()}%)</label></div></article>`;
+  html += `<div class="vars" style="grid-template-columns:1fr;margin-top:10px"><label class="chk ${deck.bonus!==false?"on":""}" style="flex-direction:row;text-transform:none;letter-spacing:0"><input type="checkbox" ${deck.bonus!==false?"checked":""} onchange="setDeckField('bonus',this.checked)">Collection bonus (+${collectionBonus()}%)</label></div></article></details>`;
   FLOORS.filter(f => f.group!=="fusion" && f.group!=="bench" && f.count>0 && f.id!=="chip").forEach(f => {
     const slice = PADS.filter(p=>p.floor===f.id);
     const used = slice.filter(p => padSlot(deck,p.id) && padSlot(deck,p.id).name).length;
@@ -1976,12 +1981,14 @@ function render(){
     const fHits = FUSIONS.filter(([n,r,t,ings]) => showCard(n,t,ings.join(" ")));
     const iHits = ICONICS.filter(([n,t,ev,how]) => showCard(n,t,ev+" "+how));
     if (dHits.length){
-      html += `<div class="rarity-h">Droidex</div>`;
-      dHits.forEach(([n,t,r]) => { html += renderDroidCard(n,t,r,false); shown++; });
+      html += `<div class="rarity-h">Droidex</div><div class="mini-grid">`;
+      dHits.forEach(([n,t,r]) => { html += renderMiniTile(n,t,r,"d"); shown++; });
+      html += `</div>`;
     }
     if (fHits.length){
-      html += `<div class="rarity-h Fusion">Fusion</div>`;
-      fHits.forEach(([n,r,t,ings]) => { html += renderFusionCard(n,r,t,ings,false); shown++; });
+      html += `<div class="rarity-h Fusion">Fusion</div><div class="mini-grid">`;
+      fHits.forEach(([n,r,t]) => { html += renderMiniTile(n,t,r,"f"); shown++; });
+      html += `</div>`;
     }
     if (iHits.length){
       html += `<div class="rarity-h Iconic">Iconic</div>`;
@@ -1999,22 +2006,22 @@ function render(){
   }
   if (tab==="fusion" || tab==="iconics") tab = "droidex";
   if (tab==="droidex") {
-    html += `<div class="hint">Regular, fusion, and iconic names live here. Fusion variants still need the same-tier ingredients inside the card.</div>`;
+    html += `<div class="hint">Tap a tile for the full card. Fusion variants still need the same-tier ingredients inside.</div>`;
     const order = ["Common","Rare","Epic","Legendary","Mythic"];
     let shown=0;
     order.forEach(r => {
-      const regs = DROIDS.filter(([n,t,rr]) => rr===r && !droidDone(n) && showCard(n,t,r));
-      const fuses = FUSIONS.filter(([n,rr,t,ings]) => rr===r && !fuseDone(n) && showCard(n,t,ings.join(" ")+" fusion"));
+      const regs = DROIDS.filter(([n,t,rr]) => rr===r && showCard(n,t,r));
+      const fuses = FUSIONS.filter(([n,rr,t,ings]) => rr===r && showCard(n,t,ings.join(" ")+" fusion"));
       if (!regs.length && !fuses.length) return;
-      html += `<div class="rarity-h ${r}">${r}</div><div class="grid">`;
-      regs.forEach(([n,t]) => { html += renderDroidCard(n,t,r,true); shown++; });
-      fuses.forEach(([n,rr,t,ings]) => { html += renderFusionCard(n,rr,t,ings,true); shown++; });
+      html += `<div class="rarity-h ${r}">${r}</div><div class="mini-grid">`;
+      regs.forEach(([n,t]) => { html += renderMiniTile(n,t,r,"d"); shown++; });
+      fuses.forEach(([n,rr,t]) => { html += renderMiniTile(n,t,rr,"f"); shown++; });
       html += `</div>`;
     });
-    const icons = ICONICS.filter(([n,t,ev,how]) => !iconDone(n) && showCard(n,t,ev+" "+how+" iconic"));
+    const icons = ICONICS.filter(([n,t,ev,how]) => showCard(n,t,ev+" "+how+" iconic"));
     if (icons.length){
-      html += `<div class="rarity-h Iconic">Iconic</div><div class="grid">`;
-      icons.forEach(([n,t,ev,how]) => { html += renderIconicCard(n,t,ev,how,true); shown++; });
+      html += `<div class="rarity-h Iconic">Iconic</div><div class="mini-grid">`;
+      icons.forEach(([n,t]) => { html += renderMiniTile(n,t,"Iconic","i"); shown++; });
       html += `</div>`;
     }
     if (!shown) html += `<div class="empty">Nothing left here. Check Done, or clear search.</div>`;
