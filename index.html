@@ -312,6 +312,16 @@
   .mini-tile.t-worker .mini-meta { color:#5eead4; }
   .mini-tile.t-astromech .mini-meta { color:#d8b4fe; }
   .mini-tile.t-battle .mini-meta { color:#fca5a5; }
+  .paint-grid { display:flex; flex-wrap:wrap; justify-content:center; gap:10px; margin-top:8px; }
+  .paint-tile {
+    width:148px; min-height:148px; box-sizing:border-box;
+    display:flex; flex-direction:column; align-items:center; justify-content:space-between; gap:6px;
+    text-align:center; padding:12px 10px; border-radius:16px;
+    background:rgba(12,10,24,.92); border:1px solid var(--line); color:var(--ink);
+  }
+  .paint-tile .name { font-family:Orbitron,sans-serif; font-size:11px; letter-spacing:.08em; text-transform:uppercase; }
+  .paint-tile .how { font-size:9px; }
+  .paint-tile.on { border-color:#4ade80; background:rgba(6,32,18,.55); }
   .mini-name { font-family:Orbitron,sans-serif; font-size:11px; letter-spacing:.08em; text-transform:uppercase; }
   .mini-meta { font-size:9px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); }
   .card-pop {
@@ -2027,15 +2037,15 @@ function render(){
     const order = ["Common","Rare","Epic","Legendary","Mythic"];
     let shown=0;
     order.forEach(r => {
-      const regs = DROIDS.filter(([n,t,rr]) => rr===r && showCard(n,t,r));
-      const fuses = FUSIONS.filter(([n,rr,t,ings]) => rr===r && showCard(n,t,ings.join(" ")+" fusion"));
+      const regs = DROIDS.filter(([n,t,rr]) => rr===r && !droidDone(n) && showCard(n,t,r));
+      const fuses = FUSIONS.filter(([n,rr,t,ings]) => rr===r && !fuseDone(n) && showCard(n,t,ings.join(" ")+" fusion"));
       if (!regs.length && !fuses.length) return;
       html += `<div class="rarity-h ${r}">${r}</div><div class="mini-grid">`;
       regs.forEach(([n,t]) => { html += renderMiniTile(n,t,r,"d"); shown++; });
       fuses.forEach(([n,rr,t]) => { html += renderMiniTile(n,t,rr,"f"); shown++; });
       html += `</div>`;
     });
-    const icons = ICONICS.filter(([n,t,ev,how]) => showCard(n,t,ev+" "+how+" iconic"));
+    const icons = ICONICS.filter(([n,t,ev,how]) => !iconDone(n) && showCard(n,t,ev+" "+how+" iconic"));
     if (icons.length){
       html += `<div class="rarity-h Iconic">Iconic</div><div class="mini-grid">`;
       icons.forEach(([n,t]) => { html += renderMiniTile(n,t,"Iconic","i"); shown++; });
@@ -2219,12 +2229,13 @@ function render(){
     });
   }
   if (tab==="cosmetics") {
-    html += `<div class="hint">Workshop paints. These are not Droidex entries.</div>`;
+    html += `<div class="hint">Workshop paints. These are not Droidex entries.</div><div class="paint-grid">`;
     COSMETICS.forEach(([cat,item,how,cost],idx) => {
       if (!showCard(item,cat,how+" "+cost)) return;
       const on = !!state.c[idx];
-      html += `<article class="card ${on?"done":""}"><div class="top"><div class="grow"><div class="name">${item}</div><div class="meta">${cat} · ${cost}</div></div></div><div class="meta" style="margin-top:8px">${how}</div><div class="vars"><label class="chk ${on?"on":""}"><input type="checkbox" ${on?"checked":""} onchange="state.c[${idx}]=!state.c[${idx}];save();render();">Have it</label></div></article>`;
+      html += `<article class="paint-tile ${on?"on":""}"><div class="name">${item}</div><div class="meta">${cat}</div><div class="meta">${cost}</div><div class="meta how">${how}</div><label class="chk ${on?"on":""}"><input type="checkbox" ${on?"checked":""} onchange="state.c[${idx}]=!state.c[${idx}];save();render();">Have it</label></article>`;
     });
+    html += `</div>`;
   }
   app.innerHTML = html;
   paintPop();
