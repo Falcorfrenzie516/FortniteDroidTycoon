@@ -1007,21 +1007,31 @@ function ownedAtLeast(name, tier){
   VARIANTS.forEach(v => { if (has(name,v) || fuseHas(name,v)) best = Math.max(best, TIER_I[v]??-1); });
   return best >= need;
 }
-function variantHave(tier){
-  let n = craftNames().filter(nm => ownedAtLeast(nm, tier)).length;
-  if (tier==="Basic") ICONICS.forEach(([nm]) => { if (iconOwned(nm)) n++; });
+function variantPoolNames(scope){
+  if (scope==="fusion") return FUSIONS.map(f=>f[0]);
+  return craftNames();
+}
+function variantHave(tier, scope){
+  let n = variantPoolNames(scope).filter(nm => ownedAtLeast(nm, tier)).length;
+  if (scope!=="fusion" && tier==="Basic") ICONICS.forEach(([nm]) => { if (iconOwned(nm)) n++; });
   return n;
 }
-function variantTotal(tier){ return craftNames().length + (tier==="Basic" ? ICONICS.length : 0); }
-function renderVariantBonuses(){
+function variantTotal(tier, scope){
+  if (scope==="fusion") return FUSIONS.length;
+  return craftNames().length + (tier==="Basic" ? ICONICS.length : 0);
+}
+function renderVariantBonuses(scope){
+  scope = scope || "all";
   let h = `<div class="bonus-grid">`;
   VARIANT_BONUS.forEach(v => {
-    const have = variantHave(v.tier);
-    const tot = variantTotal(v.tier);
+    const have = variantHave(v.tier, scope);
+    const tot = variantTotal(v.tier, scope);
     const pct = tot ? Math.round(have/tot*100) : 0;
     const left = Math.max(0, 25-have);
-    const on = have >= 25;
-    const sub = on ? "Bonus unlocked" : `Unlock ${left} more ${v.label.toLowerCase()} droids to get the bonus`;
+    const on = scope==="fusion" ? have>=tot && tot>0 : have >= 25;
+    const sub = scope==="fusion"
+      ? (have>=tot ? "All fusion variants" : `${tot-have} fusion left at ${v.label}+`)
+      : (on ? "Bonus unlocked" : `Unlock ${left} more ${v.label.toLowerCase()} droids to get the bonus`);
     h += `<article class="bonus-card ${on?"on":""}" style="--b:${v.bar};--c:${v.color}">`;
     h += `<div class="bonus-name">${v.label}</div>`;
     h += `<div class="bonus-bar"><i style="width:${pct}%"></i></div>`;
@@ -2248,7 +2258,8 @@ function toggleFuseNeed(n,v){
 function renderFusionTracker(){
   const plan = fusePlan();
   const nPick = plan.picks.length;
-  let html = `<details class="floor fuse" open><summary>Fusion select · ${nPick}/10</summary>`;
+  let html = renderVariantBonuses("fusion");
+  html += `<details class="floor fuse" open><summary>Fusion select · ${nPick}/10</summary>`;
   html += `<div class="meta" style="margin:0 0 8px">Check a variant to track it. Max 10. Recipes drop in below.</div>`;
   html += `<div class="fuse-table-wrap"><table class="fuse-table"><thead><tr><th>Droid</th>`;
   VARIANTS.forEach(v => { html += `<th class="${vTheme(v)}">${vName(v)}</th>`; });
