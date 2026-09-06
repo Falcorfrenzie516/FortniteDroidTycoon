@@ -2200,7 +2200,7 @@ function toggleFuseNeed(n,v){
 }
 function renderFusionTracker(){
   const plan = fusePlan();
-  let html = `<details class="floor fuse" open><summary>Fusion plan · 10 slots</summary>`;
+  let html = `<div class="rarity-h Fusion">Fusion planner</div><details class="floor fuse" open><summary>10 fusion slots</summary>`;
   html += `<p class="meta">Pick a fusion name and variant in each slot. The list below is every ingredient those slots need, split by type.</p>`;
   plan.slots.forEach((s,i) => {
     html += `<div class="fuse-slot"><span class="meta">#${i+1}</span>`;
@@ -2332,7 +2332,7 @@ function render(){
   applyAlertColors();
   const app = document.getElementById("app");
   let html = "";
-  const qLive = norm(document.getElementById("q").value);
+  const qLive = (tab==="fusion") ? "" : norm(document.getElementById("q").value);
   if (qLive) {
     html += `<div class="hint">Matches for “${document.getElementById("q").value.trim()}”. Results update as you type. Tap the box again to start a new search.</div>`;
     let shown=0;
