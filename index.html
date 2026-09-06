@@ -196,7 +196,11 @@
     border:1px dashed rgba(196,181,253,.35);
     border-radius:18px;
   }
-  .floor h3 { margin:0 0 8px; font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--gold2); font-family:Orbitron,sans-serif; }
+  .floor h3, details.floor > summary { margin:0 0 8px; font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--gold2); font-family:Orbitron,sans-serif; cursor:pointer; list-style:none; }
+  details.floor > summary::-webkit-details-marker { display:none; }
+  details.floor > summary::after { content:"▾"; float:right; opacity:.7; }
+  details.floor:not([open]) > summary { margin:0; }
+  details.floor:not([open]) > summary::after { content:"▸"; }
   .floor.worker { border-color:rgba(74,222,128,.35); }
   .floor.astromech { border-color:rgba(96,165,250,.4); }
   .floor.battle { border-color:rgba(251,113,133,.4); }
@@ -1132,12 +1136,12 @@ function renderDecks(){
       const ctrl = slice.filter(p=>p.zone==="control");
       const cu = car.filter(p => padSlot(deck,p.id)&&padSlot(deck,p.id).name).length;
       const tu = ctrl.filter(p => padSlot(deck,p.id)&&padSlot(deck,p.id).name).length;
-      html += `<section class="floor worker"><h3>Worker deck · ${used}/${f.count}</h3><div class="worker-split">`;
+      html += `<details class="floor worker" ${floorOpen("worker",true)?"open":""} ontoggle="toggleFloor('worker',this.open)"><summary>Worker deck · ${used}/${f.count}</summary><div class="worker-split">`;
       html += `<div class="zone carousel"><div class="zone-h">Carousel (${cu}/8)</div><div class="pads">`;
       car.forEach(p => html += padButton(p,deck));
       html += `</div></div><div class="zone control"><div class="zone-h">Control Room (${tu}/3)</div><div class="pads">`;
       ctrl.forEach(p => html += padButton(p,deck));
-      html += `</div></div></div></section>`;
+      html += `</div></div></div></details>`;
       return;
     }
     if (f.id==="astromech"){
@@ -1148,7 +1152,7 @@ function renderDecks(){
         {title:"Deck", ids:[7,8]},
         {title:"Mission", ids:[9]}
       ];
-      html += `<section class="floor astromech"><h3>Astromech deck · ${used}/${f.count}</h3><div class="astro-split">`;
+      html += `<details class="floor astromech" ${floorOpen("astromech",true)?"open":""} ontoggle="toggleFloor('astromech',this.open)"><summary>Astromech deck · ${used}/${f.count}</summary><div class="astro-split">`;
       groups.forEach(g => {
         const group = slice.filter(p=>g.ids.includes(p.n));
         const gu = group.filter(p => padSlot(deck,p.id)&&padSlot(deck,p.id).name).length;
@@ -1157,7 +1161,7 @@ function renderDecks(){
         group.forEach(p => html += padButton(p,deck));
         html += `</div></div>`;
       });
-      html += `</div></section>`;
+      html += `</div></details>`;
       return;
     }
     if (f.id==="firing") return;
@@ -1165,16 +1169,17 @@ function renderDecks(){
       const fire = PADS.filter(p=>p.floor==="firing");
       const bu = used;
       const fu = fire.filter(p => padSlot(deck,p.id)&&padSlot(deck,p.id).name).length;
-      html += `<section class="floor battle-wrap"><h3>Battle deck · ${bu}/5</h3><div class="zone battle-zone"><div class="pads">`;
+      html += `<details class="floor battle-wrap" ${floorOpen("battle",true)?"open":""} ontoggle="toggleFloor('battle',this.open)"><summary>Battle deck · ${bu}/5 · Range ${fu}/6</summary><div class="zone battle-zone"><div class="pads">`;
       slice.forEach(p => html += padButton(p,deck));
       html += `</div></div><div class="zone firing-zone"><div class="zone-h">Firing Range (${fu}/6)</div><div class="pads">`;
       fire.forEach(p => html += padButton(p,deck));
-      html += `</div></div></section>`;
+      html += `</div></div></details>`;
       return;
     }
-    html += `<section class="floor ${f.id}"><h3>${f.label} · ${used}/${f.count}</h3><div class="pads">`;
+    const defOpen = !(f.id==="lounge" || f.id==="companion");
+    html += `<details class="floor ${f.id}" ${floorOpen(f.id, defOpen)?"open":""} ontoggle="toggleFloor('${f.id}',this.open)"><summary>${f.label} · ${used}/${f.count}</summary><div class="pads">`;
     slice.forEach(p => { html += padButton(p,deck); });
-    html += `</div></section>`;
+    html += `</div></details>`;
   });
   html += renderFusionLabs(deck);
   return html;
@@ -1309,17 +1314,27 @@ function renderFusionLabs(deck){
     }
     return h;
   }
-  let html = `<section class="floor fuse"><h3>Fusion lab</h3>`;
+  let html = `<details class="floor fuse" ${floorOpen("fuse",false)?"open":""} ontoggle="toggleFloor('fuse',this.open)"><summary>Fusion lab</summary>`;
   html += `<p class="meta">3 same droid + variant → next variant. 3 same rarity → pick a random of the next rarity (keeps variant). Exact recipe → named fusion droid. Result goes in the chamber.</p>`;
   html += labBlock(1);
   html += `<div class="vars" style="grid-template-columns:1fr;margin-top:12px"><label class="chk ${second?"on":""}" style="flex-direction:row;text-transform:none;letter-spacing:0"><input type="checkbox" ${second?"checked":""} onchange="toggleSecondLab(this.checked)">Second fusion tank bought (300 Nova or 1,800 V-Bucks)</label></div>`;
   if (second) html += labBlock(2);
-  html += `</section>`;
+  html += `</details>`;
   return html;
 }
 function toggleSecondLab(on){
   state.decks.secondLab = !!on;
   save(); render();
+}
+function floorOpen(id, def){
+  if (!state.decks.fold) state.decks.fold = {};
+  if (state.decks.fold[id] == null) return !!def;
+  return !!state.decks.fold[id];
+}
+function toggleFloor(id, on){
+  if (!state.decks.fold) state.decks.fold = {};
+  state.decks.fold[id] = !!on;
+  save();
 }
 
 function ensureDecks(st){
