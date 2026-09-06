@@ -283,17 +283,19 @@
   .pad.mission.filled { border-style:solid; }
   .pad.drag { opacity:.45; }
   .pad.drop { outline:2px solid #c4b5fd; outline-offset:2px; }
-  .pad.need-ok { border-style:solid; border-color:#00f6ff; box-shadow:0 0 8px #00f6ff, 0 0 16px rgba(0,246,255,.35); }
-  .pad.need-low { border-style:solid; border-color:#ff8a00; box-shadow:0 0 8px #ff8a00, 0 0 16px rgba(255,138,0,.32); }
-  .pad.need-ok.need-solo { border-width:3px; box-shadow:0 0 14px #00f6ff, 0 0 32px #00f6ff, 0 0 54px rgba(0,246,255,.85); animation:pulseOk 1.4s ease-in-out infinite; }
-  .pad.need-low.need-solo { border-width:3px; box-shadow:0 0 14px #ff8a00, 0 0 32px #ff8a00, 0 0 54px rgba(255,138,0,.85); animation:pulseLow 1.4s ease-in-out infinite; }
-  @keyframes pulseOk { 50% { box-shadow:0 0 20px #00f6ff, 0 0 48px #00f6ff, 0 0 72px rgba(0,246,255,1); } }
-  @keyframes pulseLow { 50% { box-shadow:0 0 20px #ff8a00, 0 0 48px #ff8a00, 0 0 72px rgba(255,138,0,1); } }
-  .pad.need-upgrade { box-shadow: inset 0 0 0 2px #c084fc, 0 0 12px rgba(192,132,252,.55); }
-  .pad.need-upgrade.need-ok, .pad.need-upgrade.need-low { box-shadow: inset 0 0 0 2px #c084fc; }
-  .pad.need-fuse { position:relative; }
-  .pad.need-fuse::after { content:"FUSE"; position:absolute; top:2px; right:2px; font-size:6px; letter-spacing:.06em; color:#f0abfc; background:#3b0764; border:1px solid #e879f9; border-radius:4px; padding:1px 3px; }
-  .pad.need-upgrade:not(.need-fuse)::before { content:"UP"; position:absolute; top:2px; left:2px; font-size:6px; letter-spacing:.06em; color:#e9d5ff; background:#3b0764; border:1px solid #c084fc; border-radius:4px; padding:1px 3px; }
+  .pad.need-ok { border-style:solid; border-color:var(--alert-ready,#00f6ff); box-shadow:0 0 calc(8px * var(--bright-ready,1)) var(--alert-ready,#00f6ff), 0 0 calc(16px * var(--bright-ready,1)) var(--alert-ready-dim,rgba(0,246,255,.35)); animation:var(--anim-ready,none) 1.3s ease-in-out infinite; }
+  .pad.need-low { border-style:solid; border-color:var(--alert-low,#ff8a00); box-shadow:0 0 calc(8px * var(--bright-low,1)) var(--alert-low,#ff8a00), 0 0 calc(16px * var(--bright-low,1)) var(--alert-low-dim,rgba(255,138,0,.32)); animation:var(--anim-low,none) 1.3s ease-in-out infinite; }
+  .pad.need-ok.need-solo, .pad.need-low.need-solo { border-width:3px; animation:var(--anim-solo,alert-pulse) 1.4s ease-in-out infinite; }
+  @keyframes alert-pulse { 50% { box-shadow:0 0 22px currentColor, 0 0 44px currentColor; } }
+  @keyframes alert-blink { 0%,45%{opacity:1} 55%,100%{opacity:.2} }
+  @keyframes alert-fade { 0%,100%{opacity:1} 50%{opacity:.3} }
+  @keyframes alert-flash { 0%,70%,100%{filter:brightness(1)} 10%,25%{filter:brightness(2.1)} }
+  @keyframes alert-glow { 0%,100%{box-shadow:0 0 6px currentColor} 50%{box-shadow:0 0 28px currentColor,0 0 48px currentColor} }
+  .pad.need-upgrade { animation:var(--anim-upgrade,none) 1.4s ease-in-out infinite; box-shadow: inset 0 0 0 2px var(--alert-upgrade,#c084fc), 0 0 12px var(--alert-upgrade-dim,rgba(192,132,252,.55)); }
+  .pad.need-upgrade.need-ok, .pad.need-upgrade.need-low { box-shadow: inset 0 0 0 2px var(--alert-upgrade,#c084fc); }
+  .pad.need-fuse { position:relative; animation:var(--anim-fuse,none) 1.4s ease-in-out infinite; }
+  .pad.need-fuse::after { content:"FUSE"; position:absolute; top:2px; right:2px; font-size:6px; letter-spacing:.06em; color:#fff; background:#1a1024; border:1px solid var(--alert-fuse,#e879f9); border-radius:4px; padding:1px 3px; }
+  .pad.need-upgrade:not(.need-fuse)::before { content:"UP"; position:absolute; top:2px; left:2px; font-size:6px; letter-spacing:.06em; color:#fff; background:#1a1024; border:1px solid var(--alert-upgrade,#c084fc); border-radius:4px; padding:1px 3px; }
   .pad.need-upgrade { position:relative; }
   .pad .pic { width:44px; height:44px; margin-top:4px; border-radius:10px; border-style:dotted; }
   .pad .pic { width:36px; height:36px; flex:none; }
@@ -348,6 +350,13 @@
   .mini-tile.t-worker .mini-meta { color:#5eead4; }
   .mini-tile.t-astromech .mini-meta { color:#d8b4fe; }
   .mini-tile.t-battle .mini-meta { color:#fca5a5; }
+  .swatches { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin:6px 0 8px; }
+  .swatch { width:22px; height:22px; border-radius:50%; border:2px solid #1e1b2e; padding:0; cursor:pointer; }
+  .swatch.on { outline:2px solid #fff; }
+  .swatches input[type=color] { width:28px; height:22px; padding:0; border:1px solid var(--line); background:transparent; cursor:pointer; }
+  .alert-opts { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin:4px 0 8px; }
+  .alert-opts label { display:flex; align-items:center; gap:6px; font-size:10px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); }
+  .alert-opts input[type=range] { width:120px; }
   .paint-grid { display:flex; flex-wrap:wrap; justify-content:center; gap:10px; margin-top:8px; }
   .paint-tile {
     width:148px; min-height:148px; box-sizing:border-box;
@@ -921,6 +930,7 @@ function setUnlock(key, val){
   if (key==="loungeExtra") state.decks.unlocks.loungeExtra = Math.min(4, Math.max(0, Number(val)||0));
   else state.decks.unlocks[key] = !!val;
   applyUnlocks();
+applyAlertColors();
   save(); render();
 }
 function applyPatches(pack){
@@ -1498,6 +1508,7 @@ let state = JSON.parse(localStorage.getItem(KEY) || localStorage.getItem("droide
 if (!state.rb) state.rb = {};
 if (!state.rb.ahead) state.rb.ahead = 3;
 if (!state.rb.cycle) state.rb.cycle = 1;
+if (!state.alerts) state.alerts = {};
 ensureDecks(state);
 let tab = "droidex";
 let srbCycle = Number(state.rb.cycle || 1);
@@ -1555,6 +1566,30 @@ function savePanel(){
   html += `</select><div class="meta" style="margin:10px 0 6px">Highlight next rebirths (1–10)</div><select class="deck-field" onchange="setRbSetting('ahead',this.value)">`;
   for (let n=1;n<=10;n++) html += `<option value="${n}" ${highlightAhead()===n?"selected":""}>${n} rebirth${n>1?"s":""} ahead</option>`;
   html += `</select></article>`;
+  const presets = ALERT_PRESETS;
+  function alertRow(key, label, blurb){
+    const conf = alertConf(key);
+    const cur = conf.color;
+    let row = `<div class="meta" style="margin:10px 0 4px">${label}</div><div class="meta">${blurb}</div><div class="swatches">`;
+    presets.forEach(c => {
+      row += `<button type="button" class="swatch ${c.toLowerCase()===cur.toLowerCase()?"on":""}" style="background:${c}" onclick="setAlertField('${key}','color','${c}')"></button>`;
+    });
+    row += `<input type="color" value="${cur}" onchange="setAlertField('${key}','color',this.value)" title="RGB picker">`;
+    row += `</div><div class="alert-opts">`;
+    row += `<label>Anim <select onchange="setAlertField('${key}','anim',this.value)">`;
+    ALERT_ANIMS.forEach(([id,lab]) => { row += `<option value="${id}" ${conf.anim===id?"selected":""}>${lab}</option>`; });
+    row += `</select></label>`;
+    row += `<label>Bright ${conf.bright}% <input type="range" min="10" max="150" value="${conf.bright}" oninput="setAlertField('${key}','bright',this.value,true)"></label>`;
+    row += `</div>`;
+    return row;
+  }
+  html += `<article class="card"><div class="name">Alert colors</div><div class="meta" style="margin:6px 0 8px">Color, animation, and brightness for each Base highlight.</div>`;
+  html += alertRow("ready","Ready","Parked at the needed variant or higher");
+  html += alertRow("low","Too low","Needed name, variant below the requirement");
+  html += alertRow("upgrade","Upgrade","UP — a better variant is checked in Droidex");
+  html += alertRow("fuse","Fuse","Ingredient for a fusion you do not own yet");
+  html += alertRow("solo","Only copy","Heavier glow when it is the only copy on Base");
+  html += `</article>`;
   html += `<article class="card"><div class="name">Bases</div><div class="meta" style="margin:6px 0 8px">Each base is its own pad map and multiplier. The Base tab shows the active one.</div>`;
   html += `<div class="meta" style="margin:8px 0 6px">Active base</div><select class="deck-field" onchange="switchDeck(this.value)">`;
   state.decks.list.forEach((d,i) => {
@@ -1844,6 +1879,51 @@ function padNeedClass(slot){
   }
   return cls.join(" ");
 }
+const ALERT_PRESETS = ["#00f6ff","#ff8a00","#c084fc","#e879f9","#4ade80","#facc15"];
+const ALERT_DEFAULTS = {ready:"#00f6ff",low:"#ff8a00",upgrade:"#c084fc",fuse:"#e879f9",solo:"#00f6ff"};
+const ALERT_ANIMS = [["none","None"],["pulse","Pulse"],["blink","Blink"],["fade","Fade"],["flash","Flash"],["glow","Glow"]];
+function hexToRgb(hex){
+  const h = String(hex||"").replace("#","");
+  if (h.length!==6) return "0,246,255";
+  return [0,2,4].map(i => parseInt(h.slice(i,i+2),16)).join(",");
+}
+function alertConf(key){
+  const raw = state.alerts && state.alerts[key];
+  const defA = key==="solo" ? "pulse" : "none";
+  if (typeof raw === "string") return {color:raw, anim:defA, bright:80};
+  if (raw && typeof raw === "object") return {
+    color: raw.color || ALERT_DEFAULTS[key],
+    anim: raw.anim || defA,
+    bright: raw.bright==null ? 80 : Math.min(150, Math.max(10, Number(raw.bright)))
+  };
+  return {color:ALERT_DEFAULTS[key], anim:defA, bright:80};
+}
+function alertColor(key){ return alertConf(key).color; }
+function applyAlertColors(){
+  const root = document.documentElement;
+  ["ready","low","upgrade","fuse","solo"].forEach(k => {
+    const c = alertConf(k);
+    const hex = c.color;
+    const b = c.bright/100;
+    root.style.setProperty("--alert-"+k, hex);
+    root.style.setProperty("--alert-"+k+"-dim", "rgba("+hexToRgb(hex)+","+Math.min(1,0.25+b*0.45)+")");
+    root.style.setProperty("--bright-"+k, String(b));
+    root.style.setProperty("--anim-"+k, c.anim==="none" ? "none" : "alert-"+c.anim);
+  });
+}
+function setAlertField(key, field, val, quiet){
+  if (!state.alerts) state.alerts = {};
+  const cur = alertConf(key);
+  if (field==="bright") cur.bright = Math.min(150, Math.max(10, Number(val)||80));
+  else if (field==="anim") cur.anim = val;
+  else cur.color = val;
+  state.alerts[key] = cur;
+  applyAlertColors();
+  save();
+  if (!quiet) render();
+}
+function setAlertColor(key, hex){ setAlertField(key,"color",hex); }
+
 function setRbSetting(field, value){
   if (!state.rb) state.rb = {};
   if (field==="cycle"){
@@ -2058,6 +2138,7 @@ function paintPop(){
   }
 }
 function render(){
+  applyAlertColors();
   const app = document.getElementById("app");
   let html = "";
   const qLive = norm(document.getElementById("q").value);
