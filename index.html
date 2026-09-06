@@ -371,6 +371,9 @@
   .tier { margin-top:8px; background:var(--bg2); border:1px solid var(--line); border-radius:10px; padding:0; }
   .tier h3 { margin:0 0 6px; font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--gold2); display:flex; justify-content:space-between; align-items:center; }
   .ings { display:flex; flex-direction:column; gap:5px; padding:0 8px 8px; }
+  .ings.srb-cards { flex-direction:row; flex-wrap:wrap; justify-content:center; gap:8px; }
+  .mini-tile.need-ok { border-color:#00f6ff; box-shadow:0 0 10px rgba(0,246,255,.35); }
+  .mini-tile.need-low { border-color:#ff8a00; box-shadow:0 0 10px rgba(255,138,0,.35); }
   .ings .chk { flex-direction:row; justify-content:flex-start; text-transform:none; letter-spacing:0; font-size:12px; min-height:0; padding:7px 8px; }
   details.drop { padding:0; }
   details.drop > summary { list-style:none; cursor:pointer; padding:12px; display:flex; gap:8px; align-items:center; position:relative; overflow:hidden; }
@@ -2107,11 +2110,15 @@ function render(){
         const ready = have===need.length;
         const nova = NOVA[rb] ? ` · ${NOVA[rb]} Nova` : "";
         const ropen = openR[key] ? "open" : "";
-        html += `<details class="tier ${done?"done":""}" ${ropen} ontoggle="openR['${key}']=this.open"><i class="fill" style="width:${done?100:(need.length?have/need.length*100:0)}%"></i><summary><label class="fl-pill ${done?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${done?"checked":""} onchange="toggleRebirth('${key}',this.checked)"></label><span>Rebirth ${rb}</span><span style="color:var(--muted);font-weight:600;letter-spacing:0;text-transform:none">${have}/${need.length}</span><span class="rb-cost">${CREDITS[rb-1]||""}${nova}</span>${ready&&!done?'<span class="ready" style="margin:0">READY</span>':''}${done?'<span style="color:var(--green);font-size:10px">DONE</span>':''}${rb>=12?'<span class="srb">SRB</span>':''}<span class="chev">▸</span></summary><div class="ings">`;
+        html += `<details class="tier ${done?"done":""}" ${ropen} ontoggle="openR['${key}']=this.open"><i class="fill" style="width:${done?100:(need.length?have/need.length*100:0)}%"></i><summary><label class="fl-pill ${done?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${done?"checked":""} onchange="toggleRebirth('${key}',this.checked)"></label><span>Rebirth ${rb}</span><span style="color:var(--muted);font-weight:600;letter-spacing:0;text-transform:none">${have}/${need.length}</span><span class="rb-cost">${CREDITS[rb-1]||""}${nova}</span>${ready&&!done?'<span class="ready" style="margin:0">READY</span>':''}${done?'<span style="color:var(--green);font-size:10px">DONE</span>':''}${rb>=12?'<span class="srb">SRB</span>':''}<span class="chev">▸</span></summary><div class="ings srb-cards">`;
         need.forEach(([n,t]) => {
           const ok = meets(n,t);
-          const owned = bestTier(n) >= TIER_I[t];
-          html += `<label class="chk ${ok?"on":""} ${vTheme(t)}">${ok?"✓":"○"} ${vName(t).toUpperCase()} ${n.toUpperCase()}${ok?"":owned?" · owned, not parked":""}</label>`;
+          const owned = bestTier(n) >= (TIER_I[t] ?? -1);
+          const typ = classOf(n)||"";
+          const rar = rarityOf(n)||"";
+          const kind = isIconic(n) ? "i" : (FUSIONS.some(x=>x[0]===n) ? "f" : "d");
+          const note = ok ? "Parked" : owned ? "Owned, not parked" : "Need "+vName(t);
+          html += `<button type="button" class="mini-tile t-${typ.toLowerCase()} ${ok?"need-ok":owned?"need-low":""}" onclick="event.preventDefault();openCardPop('${kind}','${esc(n)}')">${picWrap(n,typ,rar)}<span class="mini-name">${vName(t)} ${n}</span><span class="mini-meta">${note}</span></button>`;
         });
         html += `</div></details>`;
       });
