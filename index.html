@@ -252,6 +252,21 @@
   .floor.companion .pad.empty { border-color:#cbd5e1; }
   .floor.fuse .pad.empty { border-color:#facc15; }
   .floor.benches .pad.empty { border-color:#67e8f9; }
+  .floor.benches .zone.worker .pad.empty,
+  .floor.benches .zone.worker .pad.filled,
+  .floor.benches .zone.worker .pad.match {
+    border-color:#5eead4; box-shadow:0 0 10px rgba(45,212,191,.35);
+  }
+  .floor.benches .zone.astromech .pad.empty,
+  .floor.benches .zone.astromech .pad.filled,
+  .floor.benches .zone.astromech .pad.match {
+    border-color:#c084fc; box-shadow:0 0 10px rgba(192,132,252,.4);
+  }
+  .floor.benches .zone.battle .pad.empty,
+  .floor.benches .zone.battle .pad.filled,
+  .floor.benches .zone.battle .pad.match {
+    border-color:#f87171; box-shadow:0 0 10px rgba(248,113,113,.45);
+  }
   
   header > h1, header > .dash, header > .toolbar, header > nav, main {
     width:min(960px,100%);
@@ -292,8 +307,21 @@
   .pad.empty .pic { background:transparent; border:2px dotted #3f3a63; display:flex; align-items:center; justify-content:center; color:#5b5388; font-size:16px; }
   .pad.filled { border-style:solid; border-color:#a78bfa; background:rgba(20,12,40,.85); }
   .pad.match { border-color:#4ade80; }
+  .floor.worker .pad.filled, .floor.worker .pad.match { border-color:#5eead4; box-shadow:0 0 10px rgba(45,212,191,.35); }
+  .floor.astromech .pad.filled, .floor.astromech .pad.match {
+    border-color:#c084fc; box-shadow:0 0 10px rgba(192,132,252,.4);
+  }
+  .floor.battle-wrap .pad.filled, .floor.battle-wrap .pad.match {
+    border-color:#f87171; box-shadow:0 0 10px rgba(248,113,113,.45);
+  }
+  .floor.benches .zone.astromech .pad.filled { border-color:#c084fc; }
+  .floor.benches .zone.battle .pad.filled { border-color:#f87171; }
+  .floor.benches .zone.worker .pad.filled { border-color:#5eead4; }
   .pad.offtype { border-color:#fbbf24; }
   .pad.lounge { border-color:#ca8a04; }
+  .pad.companion, .floor.companion .pad.filled {
+    border-color:#f8fafc; box-shadow:0 0 10px rgba(248,250,252,.35);
+  }
   .deck-bar { display:flex; gap:6px; flex-wrap:wrap; margin:0 0 10px; align-items:center; }
   .deck-bar button { background:var(--card); color:var(--muted); border:1px solid var(--line); border-radius:14px; padding:7px 10px; font-size:10px; font-weight:700; font-family:Orbitron,sans-serif; letter-spacing:.1em; text-transform:uppercase; }
   .deck-bar button.on { color:#0b1220; background:var(--gold); border-color:var(--gold); }
@@ -1304,7 +1332,7 @@ function padButton(p, deck){
   if (s && s.name){
     const typed = p.kind==="Worker"||p.kind==="Astromech"||p.kind==="Battle";
     const match = typed && classOf(s.name)===p.kind;
-    const tone = p.mission ? "mission" : (!typed ? "lounge" : (match ? "match" : "offtype"));
+    const tone = p.mission ? "mission" : (p.kind==="Companion"||p.floor==="chip" ? "companion" : (!typed ? "lounge" : (match ? "match" : "offtype")));
     const lab = p.mission ? ("M"+p.n+" "+(isIconic(s.name)?"★ ":"")+s.name) : p.floor==="companion" ? ((p.n===1?"Main ":"Sec ")+(isIconic(s.name)?"★ ":"")+s.name) : (isIconic(s.name)?"★ "+s.name:s.name);
     const vv = isIconic(s.name) ? "Iconic" : (s.variant||"Basic");
     const vlab = isIconic(s.name) ? "ICN" : (SHORT[vv]||vv);
