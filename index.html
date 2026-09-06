@@ -424,9 +424,9 @@
   .alert-opts { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin:4px 0 8px; }
   .alert-opts label { display:flex; align-items:center; gap:6px; font-size:10px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); }
   .alert-opts input[type=range] { width:120px; }
-  .bonus-grid { display:flex; flex-wrap:wrap; justify-content:center; gap:8px; margin:8px 0 14px; }
+  .bonus-grid { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:8px; margin:8px 0 14px; }
   .bonus-card {
-    width:138px; box-sizing:border-box; padding:10px 10px 8px; border-radius:14px;
+    width:auto; min-height:118px; box-sizing:border-box; padding:12px 10px 10px; border-radius:14px;
     background:rgba(12,10,24,.92); border:1px solid var(--line); text-align:left;
   }
   .bonus-card.on { border-color:var(--c,#4ade80); }
