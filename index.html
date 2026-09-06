@@ -2244,6 +2244,11 @@ function fusePlan(){
     state.fusePlan.picks = slots.filter(s => s && s.name).map(s => ({name:s.name, variant:s.variant||"Basic"}));
   }
   if (!state.fusePlan.checks) state.fusePlan.checks = {};
+  const kept = state.fusePlan.picks.filter(x => x && x.name && !fuseHas(x.name, x.variant||"Basic"));
+  if (kept.length !== state.fusePlan.picks.length){
+    state.fusePlan.picks = kept;
+    try { save(); } catch(e){}
+  }
   return state.fusePlan;
 }
 function fusePickKey(n,v){ return n+"@"+v; }
@@ -2271,7 +2276,7 @@ function renderFusionTracker(){
   const plan = fusePlan();
   const nPick = plan.picks.length;
   let html = renderVariantBonuses("fusion");
-  html += `<details class="floor fuse" open><summary>Fusion select · ${nPick}/10</summary>`;
+  html += `<details class="floor fuse" ${floorOpen("fuseSelect",false)?"open":""} ontoggle="toggleFloor('fuseSelect',this.open)"><summary>Fusion select · ${nPick}/10</summary>`;
   html += `<div class="meta" style="margin:0 0 8px">Check a variant to track it. Max 10. Recipes drop in below.</div>`;
   html += `<div class="fuse-table-wrap"><table class="fuse-table"><thead><tr><th>Droid</th><th>Rarity</th>`;
   VARIANTS.forEach(v => { html += `<th class="${vTheme(v)}">${vName(v)}</th>`; });
