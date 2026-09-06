@@ -206,7 +206,8 @@
   .floor.fuse { border-color:rgba(232,121,249,.45); }
   .floor.mission-floor { border-color:rgba(251,191,36,.55); }
   .worker-split { display:grid; grid-template-columns:minmax(0,1fr) minmax(190px,auto); gap:10px; align-items:start; }
-  @media (max-width:720px){ .worker-split { grid-template-columns:1fr; } }
+  .astro-split { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; align-items:start; }
+  @media (max-width:720px){ .worker-split, .astro-split { grid-template-columns:1fr; } }
   .zone { border:2px dashed rgba(45,212,191,.7); border-radius:16px; padding:10px 8px 8px; background:rgba(6,20,22,.25); }
   .zone-h { font-size:10px; letter-spacing:.16em; text-transform:uppercase; color:#5eead4; margin:0 0 8px; font-family:Orbitron,sans-serif; }
   .pads { display:grid; grid-template-columns:repeat(auto-fill,minmax(58px,1fr)); gap:8px; justify-items:center; }
@@ -788,7 +789,7 @@ function padList(){
   FLOORS.forEach(f => {
     for (let i=0;i<f.count;i++){
       const n = i+1;
-      pads.push({id:f.id+i, kind:f.kind, floor:f.id, n, mission: f.id==="astromech" && n>=5, zone: f.id==="worker" ? (n<=8?"carousel":"control") : ""});
+      pads.push({id:f.id+i, kind:f.kind, floor:f.id, n, mission: false, zone: f.id==="worker" ? (n<=8?"carousel":"control") : (f.id==="astromech" ? "m"+Math.ceil(n/3) : "")});
     }
   });
   return pads;
@@ -1135,14 +1136,14 @@ function renderDecks(){
       return;
     }
     if (f.id==="astromech"){
-      const deckPads = slice.filter(p=>!p.mission);
-      const missPads = slice.filter(p=>p.mission);
-      const du = deckPads.filter(p => padSlot(deck,p.id)&&padSlot(deck,p.id).name).length;
-      const mu = missPads.filter(p => padSlot(deck,p.id)&&padSlot(deck,p.id).name).length;
-      html += `<section class="floor astromech"><h3>Astromech deck · ${du}/4</h3><div class="pads">`;
-      deckPads.forEach(p => html += padButton(p,deck));
-      html += `</div></section><section class="floor mission-floor"><h3>Astromech missions · ${mu}/5 · no credits/s</h3><div class="pads">`;
-      missPads.forEach(p => html += padButton(p,deck));
+      html += `<section class="floor astromech"><h3>Astromech deck · ${used}/${f.count}</h3><div class="astro-split">`;
+      ["m1","m2","m3"].forEach((z,i) => {
+        const group = slice.filter(p=>p.zone===z);
+        const gu = group.filter(p => padSlot(deck,p.id)&&padSlot(deck,p.id).name).length;
+        html += `<div class="zone mission"><div class="zone-h">Mission (${gu}/3)</div><div class="pads">`;
+        group.forEach(p => html += padButton(p,deck));
+        html += `</div></div>`;
+      });
       html += `</div></section>`;
       return;
     }
