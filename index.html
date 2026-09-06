@@ -366,6 +366,10 @@
   .mini-tile.t-worker .mini-meta { color:#5eead4; }
   .mini-tile.t-astromech .mini-meta { color:#d8b4fe; }
   .mini-tile.t-battle .mini-meta { color:#fca5a5; }
+  .mini-tile.picked { outline:2px solid #2dd4bf; box-shadow:0 0 12px rgba(45,212,191,.45); }
+  .mini-tile.dim { opacity:.4; }
+  .fuse-filters { display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin:0 0 10px; }
+  .fuse-filters button { font-size:11px; letter-spacing:.08em; text-transform:uppercase; }
   .swatches { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin:6px 0 8px; }
   .swatch { width:22px; height:22px; border-radius:50%; border:2px solid #1e1b2e; padding:0; cursor:pointer; }
   .swatch.on { outline:2px solid #fff; }
@@ -1615,6 +1619,7 @@ if (!state.rb) state.rb = {};
 if (!state.rb.ahead) state.rb.ahead = 3;
 if (!state.rb.cycle) state.rb.cycle = 1;
 if (!state.alerts) state.alerts = {};
+if (!state.fusePlan) state.fusePlan = {pick:[], rarity:"all"};
 ensureDecks(state);
 let tab = "droidex";
 let srbCycle = Number(state.rb.cycle || 1);
@@ -2164,20 +2169,54 @@ const openV = {};
 const openG = {};
 const openR = {};
 
+function fusePlan(){
+  if (!state.fusePlan) state.fusePlan = {pick:[], rarity:"all"};
+  if (!Array.isArray(state.fusePlan.pick)) state.fusePlan.pick = [];
+  return state.fusePlan;
+}
+function setFuseRarity(r){
+  fusePlan().rarity = r;
+  save(); render();
+}
+function toggleFuseTrack(name){
+  const p = fusePlan();
+  const i = p.pick.indexOf(name);
+  if (i>=0) p.pick.splice(i,1);
+  else {
+    if (p.pick.length>=10) return;
+    p.pick.push(name);
+  }
+  save(); render();
+}
 function renderFusionTracker(){
-  const order = ["Common","Rare","Epic","Legendary","Mythic"];
-  let html = `<div class="rarity-h Fusion">Fusion tracker</div>`;
-  html += `<div class="meta" style="margin:0 0 10px">Same-tier recipe: Gold N-UL needs Gold B1 Heavy + Gold Gunrunner + Gold BB. Check the three parts, then the result. 7/7 also lands on Done.</div>`;
-  let shown=0;
-  order.forEach(r => {
-    const list = FUSIONS.filter(([n,rr]) => rr===r);
-    if (!list.length) return;
-    const have = list.filter(([n]) => fuseDone(n)).length;
-    html += `<div class="rarity-h ${r}">${r} · ${have}/${list.length}</div><div class="grid">`;
-    list.forEach(([n,rr,ty,ings]) => { html += renderFusionCard(n,rr,ty,ings,false); shown++; });
-    html += `</div>`;
+  const plan = fusePlan();
+  const rar = plan.rarity||"all";
+  const order = ["Rare","Epic","Legendary","Mythic"];
+  let html = `<div class="rarity-h Fusion">Fusion planner</div>`;
+  html += `<div class="meta" style="margin:0 0 8px">Fusion names only. Tap up to 10 to track. Cards below get the same-tier recipe checks.</div>`;
+  html += `<div class="fuse-filters">`;
+  [["all","All"],["Rare","Rare"],["Epic","Epic"],["Legendary","Legendary"],["Mythic","Mythic"]].forEach(([id,lab]) => {
+    html += `<button class="${rar===id?"on":""}" onclick="setFuseRarity('${id}')">${lab}</button>`;
   });
-  if (!shown) html += `<div class="empty">No fusion names loaded.</div>`;
+  html += `<span class="meta">${plan.pick.length}/10 tracking</span></div>`;
+  const pool = FUSIONS.filter(([n,rr]) => rar==="all" || rr===rar);
+  html += `<div class="mini-grid">`;
+  pool.forEach(([n,rr,ty]) => {
+    const on = plan.pick.indexOf(n)>=0;
+    const locked = !on && plan.pick.length>=10;
+    html += `<button class="mini-tile t-${String(ty).toLowerCase()} ${on?"picked":""} ${locked?"dim":""}" onclick="toggleFuseTrack('${esc(n)}')">${picWrap(n,ty,rr)}<span class="mini-name">${n}${rarityMark(rr)}</span><span class="mini-meta">${ty} · ${fuseTiers(n)}/7</span></button>`;
+  });
+  html += `</div>`;
+  if (plan.pick.length){
+    html += `<div class="rarity-h Fusion">Tracking</div><div class="grid">`;
+    plan.pick.forEach(name => {
+      const row = FUSIONS.find(x=>x[0]===name);
+      if (row) html += renderFusionCard(row[0],row[1],row[2],row[3],false);
+    });
+    html += `</div>`;
+  } else {
+    html += `<div class="empty">Select fusion droids above to build your checklist.</div>`;
+  }
   return html;
 }
 function renderFusionCard(name,rar,typ,ings,hideDone){
