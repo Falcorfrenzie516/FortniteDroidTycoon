@@ -205,6 +205,10 @@
   .floor.companion { border-color:rgba(167,139,250,.45); }
   .floor.fuse { border-color:rgba(232,121,249,.45); }
   .floor.mission-floor { border-color:rgba(251,191,36,.55); }
+  .worker-split { display:grid; grid-template-columns:minmax(0,1fr) minmax(190px,auto); gap:10px; align-items:start; }
+  @media (max-width:720px){ .worker-split { grid-template-columns:1fr; } }
+  .zone { border:2px dashed rgba(45,212,191,.7); border-radius:16px; padding:10px 8px 8px; background:rgba(6,20,22,.25); }
+  .zone-h { font-size:10px; letter-spacing:.16em; text-transform:uppercase; color:#5eead4; margin:0 0 8px; font-family:Orbitron,sans-serif; }
   .pads { display:grid; grid-template-columns:repeat(auto-fill,minmax(58px,1fr)); gap:8px; justify-items:center; }
   header > h1, header > .dash, header > .toolbar, header > nav, main {
     width:min(960px,100%);
@@ -225,6 +229,12 @@
   .pad.need-low.need-solo { border-width:3px; box-shadow:0 0 14px #ff8a00, 0 0 32px #ff8a00, 0 0 54px rgba(255,138,0,.85); animation:pulseLow 1.4s ease-in-out infinite; }
   @keyframes pulseOk { 50% { box-shadow:0 0 20px #00f6ff, 0 0 48px #00f6ff, 0 0 72px rgba(0,246,255,1); } }
   @keyframes pulseLow { 50% { box-shadow:0 0 20px #ff8a00, 0 0 48px #ff8a00, 0 0 72px rgba(255,138,0,1); } }
+  .pad.need-upgrade { box-shadow: inset 0 0 0 2px #c084fc, 0 0 12px rgba(192,132,252,.55); }
+  .pad.need-upgrade.need-ok, .pad.need-upgrade.need-low { box-shadow: inset 0 0 0 2px #c084fc; }
+  .pad.need-fuse { position:relative; }
+  .pad.need-fuse::after { content:"FUSE"; position:absolute; top:2px; right:2px; font-size:6px; letter-spacing:.06em; color:#f0abfc; background:#3b0764; border:1px solid #e879f9; border-radius:4px; padding:1px 3px; }
+  .pad.need-upgrade:not(.need-fuse)::before { content:"UP"; position:absolute; top:2px; left:2px; font-size:6px; letter-spacing:.06em; color:#e9d5ff; background:#3b0764; border:1px solid #c084fc; border-radius:4px; padding:1px 3px; }
+  .pad.need-upgrade { position:relative; }
   .pad .pic { width:44px; height:44px; margin-top:4px; border-radius:10px; border-style:dotted; }
   .pad .pad-lab { font-size:8px; letter-spacing:.04em; text-transform:uppercase; font-family:Orbitron,sans-serif; max-width:54px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .pad.empty .pic { background:transparent; border:2px dotted #3f3a63; display:flex; align-items:center; justify-content:center; color:#5b5388; font-size:16px; }
@@ -778,7 +788,7 @@ function padList(){
   FLOORS.forEach(f => {
     for (let i=0;i<f.count;i++){
       const n = i+1;
-      pads.push({id:f.id+i, kind:f.kind, floor:f.id, n, mission: f.id==="astromech" && n>=5});
+      pads.push({id:f.id+i, kind:f.kind, floor:f.id, n, mission: f.id==="astromech" && n>=5, zone: f.id==="worker" ? (n<=8?"carousel":"control") : ""});
     }
   });
   return pads;
@@ -1111,6 +1121,19 @@ function renderDecks(){
   FLOORS.filter(f => f.group!=="fusion").forEach(f => {
     const slice = PADS.filter(p=>p.floor===f.id);
     const used = slice.filter(p => padSlot(deck,p.id) && padSlot(deck,p.id).name).length;
+    if (f.id==="worker"){
+      const car = slice.filter(p=>p.zone==="carousel");
+      const ctrl = slice.filter(p=>p.zone==="control");
+      const cu = car.filter(p => padSlot(deck,p.id)&&padSlot(deck,p.id).name).length;
+      const tu = ctrl.filter(p => padSlot(deck,p.id)&&padSlot(deck,p.id).name).length;
+      html += `<section class="floor worker"><h3>Worker deck · ${used}/${f.count}</h3><div class="worker-split">`;
+      html += `<div class="zone carousel"><div class="zone-h">Carousel (${cu}/8)</div><div class="pads">`;
+      car.forEach(p => html += padButton(p,deck));
+      html += `</div></div><div class="zone control"><div class="zone-h">Control Room (${tu}/3)</div><div class="pads">`;
+      ctrl.forEach(p => html += padButton(p,deck));
+      html += `</div></div></div></section>`;
+      return;
+    }
     if (f.id==="astromech"){
       const deckPads = slice.filter(p=>!p.mission);
       const missPads = slice.filter(p=>p.mission);
@@ -1571,13 +1594,40 @@ function copiesOnBase(name){
   });
   return n;
 }
+function bestOwnedTier(name){
+  if (isIconic(name)) return iconOwned(name) ? 6 : -1;
+  let best = -1;
+  VARIANTS.forEach(v => {
+    if (has(name,v) || fuseHas(name,v)) best = Math.max(best, TIER_I[v]);
+  });
+  return best;
+}
+function neededFusionIngredients(){
+  const set = new Set();
+  FUSIONS.forEach(f => {
+    if (fuseTiers(f[0]) > 0) return;
+    (f[3]||[]).forEach(ing => set.add(ing));
+  });
+  return set;
+}
 function padNeedClass(slot){
   if (!slot || !slot.name) return "";
+  const cls = [];
   const need = upcomingNeeds();
-  if (!(slot.name in need)) return "";
-  const have = isIconic(slot.name) ? 6 : (TIER_I[slot.variant||"Basic"] ?? -1);
-  const tone = have >= need[slot.name] ? "need-ok" : "need-low";
-  return copiesOnBase(slot.name)===1 ? tone+" need-solo" : tone;
+  if (slot.name in need){
+    const have = isIconic(slot.name) ? 6 : (TIER_I[slot.variant||"Basic"] ?? -1);
+    const tone = have >= need[slot.name] ? "need-ok" : "need-low";
+    cls.push(tone);
+    if (copiesOnBase(slot.name)===1) cls.push("need-solo");
+  }
+  const parked = isIconic(slot.name) ? 6 : (TIER_I[slot.variant||"Basic"] ?? -1);
+  if (bestOwnedTier(slot.name) > parked) cls.push("need-upgrade");
+  const fuseIng = neededFusionIngredients();
+  const isFusion = FUSIONS.some(f => f[0]===slot.name);
+  if (fuseIng.has(slot.name) || (isFusion && fuseTiers(slot.name)===0 && (slot.name in need || true))) {
+    if (fuseIng.has(slot.name) || (isFusion && fuseTiers(slot.name)===0)) cls.push("need-fuse");
+  }
+  return cls.join(" ");
 }
 function setRbSetting(field, value){
   if (!state.rb) state.rb = {};
@@ -2222,18 +2272,20 @@ let FOAD_HISTORY = [
   {name:"Chopper", when:"Aug 1–2, 2026", windows:"Rerun Aug 8–9"},
   {name:"Stellar Event", when:"Aug 15–16, 2026", windows:"New Stellar variant"},
   {name:"Droid Fusion weekend", when:"Aug 22–24, 2026", windows:"Fusion lab live"},
-  {name:"D-O first run", when:"Aug 29, 2026", windows:"24h from Sat 4PM ET"}
+  {name:"D-O first run", when:"Aug 29, 2026", windows:"24h from Sat 4PM ET"},
+  {name:"Mega Crate Mini (Thu Sep 3)", when:"Sep 3, 2026", windows:"Morning 10AM–1PM ET + Evening 8–11PM ET · FOAD updated schedule"}
 ];
 let FOAD_EVENTS = [
-  {name:"Mega Crate Mini Event", start:"2026-09-03T16:00:00-04:00", end:"2026-09-03T22:00:00-04:00", rewards:["Chopper mega crate loot"], bonuses:["2× upgrade chips"], how:"Weekly Thursday mini · 4PM–10PM ET · FOAD v1.28"},
-  {name:"D-O Event rerun", start:"2026-09-05T16:00:00-04:00", end:"2026-09-06T16:00:00-04:00", rewards:["D-O Iconic","D-O Base Paint","Nova Crystals"], bonuses:["2× credits","2× chips","2× flawless"], how:"24 hours · Sat 4PM ET / 1PM PT · FOAD official"},
-  {name:"Mega Crate Mini Event", start:"2026-09-10T16:00:00-04:00", end:"2026-09-10T22:00:00-04:00", rewards:["Chopper mega crate loot"], bonuses:["2× upgrade chips"], how:"Weekly Thursday mini · 4PM–10PM ET · FOAD v1.28"}
+  {name:"D-O Event rerun", start:"2026-09-05T16:00:00-04:00", end:"2026-09-06T16:00:00-04:00", rewards:["D-O Iconic","D-O Base Paint","Nova Crystals"], bonuses:["2× credits","2× chips","2× flawless"], how:"24 hours · Sat 4PM ET / 1PM PT · announced by @FoadZone Sep 2"},
+  {name:"Mega Crate Mini Event (morning)", start:"2026-09-10T10:00:00-04:00", end:"2026-09-10T13:00:00-04:00", rewards:["Chopper mega crate loot"], bonuses:["2× upgrade chips"], how:"Weekly Thursday morning · 10AM–1PM ET · FOAD Sep 3 post · Mega Crate every 15 min"},
+  {name:"Mega Crate Mini Event (evening)", start:"2026-09-10T20:00:00-04:00", end:"2026-09-10T23:00:00-04:00", rewards:["Chopper mega crate loot"], bonuses:["2× upgrade chips"], how:"Weekly Thursday evening · 8PM–11PM ET · FOAD Sep 3 post · Mega Crate every 15 min"}
 ];
 const EVENTS_KEY = "droidex-events-cache";
 let FOAD_RECURRING = [
-  {name:"Mega Crate Mini Event", weekday:4, startHourET:16, durationHours:6, rewards:["Chopper mega crate loot"], bonuses:["2× upgrade chips"], how:"Weekly Thursday · FOAD v1.28"},
-  {name:"Dance Party Mini Event", weekday:2, startHourET:8, durationHours:3, rewards:[], bonuses:[], how:"Every Tuesday morning · Sandcrawler · FOAD"},
-  {name:"Dance Party Mini Event", weekday:2, startHourET:20, durationHours:3, rewards:[], bonuses:[], how:"Every Tuesday evening · Sandcrawler · FOAD"}
+  {name:"Mega Crate Mini Event (morning)", weekday:4, startHourET:10, durationHours:3, rewards:["Chopper mega crate loot"], bonuses:["2× upgrade chips"], how:"Weekly Thursday morning · FOAD Sep 3 · 10AM–1PM ET · crates every 15 min"},
+  {name:"Mega Crate Mini Event (evening)", weekday:4, startHourET:20, durationHours:3, rewards:["Chopper mega crate loot"], bonuses:["2× upgrade chips"], how:"Weekly Thursday evening · FOAD Sep 3 · 8PM–11PM ET · crates every 15 min"},
+  {name:"Dance Party Mini Event", weekday:2, startHourET:8, durationHours:3, rewards:[], bonuses:[], how:"Every Tuesday morning · Sandcrawler · FOAD Aug 17 announcement · still active Sep 2026"},
+  {name:"Dance Party Mini Event", weekday:2, startHourET:20, durationHours:3, rewards:[], bonuses:[], how:"Every Tuesday evening · Sandcrawler · FOAD Aug 17 announcement · still active Sep 2026"}
 ];
 function pad2(n){ return String(n).padStart(2,"0"); }
 function expandRecurring(now){
