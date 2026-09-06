@@ -784,12 +784,14 @@ let FLOORS = [
   {id:"firing", label:"Firing range", kind:"Battle", count:6},
   {id:"lounge", label:"Lounge · storage only", kind:"Lounge", count:13},
   {id:"companion", label:"Companion · buff only", kind:"Companion", count:2, group:"base"},
+  {id:"chip", label:"Chip station", kind:"Lounge", count:0, group:"base"},
+  {id:"build", label:"Build slots", kind:"Build", count:0},
   {id:"fuse1", label:"Fusion pads", kind:"Fusion", count:3, group:"fusion", lab:1},
   {id:"chamber1", label:"Chamber", kind:"Chamber", count:1, group:"fusion", lab:1},
   {id:"fuse2", label:"Fusion pads", kind:"Fusion", count:3, group:"fusion", lab:2},
   {id:"chamber2", label:"Chamber", kind:"Chamber", count:1, group:"fusion", lab:2}
 ];
-const PAD_TAG = {worker:"W",astromech:"A",battle:"B",firing:"F",lounge:"L",companion:"C",fuse1:"1-",chamber1:"C1-",fuse2:"2-",chamber2:"C2-"};
+const PAD_TAG = {worker:"W",astromech:"A",battle:"B",firing:"F",lounge:"L",companion:"C",chip:"CH",build:"BL",fuse1:"1-",chamber1:"C1-",fuse2:"2-",chamber2:"C2-"};
 const EARN_KINDS = {Worker:1,Astromech:1,Battle:1};
 const PAD_TOTAL = FLOORS.reduce((a,f)=>a+f.count,0);
 function padList(){
@@ -806,6 +808,25 @@ function padList(){
 let PADS = padList();
 const PATCH_KEY = "droidex-patches-cache";
 function rebuildPads(){ PADS = padList(); }
+function applyUnlocks(){
+  if (!state.decks) return;
+  const u = state.decks.unlocks || {};
+  const extra = Math.min(4, Math.max(0, Number(u.loungeExtra||0)));
+  FLOORS.forEach(f => {
+    if (f.id==="lounge") f.count = 9 + extra;
+    if (f.id==="companion") f.count = u.companion2 ? 2 : 1;
+    if (f.id==="chip") f.count = u.chip ? 1 : 0;
+    if (f.id==="build") f.count = u.build ? 3 : 0;
+  });
+  rebuildPads();
+}
+function setUnlock(key, val){
+  if (!state.decks.unlocks) state.decks.unlocks = {};
+  if (key==="loungeExtra") state.decks.unlocks.loungeExtra = Math.min(4, Math.max(0, Number(val)||0));
+  else state.decks.unlocks[key] = !!val;
+  applyUnlocks();
+  save(); render();
+}
 function applyPatches(pack){
   if (!pack) return;
   if (pack.slots){
@@ -987,6 +1008,7 @@ function deckCps(deck){
 }
 function activeDeck(){
   ensureDecks(state);
+applyUnlocks();
   return normalizeDeck(state.decks.list[state.decks.active] || state.decks.list[0]);
 }
 function setDeckField(field, value){
@@ -1128,7 +1150,7 @@ function renderDecks(){
   html += `<div class="meta" style="margin:8px 0 6px">Base name</div><input class="deck-field" value="${esc(deck.name||"")}" onchange="setDeckField('name',this.value)">`;
   html += `<div class="meta" style="margin:8px 0 6px">Base multiplier (1 = none)</div><input class="deck-field" type="number" min="0" step="0.01" value="${deck.mult||1}" onchange="setDeckField('mult',this.value)">`;
   html += `<div class="vars" style="grid-template-columns:1fr;margin-top:10px"><label class="chk ${deck.bonus!==false?"on":""}" style="flex-direction:row;text-transform:none;letter-spacing:0"><input type="checkbox" ${deck.bonus!==false?"checked":""} onchange="setDeckField('bonus',this.checked)">Collection bonus (+${collectionBonus()}%)</label></div></article>`;
-  FLOORS.filter(f => f.group!=="fusion").forEach(f => {
+  FLOORS.filter(f => f.group!=="fusion" && f.count>0 && f.id!=="chip").forEach(f => {
     const slice = PADS.filter(p=>p.floor===f.id);
     const used = slice.filter(p => padSlot(deck,p.id) && padSlot(deck,p.id).name).length;
     if (f.id==="worker"){
@@ -1176,10 +1198,18 @@ function renderDecks(){
       html += `</div></div></details>`;
       return;
     }
-    const defOpen = !(f.id==="lounge" || f.id==="companion");
-    html += `<details class="floor ${f.id}" ${floorOpen(f.id, defOpen)?"open":""} ontoggle="toggleFloor('${f.id}',this.open)"><summary>${f.label} · ${used}/${f.count}</summary><div class="pads">`;
+    const defOpen = !(f.id==="lounge" || f.id==="companion" || f.id==="build");
+    let extra = "";
+    if (f.id==="companion" && (state.decks.unlocks||{}).chip){
+      const chips = PADS.filter(p=>p.floor==="chip");
+      extra += `<div class="zone" style="margin-top:10px"><div class="zone-h">Chip station</div><div class="pads">`;
+      chips.forEach(p => extra += padButton(p,deck));
+      extra += `</div></div>`;
+    }
+    const lab = f.id==="companion" ? (slice.length>1 ? "Companion · main + secondary" : "Companion · main") : f.label;
+    html += `<details class="floor ${f.id}" ${floorOpen(f.id, defOpen)?"open":""} ontoggle="toggleFloor('${f.id}',this.open)"><summary>${lab} · ${used}/${f.count}</summary><div class="pads">`;
     slice.forEach(p => { html += padButton(p,deck); });
-    html += `</div></details>`;
+    html += `</div>${extra}</details>`;
   });
   html += renderFusionLabs(deck);
   return html;
@@ -1192,10 +1222,10 @@ function padButton(p, deck){
     const typed = p.kind==="Worker"||p.kind==="Astromech"||p.kind==="Battle";
     const match = typed && classOf(s.name)===p.kind;
     const tone = p.mission ? "mission" : (!typed ? "lounge" : (match ? "match" : "offtype"));
-    const lab = p.mission ? ("M"+p.n+" "+(isIconic(s.name)?"★ ":"")+s.name) : (isIconic(s.name)?"★ "+s.name:s.name);
+    const lab = p.mission ? ("M"+p.n+" "+(isIconic(s.name)?"★ ":"")+s.name) : p.floor==="companion" ? ((p.n===1?"Main ":"Sec ")+(isIconic(s.name)?"★ ":"")+s.name) : (isIconic(s.name)?"★ "+s.name:s.name);
     return `<button class="pad filled ${tone} ${mission} ${padNeedClass(s)}" data-pad="${p.id}" ${drag}>${picWrap(s.name,p.kind,isIconic(s.name)?"Iconic":"Common")}<span class="pad-lab">${lab}</span></button>`;
   }
-  const tag = p.mission ? ("M"+p.n) : ((PAD_TAG[p.floor]||p.kind[0])+p.n);
+  const tag = p.mission ? ("M"+p.n) : p.floor==="companion" ? (p.n===1?"Main":"Sec") : ((PAD_TAG[p.floor]||p.kind[0])+p.n);
   return `<button class="pad empty ${p.kind==="Lounge"||p.kind==="Companion"||p.mission?"lounge":""} ${mission}" data-pad="${p.id}" ${drag}><div class="pic">+</div><span class="pad-lab">${tag}</span></button>`;
 }
 let _grab = null;
@@ -1342,6 +1372,11 @@ function ensureDecks(st){
     st.decks = {active:0,list:[blankDeck("Base 1")], secondLab:false};
   }
   if (st.decks.secondLab == null) st.decks.secondLab = false;
+  if (!st.decks.unlocks){
+    st.decks.unlocks = {companion2:true, loungeExtra:4, chip:false, build:false};
+  }
+  if (st.decks.unlocks.loungeExtra == null) st.decks.unlocks.loungeExtra = 4;
+  if (st.decks.unlocks.companion2 == null) st.decks.unlocks.companion2 = true;
   if (st.decks.active >= st.decks.list.length) st.decks.active = 0;
   st.decks.list.forEach(normalizeDeck);
   return st;
@@ -1416,6 +1451,16 @@ function savePanel(){
   html += `<button onclick="renameDeck()">Rename</button>`;
   if (state.decks.list.length>1) html += `<button class="danger" onclick="deleteDeck()">Delete active</button>`;
   html += `</div></article>`;
+  const u = state.decks.unlocks || {};
+  html += `<article class="card"><div class="name">Base unlocks</div><div class="meta" style="margin:6px 0 8px">Nova Shop / rebirth purchases. Unlocked slots appear on Base in the right section.</div>`;
+  html += `<label class="chk ${u.companion2?"on":""}" style="flex-direction:row;text-transform:none;letter-spacing:0;margin:6px 0"><input type="checkbox" ${u.companion2?"checked":""} onchange="setUnlock('companion2',this.checked)">Secondary companion</label>`;
+  html += `<label class="chk ${u.chip?"on":""}" style="flex-direction:row;text-transform:none;letter-spacing:0;margin:6px 0"><input type="checkbox" ${u.chip?"checked":""} onchange="setUnlock('chip',this.checked)">Chip station</label>`;
+  html += `<label class="chk ${u.build?"on":""}" style="flex-direction:row;text-transform:none;letter-spacing:0;margin:6px 0"><input type="checkbox" ${u.build?"checked":""} onchange="setUnlock('build',this.checked)">Build slots (3)</label>`;
+  html += `<label class="chk ${state.decks.secondLab?"on":""}" style="flex-direction:row;text-transform:none;letter-spacing:0;margin:6px 0"><input type="checkbox" ${state.decks.secondLab?"checked":""} onchange="toggleSecondLab(this.checked)">Second fusion tank</label>`;
+  html += `<div class="meta" style="margin:10px 0 6px">Extra lounge stations (Nova Shop) · ${9+Number(u.loungeExtra||0)}/13</div>`;
+  html += `<select class="deck-field" onchange="setUnlock('loungeExtra',this.value)">`;
+  for (let n=0;n<=4;n++) html += `<option value="${n}" ${Number(u.loungeExtra||0)===n?"selected":""}>${n} extra · ${9+n} lounge pads</option>`;
+  html += `</select></article>`;
   html += `<div class="card"><div class="name">${currentName()}</div><div class="meta" style="margin:4px 0 8px">Active profile on this device</div><div class="saves">`;
   html += `<select onchange="switchSave(this.value)">`;
   Object.keys(bank.slots).forEach(id => {
