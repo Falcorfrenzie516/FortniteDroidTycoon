@@ -260,8 +260,9 @@
   }
   .pads { display:flex; flex-wrap:wrap; gap:8px; }
   .pad {
-    width:clamp(52px, 7.2vw, 64px); height:clamp(66px, 9vw, 80px); padding:0; display:flex; flex-direction:column; align-items:center; justify-content:flex-start;
+    width:clamp(56px, 7.2vw, 68px); height:clamp(78px, 11vw, 94px); padding:3px 2px 4px; display:flex; flex-direction:column; align-items:center; justify-content:flex-start;
     background:rgba(6,4,14,.7); border:2px dotted #5b5388; border-radius:14px; color:var(--muted); touch-action:none; flex:none;
+    overflow:hidden;
   }
   .pad.mission { border-color:#fbbf24; background:rgba(80,50,8,.55); box-shadow:inset 0 0 12px rgba(251,191,36,.18); }
   .pad.mission.filled { border-style:solid; }
@@ -280,9 +281,14 @@
   .pad.need-upgrade:not(.need-fuse)::before { content:"UP"; position:absolute; top:2px; left:2px; font-size:6px; letter-spacing:.06em; color:#e9d5ff; background:#3b0764; border:1px solid #c084fc; border-radius:4px; padding:1px 3px; }
   .pad.need-upgrade { position:relative; }
   .pad .pic { width:44px; height:44px; margin-top:4px; border-radius:10px; border-style:dotted; }
-  .pad.filled { height:clamp(76px, 10.5vw, 90px); }
-  .pad-var { font-size:7px; letter-spacing:.08em; text-transform:uppercase; font-family:Orbitron,sans-serif; line-height:1; padding:1px 4px; border-radius:4px; margin-top:2px; border:1px solid transparent; }
-  .pad .pad-lab { font-size:8px; letter-spacing:.04em; text-transform:uppercase; font-family:Orbitron,sans-serif; max-width:54px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .pad .pic { width:36px; height:36px; flex:none; }
+  .pad-var { font-size:6px; letter-spacing:.06em; text-transform:uppercase; font-family:Orbitron,sans-serif; line-height:1; padding:1px 3px; border-radius:4px; margin:2px 0 0; border:1px solid transparent; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; flex:none; }
+  .pad .pad-lab {
+    font-size:6.5px; letter-spacing:.03em; text-transform:uppercase; font-family:Orbitron,sans-serif;
+    width:100%; max-width:100%; padding:0 3px; line-height:1.15; text-align:center;
+    overflow:hidden; display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2;
+    word-break:break-word; overflow-wrap:anywhere;
+  }
   .pad.empty .pic { background:transparent; border:2px dotted #3f3a63; display:flex; align-items:center; justify-content:center; color:#5b5388; font-size:16px; }
   .pad.filled { border-style:solid; border-color:#a78bfa; background:rgba(20,12,40,.85); }
   .pad.match { border-color:#4ade80; }
@@ -376,6 +382,9 @@
   .ings.srb-cards { flex-direction:row; flex-wrap:wrap; justify-content:center; gap:8px; }
   .mini-tile.need-ok { border-color:#00f6ff; box-shadow:0 0 10px rgba(0,246,255,.35); }
   .mini-tile.need-low { border-color:#ff8a00; box-shadow:0 0 10px rgba(255,138,0,.35); }
+  .mini-tile.ticked { outline:2px solid #4ade80; }
+  .mini-tile .rb-tick { font-size:8px; letter-spacing:.06em; text-transform:uppercase; margin:0 0 2px; }
+  .mini-tile .mini-hit { all:unset; display:flex; flex-direction:column; align-items:center; gap:6px; cursor:pointer; width:100%; }
   .ings .chk { flex-direction:row; justify-content:flex-start; text-transform:none; letter-spacing:0; font-size:12px; min-height:0; padding:7px 8px; }
   details.drop { padding:0; }
   details.drop > summary { list-style:none; cursor:pointer; padding:12px; display:flex; gap:8px; align-items:center; position:relative; overflow:hidden; }
@@ -1682,14 +1691,18 @@ function rebirthNeeds(key){
 }
 function toggleRebirth(key,on){
   state.rb[key] = !!on;
-  if (on) rebirthNeeds(key).forEach(([n,t]) => { state.d[dKey(n,t)] = true; });
+  save(); render();
+}
+function rbNeedKey(rb, name){ return "c"+srbCycle+"r"+rb+"|"+name; }
+function toggleRbNeed(rb, name, ev){
+  if (ev){ ev.preventDefault(); ev.stopPropagation(); }
+  state.rb[rbNeedKey(rb,name)] = !state.rb[rbNeedKey(rb,name)];
   save(); render();
 }
 function completeRebirthList(list,on){
   (list||[]).forEach(rb => {
     const key = "c"+srbCycle+"r"+rb;
     state.rb[key] = !!on;
-    if (on) rebirthNeeds(key).forEach(([n,t]) => { state.d[dKey(n,t)] = true; });
   });
   save(); render();
 }
@@ -2122,7 +2135,8 @@ function render(){
           const rar = rarityOf(n)||"";
           const kind = isIconic(n) ? "i" : (FUSIONS.some(x=>x[0]===n) ? "f" : "d");
           const note = ok ? "Parked" : owned ? "Owned, not parked" : "Need "+vName(t);
-          html += `<button type="button" class="mini-tile t-${typ.toLowerCase()} ${ok?"need-ok":owned?"need-low":""}" onclick="event.preventDefault();openCardPop('${kind}','${esc(n)}')">${picWrap(n,typ,rar)}<span class="mini-name">${vName(t)} ${n}</span><span class="mini-meta">${note}</span></button>`;
+          const ticked = !!state.rb[rbNeedKey(rb,n)];
+          html += `<div class="mini-tile t-${typ.toLowerCase()} ${ok?"need-ok":owned?"need-low":""} ${ticked?"ticked":""}"><label class="rb-tick ${ticked?"on":""}" onclick="event.preventDefault();event.stopPropagation();toggleRbNeed(${rb},'${esc(n)}',event)"><input type="checkbox" ${ticked?"checked":""}>Got it</label><button type="button" class="mini-hit" onclick="event.preventDefault();openCardPop('${kind}','${esc(n)}')">${picWrap(n,typ,rar)}<span class="mini-name">${vName(t)} ${n}</span><span class="mini-meta">${note}</span></button></div>`;
         });
         html += `</div></details>`;
       });
