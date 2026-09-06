@@ -918,7 +918,9 @@ const CYCLES = {
 const KEY = "droidex-v2";
 const SAVES_KEY = "droidex-saves";
 function renderMoneyDash(deck){
+  try {
   deck = deck || activeDeck();
+  if (!deck) return "";
   normalizeDeck(deck);
   const parked = PADS.filter(p => padSlot(deck,p.id) && padSlot(deck,p.id).name).length;
   const visTotal = PADS.length;
@@ -934,6 +936,7 @@ function renderMoneyDash(deck){
   html += `<article><div class="k">Offline (10%)</div><b class="c">${fmtNum(shown*3600*0.1)}/h</b></article>`;
   html += `</div><div class="meta" style="text-align:center;margin:6px 0 0">${parked}/${visTotal} parked${icons?" · "+icons+" iconic x15%":""}${boost>1?" · includes event boost":""}</div></div>`;
   return html;
+  } catch(e){ return ""; }
 }
 
 function blankState(cycle){ return {d:{},f:{},i:{},c:{},rb:{cycle:cycle||1},decks:{active:0,list:[blankDeck("Deck 1")]}}; }
@@ -1630,7 +1633,9 @@ if (!state.rb.cycle) state.rb.cycle = 1;
 if (!state.alerts) state.alerts = {};
 if (!state.fusePlan) state.fusePlan = {pick:[], rarity:"all"};
 ensureDecks(state);
+const TABS = ["droidex","fusion","decks","srb","done","cosmetics","saves","alarms"];
 let tab = localStorage.getItem(KEY+"-tab") || "droidex";
+if (TABS.indexOf(tab)<0) tab = "droidex";
 let srbCycle = Number(state.rb.cycle || 1);
 function loadBank(){
   try {
@@ -2192,11 +2197,12 @@ function setFuseSlot(i, field, val){
   p.slots[i][field] = val;
   save(); render();
 }
-function fuseNeedKey(n,v){ return "fp|"+n+"|"+v; }
+function fuseNeedKey(n,v){ return n+"|"+v; }
 function toggleFuseNeed(n,v){
-  state.f = state.f || {};
+  const p = fusePlan();
+  if (!p.checks) p.checks = {};
   const k = fuseNeedKey(n,v);
-  state.f[k] = !state.f[k];
+  p.checks[k] = !p.checks[k];
   save(); render();
 }
 function renderFusionTracker(){
@@ -2238,7 +2244,7 @@ function renderFusionTracker(){
       html += `<div class="need-list">`;
       list.forEach(item => {
         const owned = (has(item.name,item.variant)||fuseHas(item.name,item.variant));
-        const tick = !!(state.f && state.f[fuseNeedKey(item.name,item.variant)]);
+        const tick = !!(fusePlan().checks && fusePlan().checks[fuseNeedKey(item.name,item.variant)]);
         html += `<label class="need-row ${tick?"on":""} ${owned?"have":""}">`;
         html += `<input type="checkbox" ${tick?"checked":""} onchange="toggleFuseNeed('${esc(item.name)}','${item.variant}')">`;
         html += `${picWrap(item.name,item.type,rarityOf(item.name)||"")} `;
@@ -2330,10 +2336,13 @@ function paintPop(){
   }
 }
 function render(){
+  if (TABS.indexOf(tab)<0) tab = "droidex";
   applyAlertColors();
   const app = document.getElementById("app");
+  if (!app) return;
   let html = "";
-  const qLive = (tab==="fusion") ? "" : norm(document.getElementById("q").value);
+  const qEl = document.getElementById("q");
+  const qLive = (tab==="fusion") ? "" : norm(qEl ? qEl.value : "");
   if (qLive) {
     html += `<div class="hint">Matches for “${document.getElementById("q").value.trim()}”. Results update as you type. Tap the box again to start a new search.</div>`;
     let shown=0;
@@ -2366,7 +2375,8 @@ function render(){
   }
   if (tab==="fusion" || tab==="iconics") tab = "droidex";
   if (tab==="fusion") {
-    html += renderFusionTracker();
+    try { html += renderFusionTracker(); }
+    catch(e){ html += `<div class="hint">Fusion planner hit an error: ${e}. Other tabs should still work.</div>`; }
   }
   if (tab==="droidex") {
     html += renderVariantBonuses();
