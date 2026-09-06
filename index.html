@@ -357,6 +357,18 @@
   .alert-opts { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin:4px 0 8px; }
   .alert-opts label { display:flex; align-items:center; gap:6px; font-size:10px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); }
   .alert-opts input[type=range] { width:120px; }
+  .bonus-grid { display:flex; flex-wrap:wrap; justify-content:center; gap:8px; margin:8px 0 14px; }
+  .bonus-card {
+    width:138px; box-sizing:border-box; padding:10px 10px 8px; border-radius:14px;
+    background:rgba(12,10,24,.92); border:1px solid var(--line); text-align:left;
+  }
+  .bonus-card.on { border-color:var(--c,#4ade80); }
+  .bonus-name { font-family:Orbitron,sans-serif; font-size:12px; letter-spacing:.06em; color:var(--c,#ece8ff); }
+  .bonus-bar { height:4px; border-radius:99px; background:#1e1b2e; margin:8px 0 6px; overflow:hidden; }
+  .bonus-bar i { display:block; height:100%; background:var(--b,#64748b); }
+  .bonus-row { display:flex; justify-content:space-between; gap:6px; font-size:10px; color:var(--muted); }
+  .bonus-row b { color:var(--c,#ece8ff); }
+  .bonus-sub { font-size:9px; color:var(--muted); margin-top:6px; line-height:1.3; }
   .paint-grid { display:flex; flex-wrap:wrap; justify-content:center; gap:10px; margin-top:8px; }
   .paint-tile {
     width:148px; min-height:148px; box-sizing:border-box;
@@ -878,6 +890,46 @@ function collectionBonus(){
   FUSIONS.forEach(([nm]) => { if (fuseTiers(nm)) n++; });
   ICONICS.forEach(([nm]) => { if (state.i && state.i[nm]) n++; });
   return n;
+}
+const VARIANT_BONUS = [
+  {tier:"Basic", label:"Default", bonus:25, color:"#94a3b8", bar:"#64748b"},
+  {tier:"Gold", label:"Gold", bonus:30, color:"#f59e0b", bar:"#d97706"},
+  {tier:"Diamond", label:"Diamond", bonus:35, color:"#22d3ee", bar:"#0891b2"},
+  {tier:"Rainbow", label:"Rainbow", bonus:40, color:"#e879f9", bar:"#c026d3"},
+  {tier:"Beskar", label:"Beskar", bonus:60, color:"#cbd5e1", bar:"#94a3b8"},
+  {tier:"Galactic", label:"Galactic", bonus:100, color:"#c084fc", bar:"#7c3aed"},
+  {tier:"Stellar", label:"Stellar", bonus:200, color:"#fbbf24", bar:"#d97706"}
+];
+function craftNames(){ return DROIDS.map(d=>d[0]).concat(FUSIONS.map(f=>f[0])); }
+function ownedAtLeast(name, tier){
+  const need = TIER_I[tier] ?? 0;
+  let best = -1;
+  VARIANTS.forEach(v => { if (has(name,v) || fuseHas(name,v)) best = Math.max(best, TIER_I[v]??-1); });
+  return best >= need;
+}
+function variantHave(tier){
+  let n = craftNames().filter(nm => ownedAtLeast(nm, tier)).length;
+  if (tier==="Basic") ICONICS.forEach(([nm]) => { if (iconOwned(nm)) n++; });
+  return n;
+}
+function variantTotal(tier){ return craftNames().length + (tier==="Basic" ? ICONICS.length : 0); }
+function renderVariantBonuses(){
+  let h = `<div class="bonus-grid">`;
+  VARIANT_BONUS.forEach(v => {
+    const have = variantHave(v.tier);
+    const tot = variantTotal(v.tier);
+    const pct = tot ? Math.round(have/tot*100) : 0;
+    const left = Math.max(0, 25-have);
+    const on = have >= 25;
+    const sub = on ? "Bonus unlocked" : `Unlock ${left} more ${v.label.toLowerCase()} droids to get the bonus`;
+    h += `<article class="bonus-card ${on?"on":""}" style="--b:${v.bar};--c:${v.color}">`;
+    h += `<div class="bonus-name">${v.label}</div>`;
+    h += `<div class="bonus-bar"><i style="width:${pct}%"></i></div>`;
+    h += `<div class="bonus-row"><span>${have} / ${tot} (${pct}%)</span><b>+${v.bonus}%</b></div>`;
+    h += `<div class="bonus-sub">${sub}</div></article>`;
+  });
+  h += `</div>`;
+  return h;
 }
 let FLOORS = [
   {id:"worker", label:"Worker deck", kind:"Worker", count:11},
@@ -2173,6 +2225,7 @@ function render(){
   if (tab==="fusion" || tab==="iconics") tab = "droidex";
   if (tab==="droidex") {
     html += `<div class="hint">Tap a tile for the full card. Fusion variants still need the same-tier ingredients inside.</div>`;
+    html += renderVariantBonuses();
     const order = ["Common","Rare","Epic","Legendary","Mythic"];
     let shown=0;
     order.forEach(r => {
@@ -2298,6 +2351,7 @@ function render(){
   }
   if (tab==="done") {
     html += `<div class="hint">Finished names only. Profiles and file load live on the <b>Profiles</b> tab. Super Rebirth is here.</div>`;
+    html += renderVariantBonuses();
     html += `<div class="card" style="border-color:#7f1d3a"><div class="name">Super Rebirth</div><div class="meta" style="margin:6px 0 10px">Clears all droid / fusion / iconic / rebirth checks on this save. Keeps a backup so you can reload where you were. Fashion paints stay. Cycle advances ${srbCycle} → ${(srbCycle%5)+1}.</div><div class="act"><button class="danger" onclick="askSuperRebirth()">Super Rebirth</button></div></div>`;
     let shown=0;
     const doneD = DROIDS.filter(([n])=>droidDone(n));
