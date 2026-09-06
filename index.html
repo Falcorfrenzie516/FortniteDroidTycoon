@@ -280,6 +280,8 @@
   .pad.need-upgrade:not(.need-fuse)::before { content:"UP"; position:absolute; top:2px; left:2px; font-size:6px; letter-spacing:.06em; color:#e9d5ff; background:#3b0764; border:1px solid #c084fc; border-radius:4px; padding:1px 3px; }
   .pad.need-upgrade { position:relative; }
   .pad .pic { width:44px; height:44px; margin-top:4px; border-radius:10px; border-style:dotted; }
+  .pad.filled { height:clamp(76px, 10.5vw, 90px); }
+  .pad-var { font-size:7px; letter-spacing:.08em; text-transform:uppercase; font-family:Orbitron,sans-serif; line-height:1; padding:1px 4px; border-radius:4px; margin-top:2px; border:1px solid transparent; }
   .pad .pad-lab { font-size:8px; letter-spacing:.04em; text-transform:uppercase; font-family:Orbitron,sans-serif; max-width:54px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .pad.empty .pic { background:transparent; border:2px dotted #3f3a63; display:flex; align-items:center; justify-content:center; color:#5b5388; font-size:16px; }
   .pad.filled { border-style:solid; border-color:#a78bfa; background:rgba(20,12,40,.85); }
@@ -1295,7 +1297,9 @@ function padButton(p, deck){
     const match = typed && classOf(s.name)===p.kind;
     const tone = p.mission ? "mission" : (!typed ? "lounge" : (match ? "match" : "offtype"));
     const lab = p.mission ? ("M"+p.n+" "+(isIconic(s.name)?"★ ":"")+s.name) : p.floor==="companion" ? ((p.n===1?"Main ":"Sec ")+(isIconic(s.name)?"★ ":"")+s.name) : (isIconic(s.name)?"★ "+s.name:s.name);
-    return `<button class="pad filled ${tone} ${mission} ${padNeedClass(s)}" data-pad="${p.id}" ${drag}>${picWrap(s.name,p.kind,isIconic(s.name)?"Iconic":"Common")}<span class="pad-lab">${lab}</span></button>`;
+    const vv = isIconic(s.name) ? "Iconic" : (s.variant||"Basic");
+    const vlab = isIconic(s.name) ? "ICN" : (SHORT[vv]||vv);
+    return `<button class="pad filled ${tone} ${mission} ${padNeedClass(s)}" data-pad="${p.id}" ${drag}>${picWrap(s.name,p.kind,isIconic(s.name)?"Iconic":rarityOf(s.name)||"Common")}<span class="pad-var ${vTheme(vv)}">${vlab}</span><span class="pad-lab">${lab}</span></button>`;
   }
   const tag = p.mission ? ("M"+p.n) : p.floor==="companion" ? (p.n===1?"Main":"Sec") : ((PAD_TAG[p.floor]||p.kind[0])+p.n);
   return `<button class="pad empty ${p.kind==="Lounge"||p.kind==="Companion"||p.mission?"lounge":""} ${mission}" data-pad="${p.id}" ${drag}><div class="pic">+</div><span class="pad-lab">${tag}</span></button>`;
