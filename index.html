@@ -178,6 +178,22 @@
   .hint { background:rgba(12,10,24,.72); border:1px solid var(--line); border-radius:16px; padding:12px 14px; color:var(--muted); font-size:13px; line-height:1.45; margin-bottom:12px; }
   .rarity-h { position:sticky; top:0; z-index:10; margin:14px 0 8px; font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); background:rgba(5,3,12,.92); padding:6px 2px; font-family:Orbitron,sans-serif; }
   .deck-total { text-align:center; padding:16px 10px; border-color:#c4b5fd; background:radial-gradient(circle at 50% 0%, #2a1848, #0c0818 70%); }
+  .money-dash { margin:0 0 10px; }
+  .boost-banner {
+    border-radius:14px; padding:10px 14px; margin:0 0 8px;
+    border:1px solid #fbbf24;
+    background:linear-gradient(90deg,#3a2208,#2a1848 40%,#083344);
+    display:flex; flex-direction:column; gap:2px;
+  }
+  .boost-banner b { color:#fde047; font-size:13px; }
+  .boost-banner span { color:#e7e5e4; font-size:12px; }
+  .money-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; }
+  .money-grid article { background:rgba(12,10,24,.9); border:1px solid var(--line); border-radius:12px; padding:10px 8px; }
+  .money-grid .k { font-size:9px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); margin-bottom:4px; }
+  .money-grid b { font-family:Orbitron,sans-serif; font-size:16px; }
+  .money-grid b.g { color:#4ade80; }
+  .money-grid b.c { color:#22d3ee; }
+  @media (max-width:720px){ .money-grid { grid-template-columns:1fr 1fr; } }
   .deck-total b { display:block; font-size:22px; color:#f5d0fe; font-family:Orbitron,sans-serif; letter-spacing:.06em; }
   .deck-total span { color:var(--muted); font-size:10px; letter-spacing:.16em; text-transform:uppercase; font-family:Orbitron,sans-serif; }
   .deck-slot { display:grid; grid-template-columns:52px 1fr auto; gap:8px; align-items:center; }
@@ -521,6 +537,7 @@
   </div>
   <nav class="tabs">
     <div class="tabrow row1">
+      <button data-tab="dash"><i class="fill" id="tabFill-dash"></i><span>Dashboard</span></button>
       <button class="on" data-tab="droidex"><i class="fill" id="tabFill-droidex"></i><span>Droidex</span></button>
       <button data-tab="decks"><i class="fill" id="tabFill-decks"></i><span>Base</span></button>
       <button data-tab="srb"><i class="fill" id="tabFill-srb"></i><span>Super Rebirth</span></button>
@@ -640,6 +657,22 @@ function fmtNum(n){
   return sign+String(Math.round(n*100)/100);
 }
 function fmtRate(n){ return fmtNum(n)+"/s"; }
+function creditBoostNow(){
+  const now = Date.now();
+  let best = 1;
+  const lists = [].concat(EVENTS||[]);
+  try { lists.push.apply(lists, expandRecurring(now)||[]); } catch(e){}
+  lists.forEach(ev => {
+    if (!ev || eventStatus(ev, now)!=="live") return;
+    (ev.bonuses||[]).forEach(b => {
+      const m = String(b).toLowerCase();
+      if (m.indexOf("credit")<0) return;
+      const n = parseFloat(String(b).replace(/[^\d.]/g,""));
+      if (n>best) best = n;
+    });
+  });
+  return best;
+}
 
 let ICONICS = [
   ["BB-8","Astromech","BB-8 Event","Log in / finish the BB-8 event track"],
@@ -871,6 +904,25 @@ const CYCLES = {
 
 const KEY = "droidex-v2";
 const SAVES_KEY = "droidex-saves";
+function renderMoneyDash(deck){
+  deck = deck || activeDeck();
+  normalizeDeck(deck);
+  const parked = PADS.filter(p => padSlot(deck,p.id) && padSlot(deck,p.id).name).length;
+  const visTotal = PADS.length;
+  const icons = iconicBoost(deck);
+  const boost = creditBoostNow();
+  const shown = deckCps(deck) * boost;
+  let html = `<div class="money-dash">`;
+  if (boost>1) html += `<div class="boost-banner"><b>Credits are boosted!</b><span>Double credits event active: ${boost}x</span></div>`;
+  html += `<div class="money-grid">`;
+  html += `<article><div class="k">Per second</div><b class="g">${fmtNum(shown)}/s</b></article>`;
+  html += `<article><div class="k">Per minute</div><b class="g">${fmtNum(shown*60)}/m</b></article>`;
+  html += `<article><div class="k">Per hour</div><b class="g">${fmtNum(shown*3600)}/h</b></article>`;
+  html += `<article><div class="k">Offline (10%)</div><b class="c">${fmtNum(shown*3600*0.1)}/h</b></article>`;
+  html += `</div><div class="meta" style="text-align:center;margin:6px 0 0">${parked}/${visTotal} parked${icons?" · "+icons+" iconic x15%":""}${boost>1?" · includes event boost":""}</div></div>`;
+  return html;
+}
+
 function blankState(cycle){ return {d:{},f:{},i:{},c:{},rb:{cycle:cycle||1},decks:{active:0,list:[blankDeck("Deck 1")]}}; }
 function blankDeck(name){ return {name:name||"Base",mult:1,bonus:true,slots:[]}; }
 function allDeckNames(){
@@ -1306,8 +1358,10 @@ function renderDecks(){
   const icons = iconicBoost(deck);
   const rate = fmtRate(deckCps(deck));
   html += `<details class="floor stats" ${floorOpen("stats",true)?"open":""} ontoggle="toggleFloor('stats',this.open)">`;
-  html += `<summary>${esc(deck.name||"Base")} · ${rate} · ${parked}/${visTotal}</summary>`;
-  html += `<article class="card deck-total"><b>${rate}</b><span>${parked}/${visTotal} parked${icons?` · ${icons} iconic ×15%`:""} · total credits / second</span></article>`;
+  const boost = creditBoostNow();
+  const shown = deckCps(deck) * boost;
+  html += `<summary>${esc(deck.name||"Base")} · ${fmtRate(shown)} · ${parked}/${visTotal}</summary>`;
+  html += renderMoneyDash(deck);
   html += `<article class="card"><div class="name">${deck.name||"Base"}</div>`;
   html += `<div class="meta" style="margin:8px 0 6px">Base name</div><input class="deck-field" value="${esc(deck.name||"")}" onchange="setDeckField('name',this.value)">`;
   html += `<div class="meta" style="margin:8px 0 6px">Base multiplier (1 = none)</div><input class="deck-field" type="number" min="0" step="0.01" value="${deck.mult||1}" onchange="setDeckField('mult',this.value)">`;
@@ -2223,8 +2277,14 @@ function render(){
     return;
   }
   if (tab==="fusion" || tab==="iconics") tab = "droidex";
+  if (tab==="dash") {
+    const deck = activeDeck();
+    html += `<div class="rarity-h">Dashboard</div>`;
+    html += renderMoneyDash(deck);
+    html += renderVariantBonuses();
+    html += `<article class="card"><div class="name">${esc(deck.name||"Base")}</div><div class="meta">Active base · switch on Profiles</div><div class="act" style="margin-top:8px"><button onclick="tab='decks';document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('on',b.dataset.tab==='decks'));render();">Open Base</button></div></article>`;
+  }
   if (tab==="droidex") {
-    html += `<div class="hint">Tap a tile for the full card. Fusion variants still need the same-tier ingredients inside.</div>`;
     html += renderVariantBonuses();
     const order = ["Common","Rare","Epic","Legendary","Mythic"];
     let shown=0;
