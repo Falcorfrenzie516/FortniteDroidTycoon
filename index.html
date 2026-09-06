@@ -386,6 +386,7 @@
   .fuse-table td:first-child, .fuse-table th:first-child { text-align:left; white-space:nowrap; }
   .fuse-table td:first-child { display:flex; align-items:center; gap:6px; }
   .fuse-table td:first-child .pic { width:28px; height:28px; }
+  .fuse-table td.have-var { color:#4ade80; font-weight:800; font-size:16px; }
   .fuse-board { margin:12px 0; padding:12px; border:2px dashed var(--line); border-radius:16px; }
   .fuse-board.v-gld { border-color:#ca8a04; }
   .fuse-board.v-dia { border-color:#22d3ee; }
@@ -2267,6 +2268,10 @@ function renderFusionTracker(){
   FUSIONS.forEach(([n,r,ty]) => {
     html += `<tr><td>${picWrap(n,ty,r)}<span>${n}</span></td>`;
     VARIANTS.forEach(v => {
+      if (fuseHas(n,v)){
+        html += `<td class="have-var">✓</td>`;
+        return;
+      }
       const on = fusePicked(n,v);
       const locked = !on && nPick>=10;
       html += `<td><input type="checkbox" ${on?"checked":""} ${locked?"disabled":""} onchange="toggleFusePick('${esc(n)}','${v}')"></td>`;
@@ -2546,13 +2551,24 @@ function render(){
     const doneI = ICONICS.filter(([n])=>iconDone(n));
     const order = ["Common","Rare","Epic","Legendary","Mythic"];
     order.forEach(r => {
-      const listD = doneD.filter(([n,t,rr]) => rr===r);
-      const listF = doneF.filter(([n,rr]) => rr===r);
-      if (!listD.length && !listF.length) return;
-      html += `<div class="rarity-h ${r}">${r}</div><div class="mini-grid">`;
-      listD.forEach(([n,ty]) => { html += renderMiniTile(n,ty,r,"d"); shown++; });
-      listF.forEach(([n,rr,ty]) => { html += renderMiniTile(n,ty,rr,"f"); shown++; });
-      html += `</div>`;
+      const full = doneD.filter(([n,t,rr]) => rr===r && !has(n,"Flawless"));
+      const mini = doneD.filter(([n,t,rr]) => rr===r && has(n,"Flawless"));
+      const fFull = doneF.filter(([n,rr]) => rr===r && !fuseHas(n,"Flawless"));
+      const fMini = doneF.filter(([n,rr]) => rr===r && fuseHas(n,"Flawless"));
+      if (!full.length && !mini.length && !fFull.length && !fMini.length) return;
+      html += `<div class="rarity-h ${r}">${r}</div>`;
+      if (full.length || fFull.length){
+        html += `<div class="grid">`;
+        full.forEach(([n,t]) => { html += renderDroidCard(n,t,r,false); shown++; });
+        fFull.forEach(([n,rr,ty,ings]) => { html += renderFusionCard(n,rr,ty,ings,false); shown++; });
+        html += `</div>`;
+      }
+      if (mini.length || fMini.length){
+        html += `<div class="mini-grid">`;
+        mini.forEach(([n,ty]) => { html += renderMiniTile(n,ty,r,"d"); shown++; });
+        fMini.forEach(([n,rr,ty]) => { html += renderMiniTile(n,ty,rr,"f"); shown++; });
+        html += `</div>`;
+      }
     });
     if (doneI.length){
       html += `<div class="rarity-h Iconic">Iconic</div><div class="mini-grid">`;
