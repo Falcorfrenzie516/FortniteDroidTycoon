@@ -537,7 +537,7 @@
   </div>
   <nav class="tabs">
     <div class="tabrow row1">
-      <button data-tab="dash"><i class="fill" id="tabFill-dash"></i><span>Dashboard</span></button>
+      <button data-tab="fusion"><i class="fill" id="tabFill-fusion"></i><span>Fusion</span></button>
       <button class="on" data-tab="droidex"><i class="fill" id="tabFill-droidex"></i><span>Droidex</span></button>
       <button data-tab="decks"><i class="fill" id="tabFill-decks"></i><span>Base</span></button>
       <button data-tab="srb"><i class="fill" id="tabFill-srb"></i><span>Super Rebirth</span></button>
@@ -2163,6 +2163,23 @@ const openF = {};
 const openV = {};
 const openG = {};
 const openR = {};
+
+function renderFusionTracker(){
+  const order = ["Common","Rare","Epic","Legendary","Mythic"];
+  let html = `<div class="rarity-h Fusion">Fusion tracker</div>`;
+  html += `<div class="meta" style="margin:0 0 10px">Same-tier recipe: Gold N-UL needs Gold B1 Heavy + Gold Gunrunner + Gold BB. Check the three parts, then the result. 7/7 also lands on Done.</div>`;
+  let shown=0;
+  order.forEach(r => {
+    const list = FUSIONS.filter(([n,rr]) => rr===r);
+    if (!list.length) return;
+    const have = list.filter(([n]) => fuseDone(n)).length;
+    html += `<div class="rarity-h ${r}">${r} · ${have}/${list.length}</div><div class="grid">`;
+    list.forEach(([n,rr,ty,ings]) => { html += renderFusionCard(n,rr,ty,ings,false); shown++; });
+    html += `</div>`;
+  });
+  if (!shown) html += `<div class="empty">No fusion names loaded.</div>`;
+  return html;
+}
 function renderFusionCard(name,rar,typ,ings,hideDone){
   if (hideDone && fuseDone(name)) return "";
   if (!showCard(name,typ,ings.join(" ")+" fusion")) return "";
@@ -2277,12 +2294,8 @@ function render(){
     return;
   }
   if (tab==="fusion" || tab==="iconics") tab = "droidex";
-  if (tab==="dash") {
-    const deck = activeDeck();
-    html += `<div class="rarity-h">Dashboard</div>`;
-    html += renderMoneyDash(deck);
-    html += renderVariantBonuses();
-    html += `<article class="card"><div class="name">${esc(deck.name||"Base")}</div><div class="meta">Active base · switch on Profiles</div><div class="act" style="margin-top:8px"><button onclick="tab='decks';document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('on',b.dataset.tab==='decks'));render();">Open Base</button></div></article>`;
+  if (tab==="fusion") {
+    html += renderFusionTracker();
   }
   if (tab==="droidex") {
     html += renderVariantBonuses();
@@ -2307,16 +2320,6 @@ function render(){
   }
   if (tab==="decks") {
     html += renderDecks();
-  }
-  if (tab==="fusion") {
-    html += `<div class="hint">17 fusion-only names. Each variant needs the <b>same-tier ingredients</b>. Example: Gold N-UL wants Gold B1 Heavy + Gold Gunrunner + Gold BB. Check the three parts, then check the result. 7/7 moves to Done.</div>`;
-    let last="", shown=0;
-    FUSIONS.forEach(([n,r,t,ings]) => {
-      if (fuseDone(n) || !showCard(n,t,ings.join(" "))) return;
-      if (r!==last) { html += `<div class="rarity-h ${r}">${r} fusion</div>`; last=r; }
-      html += renderFusionCard(n,r,t,ings,true); shown++;
-    });
-    if (!shown) html += `<div class="empty">All fusion droids are complete, or none match the filter.</div>`;
   }
   if (tab==="srb") {
     const cyc = CYCLES[srbCycle] || CYCLES[1];
