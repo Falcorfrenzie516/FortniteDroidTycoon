@@ -546,7 +546,7 @@
 <header>
   <h1>Pocket Droid Tycoon Companion</h1>
   <details class="dash">
-    <summary>Title · belts · stats · <span id="saveLabel">Main</span> · <a id="epicStatus" class="epic-pill unknown" href="https://status.epicgames.com" target="_blank" rel="noopener" onclick="event.stopPropagation()">Epic · …</a></summary>
+    <summary>Title · belts · stats · <span id="saveLabel">Main</span> · v0906g · <a id="epicStatus" class="epic-pill unknown" href="https://status.epicgames.com" target="_blank" rel="noopener" onclick="event.stopPropagation()">Epic · …</a></summary>
     <div class="dash-body">
   <img class="brand" src="img/pocket-droidex.jpg" alt="Pocket Droid Tycoon Companion" onerror="this.style.display='none';document.querySelector('h1').classList.add('show')" />
   <div class="sub">Profile: <span id="saveLabel2">Main</span></div>
@@ -2406,8 +2406,7 @@ function render(){
     updateSaveLabel();
     return;
   }
-  if (tab==="fusion" || tab==="iconics") tab = "droidex";
-  if (tab==="fusion") {
+    if (tab==="fusion") {
     try { html += renderFusionTracker(); }
     catch(e){ html += `<div class="hint">Fusion planner hit an error: ${e}. Other tabs should still work.</div>`; }
   }
