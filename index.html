@@ -186,6 +186,7 @@
     width:100%; background:#100d22; color:var(--ink); border:1px solid var(--line);
     border-radius:12px; padding:8px; font-size:12px; font-family:Orbitron,sans-serif;
   }
+  .floor, .zone, .pad, .pads { box-sizing:border-box; min-width:0; }
   .floor {
     margin-top:10px; padding:10px;
     background:
@@ -193,40 +194,62 @@
       repeating-linear-gradient(0deg, transparent 0 18px, rgba(196,181,253,.05) 18px 19px),
       repeating-linear-gradient(90deg, transparent 0 18px, rgba(196,181,253,.05) 18px 19px),
       rgba(8,6,18,.72);
-    border:1px dashed rgba(196,181,253,.35);
+    border:2px dashed rgba(196,181,253,.35);
     border-radius:18px;
   }
-  .floor h3, details.floor > summary { margin:0 0 8px; font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--gold2); font-family:Orbitron,sans-serif; cursor:pointer; list-style:none; }
+  .floor h3, details.floor > summary {
+    margin:0 0 8px; font-size:clamp(10px,1.6vw,12px); letter-spacing:.14em; text-transform:uppercase;
+    color:var(--gold2); font-family:Orbitron,sans-serif; cursor:pointer; list-style:none;
+    display:flex; align-items:center; justify-content:space-between; gap:8px;
+  }
   details.floor > summary::-webkit-details-marker { display:none; }
-  details.floor > summary::after { content:"▾"; float:right; opacity:.7; }
+  details.floor > summary::after { content:"▾"; opacity:.7; flex:none; }
   details.floor:not([open]) > summary { margin:0; }
   details.floor:not([open]) > summary::after { content:"▸"; }
-  .floor.worker { border-color:rgba(74,222,128,.35); }
-  .floor.astromech { border-color:rgba(96,165,250,.4); }
-  .floor.battle { border-color:rgba(251,113,133,.4); }
-  .floor.lounge { border-color:rgba(251,191,36,.4); }
-  .floor.firing { border-color:rgba(248,113,113,.45); }
-  .floor.companion { border-color:rgba(167,139,250,.45); }
-  .floor.fuse { border-color:rgba(232,121,249,.45); }
-  .floor.mission-floor { border-color:rgba(251,191,36,.55); }
-  .worker-split { display:grid; grid-template-columns:minmax(0,1fr) minmax(190px,auto); gap:10px; align-items:start; }
-  .astro-split { display:grid; grid-template-columns:0.7fr 1fr 1.4fr 1fr 0.7fr; gap:8px; align-items:start; }
-  .zone.deck { border-color:rgba(196,181,253,.4); }
-  @media (max-width:900px){ .astro-split { grid-template-columns:1fr 1fr; } }
-  @media (max-width:720px){ .worker-split, .astro-split { grid-template-columns:1fr; } }
-  .zone { border:2px dashed rgba(45,212,191,.7); border-radius:16px; padding:10px 8px 8px; background:rgba(6,20,22,.25); }
-  .zone-h { font-size:10px; letter-spacing:.16em; text-transform:uppercase; color:#5eead4; margin:0 0 8px; font-family:Orbitron,sans-serif; }
-  .floor.battle-wrap { display:flex; flex-direction:column; gap:10px; border:2px dashed rgba(45,212,191,.7); }
+  .floor.worker { border-color:#5eead4; }
+  .floor.worker > summary { color:#5eead4; }
+  .floor.astromech { border-color:#c084fc; }
+  .floor.astromech > summary { color:#d8b4fe; }
+  .floor.battle-wrap { border-color:#f87171; }
+  .floor.battle-wrap > summary { color:#fca5a5; }
+  .floor.lounge { border-color:#fbbf24; }
+  .floor.lounge > summary { color:#fcd34d; }
+  .floor.companion { border-color:#cbd5e1; }
+  .floor.companion > summary { color:#e2e8f0; }
+  .floor.fuse { border-color:#facc15; }
+  .floor.fuse > summary { color:#fde047; }
+  .floor.benches { border-color:#67e8f9; }
+  .floor.benches > summary { color:#a5f3fc; }
+  .floor.build { border-color:#94a3b8; }
+  .worker-split, .astro-split, .bench-split { display:flex; flex-wrap:wrap; gap:8px; align-items:stretch; }
+  .worker-split .zone.carousel { flex:1 1 260px; }
+  .worker-split .zone.control { flex:1 1 180px; }
+  .astro-split .zone { flex:1 1 110px; }
+  .bench-split .zone { flex:1 1 160px; }
+  .zone { border:2px dashed rgba(45,212,191,.55); border-radius:16px; padding:10px 8px 8px; background:rgba(6,20,22,.25); }
+  .zone.worker, .zone.carousel, .zone.control { border-color:#2dd4bf; }
+  .zone.astromech, .zone.mission { border-color:#a78bfa; }
+  .zone.deck { border-color:#7c3aed; }
+  .zone.battle, .zone.battle-zone, .zone.firing-zone { border-color:#f87171; }
+  .zone-h { font-size:clamp(9px,1.4vw,11px); letter-spacing:.14em; text-transform:uppercase; color:inherit; margin:0 0 8px; font-family:Orbitron,sans-serif; }
+  .floor.worker .zone-h { color:#5eead4; }
+  .floor.astromech .zone-h { color:#e9d5ff; }
+  .floor.battle-wrap .zone-h { color:#fecaca; }
+  .floor.benches .zone.worker .zone-h { color:#5eead4; }
+  .floor.benches .zone.astromech .zone-h { color:#e9d5ff; }
+  .floor.benches .zone.battle .zone-h { color:#fecaca; }
+  .floor.battle-wrap { display:flex; flex-direction:column; gap:10px; }
   .floor.battle-wrap .zone { border-color:rgba(45,212,191,.45); }
-  .pads { display:grid; grid-template-columns:repeat(auto-fill,minmax(58px,1fr)); gap:8px; justify-items:center; }
+  
   header > h1, header > .dash, header > .toolbar, header > nav, main {
     width:min(960px,100%);
     margin-left:auto;
     margin-right:auto;
   }
+  .pads { display:flex; flex-wrap:wrap; gap:8px; }
   .pad {
-    width:58px; height:72px; padding:0; display:flex; flex-direction:column; align-items:center; justify-content:flex-start;
-    background:rgba(6,4,14,.7); border:2px dotted #5b5388; border-radius:14px; color:var(--muted); touch-action:none;
+    width:clamp(52px, 7.2vw, 64px); height:clamp(66px, 9vw, 80px); padding:0; display:flex; flex-direction:column; align-items:center; justify-content:flex-start;
+    background:rgba(6,4,14,.7); border:2px dotted #5b5388; border-radius:14px; color:var(--muted); touch-action:none; flex:none;
   }
   .pad.mission { border-color:#fbbf24; background:rgba(80,50,8,.55); box-shadow:inset 0 0 12px rgba(251,191,36,.18); }
   .pad.mission.filled { border-style:solid; }
@@ -786,6 +809,9 @@ let FLOORS = [
   {id:"companion", label:"Companion · buff only", kind:"Companion", count:2, group:"base"},
   {id:"chip", label:"Chip station", kind:"Lounge", count:0, group:"base"},
   {id:"build", label:"Build slots", kind:"Build", count:0},
+  {id:"benchW", label:"Worker bench", kind:"Worker", count:1, group:"bench"},
+  {id:"benchA", label:"Astromech bench", kind:"Astromech", count:1, group:"bench"},
+  {id:"benchB", label:"Battle bench", kind:"Battle", count:1, group:"bench"},
   {id:"fuse1", label:"Fusion pads", kind:"Fusion", count:3, group:"fusion", lab:1},
   {id:"chamber1", label:"Chamber", kind:"Chamber", count:1, group:"fusion", lab:1},
   {id:"fuse2", label:"Fusion pads", kind:"Fusion", count:3, group:"fusion", lab:2},
@@ -983,6 +1009,7 @@ function earnsIncome(kind){ return !!EARN_KINDS[kind]; }
 function slotCps(slot, kind, pad){
   if (!slot || !slot.name) return 0;
   if (pad && pad.mission) return 0;
+  if (pad && String(pad.floor||"").indexOf("bench")===0) return 0;
   if (!earnsIncome(kind)) return 0;
   if (isIconic(slot.name)) return 0;
   const raw = rateOf(slot.name, slot.variant||"Basic") * (Number(slot.mult)||1);
@@ -1150,7 +1177,7 @@ function renderDecks(){
   html += `<div class="meta" style="margin:8px 0 6px">Base name</div><input class="deck-field" value="${esc(deck.name||"")}" onchange="setDeckField('name',this.value)">`;
   html += `<div class="meta" style="margin:8px 0 6px">Base multiplier (1 = none)</div><input class="deck-field" type="number" min="0" step="0.01" value="${deck.mult||1}" onchange="setDeckField('mult',this.value)">`;
   html += `<div class="vars" style="grid-template-columns:1fr;margin-top:10px"><label class="chk ${deck.bonus!==false?"on":""}" style="flex-direction:row;text-transform:none;letter-spacing:0"><input type="checkbox" ${deck.bonus!==false?"checked":""} onchange="setDeckField('bonus',this.checked)">Collection bonus (+${collectionBonus()}%)</label></div></article>`;
-  FLOORS.filter(f => f.group!=="fusion" && f.count>0 && f.id!=="chip").forEach(f => {
+  FLOORS.filter(f => f.group!=="fusion" && f.group!=="bench" && f.count>0 && f.id!=="chip").forEach(f => {
     const slice = PADS.filter(p=>p.floor===f.id);
     const used = slice.filter(p => padSlot(deck,p.id) && padSlot(deck,p.id).name).length;
     if (f.id==="worker"){
@@ -1211,6 +1238,17 @@ function renderDecks(){
     slice.forEach(p => { html += padButton(p,deck); });
     html += `</div>${extra}</details>`;
   });
+  const benches = PADS.filter(p=>p.floor==="benchW"||p.floor==="benchA"||p.floor==="benchB");
+  const bu = benches.filter(p => padSlot(deck,p.id)&&padSlot(deck,p.id).name).length;
+  html += `<details class="floor benches" ${floorOpen("benches",false)?"open":""} ontoggle="toggleFloor('benches',this.open)"><summary>Benches · ${bu}/3</summary><div class="bench-split">`;
+  [["benchW","Worker bench","worker"],["benchA","Astromech bench","astromech"],["benchB","Battle bench","battle"]].forEach(([id,lab,theme]) => {
+    const group = PADS.filter(p=>p.floor===id);
+    const gu = group.filter(p => padSlot(deck,p.id)&&padSlot(deck,p.id).name).length;
+    html += `<div class="zone ${theme}"><div class="zone-h">${lab} (${gu}/1)</div><div class="pads">`;
+    group.forEach(p => html += padButton(p,deck));
+    html += `</div></div>`;
+  });
+  html += `</div></details>`;
   html += renderFusionLabs(deck);
   return html;
 }
