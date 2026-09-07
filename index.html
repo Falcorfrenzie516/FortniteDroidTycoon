@@ -2309,13 +2309,13 @@ function renderFusionTracker(){
     html += `<section class="fuse-board ${vTheme(v)}">`;
     html += `<h3>${pk.name.toUpperCase()} <em>[${vName(v).toUpperCase()}]</em></h3>`;
     html += `<div class="fuse-ings">`;
-    ings.forEach(ing => {
-      const tick = !!(plan.checks && plan.checks[fuseNeedKey(ing,v)]);
+    ings.forEach((ing,idx) => {
+      const tick = !!(plan.checks && plan.checks[fuseNeedKey(pk.name,v,ing,idx)]);
       const owned = has(ing,v) || fuseHas(ing,v);
       const typ = classOf(ing)||"";
       const rar = rarityOf(ing)||"";
       html += `<label class="fuse-ing ${vTheme(v)} ${tick?"on":""}">`;
-      html += `<input type="checkbox" ${tick?"checked":""} onchange="toggleFuseNeed('${esc(ing)}','${v}')">`;
+      html += `<input type="checkbox" ${tick?"checked":""} onchange="toggleFuseNeed('${esc(pk.name)}','${v}','${esc(ing)}',${idx})">`;
       html += `${picWrap(ing,typ,rar)}`;
       html += `<span class="ing-name">${ing}</span></label>`;
     });
