@@ -161,7 +161,7 @@
   .tabs { display:flex; flex-direction:column; gap:4px; margin-top:10px; }
   .tabrow { display:grid; gap:4px; }
   .tabrow.row1 { grid-template-columns:repeat(4,1fr); }
-  .tabrow.row2 { grid-template-columns:repeat(3,1fr); }
+  .tabrow.row2 { grid-template-columns:repeat(4,1fr); }
   .tabs button { position:relative; overflow:hidden; background:rgba(12,10,24,.78); border:1px solid var(--line); border-radius:14px; color:var(--muted); padding:9px 2px; font-size:10px; font-weight:700; font-family:Orbitron,sans-serif; letter-spacing:.08em; text-transform:uppercase; }
   .tabs button .fill { position:absolute; left:0; top:0; bottom:0; width:0; opacity:.42; pointer-events:none; transition:width .25s ease; }
   .tabs button span { position:relative; z-index:1; }
@@ -414,6 +414,16 @@
   .fuse-ing.v-stel { border-color:#fbbf24; }
   .fuse-ing.on { box-shadow:0 0 10px currentColor; }
   .fuse-ing .pic { width:56px; height:56px; }
+  
+  .nova-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+  @media (max-width:640px){ .nova-grid { grid-template-columns:1fr; } }
+  .nova-card { border:1px solid var(--line); border-radius:14px; padding:10px; background:rgba(8,6,18,.8); }
+  .nova-card.maxed { border-color:#22d3ee; }
+  .nova-top { display:flex; justify-content:space-between; gap:8px; align-items:baseline; }
+  .nova-cost { color:#67e8f9; font-family:Orbitron,sans-serif; font-size:12px; white-space:nowrap; }
+  .nova-row { display:flex; align-items:center; gap:8px; margin-top:8px; }
+  .nova-lv { font-family:Orbitron,sans-serif; min-width:64px; text-align:center; }
+
   .fuse-ing .ing-name { font-size:10px; line-height:1.2; text-align:center; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:#e2e8f0; }
 
   .fuse-filters button { font-size:11px; letter-spacing:.08em; text-transform:uppercase; }
@@ -596,6 +606,7 @@
     </div>
     <div class="tabrow row2">
       <button data-tab="cosmetics"><i class="fill" id="tabFill-cosmetics"></i><span>Paint</span></button>
+      <button data-tab="nova"><i class="fill" id="tabFill-nova"></i><span>Nova</span></button>
       <button data-tab="saves"><i class="fill" id="tabFill-saves"></i><span>Profiles</span></button>
       <button data-tab="alarms"><i class="fill" id="tabFill-alarms"></i><span>Events</span></button>
     </div>
@@ -982,7 +993,7 @@ function renderMoneyDash(deck){
   } catch(e){ return ""; }
 }
 
-function blankState(cycle){ return {d:{},f:{},i:{},c:{},rb:{cycle:cycle||1},decks:{active:0,list:[blankDeck("Deck 1")]}}; }
+function blankState(cycle){ return {d:{},f:{},i:{},c:{},nova:{},rb:{cycle:cycle||1},decks:{active:0,list:[blankDeck("Deck 1")]}}; }
 function blankDeck(name){ return {name:name||"Base",mult:1,bonus:true,slots:[]}; }
 function allDeckNames(){
   return DROIDS.map(d=>d[0]).concat(FUSIONS.map(d=>d[0])).concat(ICONICS.map(d=>d[0]));
@@ -1687,7 +1698,7 @@ if (!state.rb.cycle) state.rb.cycle = 1;
 if (!state.alerts) state.alerts = {};
 if (!state.fusePlan) state.fusePlan = {pick:[], rarity:"all"};
 ensureDecks(state);
-const TABS = ["droidex","fusion","decks","srb","done","cosmetics","saves","alarms"];
+const TABS = ["droidex","fusion","decks","srb","done","cosmetics","nova","saves","alarms"];
 let tab = localStorage.getItem(KEY+"-tab") || "droidex";
 if (TABS.indexOf(tab)<0) tab = "droidex";
 let srbCycle = Number(state.rb.cycle || 1);
@@ -1719,6 +1730,7 @@ function applyState(st){
   if (!state.f) state.f = {};
   if (!state.i) state.i = {};
   if (!state.c) state.c = {};
+  if (!state.nova) state.nova = {};
   if (!state.rb) state.rb = {};
   ensureDecks(state);
   srbCycle = Number(state.rb.cycle || 1);
@@ -2272,6 +2284,100 @@ function toggleFuseNeed(target,v,ing,idx){
   p.checks[k] = !p.checks[k];
   save(); render();
 }
+
+const NOVA_SHOP = [
+  {id:"droidex-note", cat:"Featured", name:"Droidex Notifications", max:10, cost:20, note:"Requires Rebirth Droid Alert"},
+  {id:"variant-watch", cat:"Featured", name:"Variant Watch", max:1, cost:100, note:""},
+  {id:"crit-chance", cat:"Featured", name:"Critical Chance", max:18, cost:60, note:"First rank 60"},
+  {id:"crit-amount", cat:"Featured", name:"Critical Amount", max:18, cost:30, note:"First rank 30"},
+  {id:"multi-crits", cat:"Featured", name:"Multi Crits", max:4, cost:400, note:""},
+  {id:"companion-slot", cat:"Featured", name:"Companion Slot", max:1, cost:250, note:"2nd companion pad"},
+  {id:"chip-station", cat:"Featured", name:"Upgrade Chip Station", max:1, cost:120, note:""},
+  {id:"credit-sell", cat:"Featured", name:"Credit Sell Bonus", max:3, cost:25, note:""},
+  {id:"chip-sell", cat:"Featured", name:"Chip Sell Bonus", max:4, cost:60, note:"+50% chips when selling a droid"},
+  {id:"max-hp", cat:"Core", name:"Max Health", max:8, cost:1, note:"+25 Max HP per rank"},
+  {id:"damage", cat:"Core", name:"Damage", max:8, cost:1, note:""},
+  {id:"credits", cat:"Core", name:"Credits", max:11, cost:2, note:"L1 2 · L5 18 · L11 42"},
+  {id:"flawless-charm", cat:"Core", name:"Flawless Charm", max:1, cost:500, note:"Flawless craft chance"},
+  {id:"move-speed", cat:"Core", name:"Movement Speed", max:18, cost:1, note:""},
+  {id:"pickaxe", cat:"Core", name:"Pickaxe Mastery", max:11, cost:5, note:"Keep pickaxe levels on SRB"},
+  {id:"jawa", cat:"Core", name:"Jawa Bartering", max:5, cost:5, note:"Chance to double sell rewards"},
+  {id:"super-crates", cat:"Core", name:"Super Crates", max:3, cost:10, note:"Gold / Diamond / Rainbow crates"},
+  {id:"double-daily", cat:"Core", name:"Double Daily Quests", max:1, cost:75, note:"Reset dailies once after all 3"},
+  {id:"daily-crystals", cat:"Core", name:"Daily Crystals", max:1, cost:0, note:"Nova crystals on daily quests"},
+  {id:"droid-alert", cat:"Workshop", name:"Rebirth Droid Alert", max:1, cost:10, note:"Notify when a rebirth droid spawns"},
+  {id:"scrap-value", cat:"Workshop", name:"Scrap Value", max:15, cost:25, note:"More credits from scrap table"},
+  {id:"chip-scrap", cat:"Workshop", name:"Upgrade Chip Scrap", max:10, cost:25, note:"Chips from scrap table"},
+  {id:"bp-scrap", cat:"Workshop", name:"Blueprint Scrap", max:10, cost:25, note:"Blueprints from scrap table"},
+  {id:"craft-speed", cat:"Workshop", name:"Crafting Speed", max:10, cost:25, note:"+% craft speed"},
+  {id:"lounge-slot", cat:"Workshop", name:"Lounge Slot", max:4, cost:25, note:"Extra lounge pads"},
+  {id:"bp-storage", cat:"Workshop", name:"Blueprint Storage", max:3, cost:50, note:"Offline blueprint slots"},
+  {id:"collect-all", cat:"Workshop", name:"Collect All", max:3, cost:25, note:"25 / 50 / 100 · Battle then Astro then Worker"},
+  {id:"bp-vendor", cat:"Workshop", name:"Blueprint Vendor", max:1, cost:10, note:"Shipyard vendor"},
+  {id:"crawler-luck", cat:"Lobby", name:"Sandcrawler Luck Boost", max:1, cost:50, note:"Also in Cantina for V-Bucks"},
+  {id:"craft-boost", cat:"Lobby", name:"Crafting Boost", max:1, cost:50, note:"Also in Cantina for V-Bucks"},
+  {id:"surge-rainbow", cat:"Lobby", name:"Rainbow Surge", max:1, cost:75, note:"Variant surge"},
+  {id:"surge-beskar", cat:"Lobby", name:"Beskar Surge", max:1, cost:75, note:"Variant surge"},
+  {id:"surge-galactic", cat:"Lobby", name:"Galactic Surge", max:1, cost:75, note:"Variant surge"},
+  {id:"paint-nova-1", cat:"Cosmetic", name:"Nova Crystal Paint I", max:1, cost:30, note:"Base paint"},
+  {id:"paint-nova-2", cat:"Cosmetic", name:"Nova Crystal Paint II", max:1, cost:120, note:"Requires stage 1"},
+  {id:"paint-nova-3", cat:"Cosmetic", name:"Nova Crystal Paint III", max:1, cost:400, note:"Requires stage 2"},
+  {id:"icon-bb8", cat:"Iconic", name:"BB-8", max:1, cost:30, note:"If the event was missed"},
+  {id:"icon-bones", cat:"Iconic", name:"Mister Bones", max:1, cost:30, note:""},
+  {id:"icon-ig11", cat:"Iconic", name:"IG-11 Marshal", max:1, cost:30, note:""},
+  {id:"icon-dj", cat:"Iconic", name:"DJ R-3X", max:1, cost:30, note:""},
+  {id:"icon-cb23", cat:"Iconic", name:"CB-23", max:1, cost:75, note:""},
+  {id:"icon-r2", cat:"Iconic", name:"R2-D2", max:1, cost:60, note:""},
+  {id:"icon-chopper", cat:"Iconic", name:"Chopper", max:1, cost:30, note:""},
+  {id:"icon-c3po", cat:"Iconic", name:"C-3PO", max:1, cost:60, note:""},
+  {id:"icon-do", cat:"Iconic", name:"D-O", max:1, cost:30, note:""}
+];
+function novaLvl(id){
+  if (!state.nova) state.nova = {};
+  return Math.max(0, Number(state.nova[id]||0));
+}
+function setNovaLvl(id, n){
+  if (!state.nova) state.nova = {};
+  const row = NOVA_SHOP.find(x=>x.id===id);
+  const max = row ? row.max : 1;
+  state.nova[id] = Math.max(0, Math.min(max, Number(n)||0));
+  save(); render();
+}
+function bumpNova(id, dir){
+  setNovaLvl(id, novaLvl(id)+dir);
+}
+function renderNovaShop(){
+  const cats = ["Featured","Core","Workshop","Lobby","Cosmetic","Iconic"];
+  const labels = {Featured:"Featured",Core:"Core upgrades",Workshop:"Workshop",Lobby:"Lobby boosts",Cosmetic:"Cosmetic",Iconic:"Iconic droids"};
+  let spent = 0;
+  NOVA_SHOP.forEach(it => { if (novaLvl(it.id)>0) spent += it.cost * Math.min(novaLvl(it.id), it.max===1?1:1); });
+  let html = `<div class="rarity-h Fusion">Nova Shop</div>`;
+  html += `<div class="meta" style="margin:0 0 10px">Check ranks you have unlocked. Price shown is the shop tag from the current list (first rank where the full ladder is not published). Lobby boosts and some Featured items also exist in the Cantina for V-Bucks.</div>`;
+  cats.forEach(cat => {
+    const list = NOVA_SHOP.filter(x=>x.cat===cat);
+    const have = list.filter(x=>novaLvl(x.id)>=x.max).length;
+    html += `<details class="floor fuse" ${floorOpen("nova-"+cat,true)?"open":""} ontoggle="toggleFloor('nova-${cat}',this.open)"><summary>${labels[cat]} · ${have}/${list.length} maxed</summary>`;
+    html += `<div class="nova-grid">`;
+    list.forEach(it => {
+      const lv = novaLvl(it.id);
+      const maxed = lv>=it.max;
+      html += `<article class="nova-card ${maxed?"maxed":""}">`;
+      html += `<div class="nova-top"><b>${it.name}</b><span class="nova-cost">${it.cost?it.cost+" ✦":"—"}</span></div>`;
+      html += `<div class="meta">${it.note||""}</div>`;
+      html += `<div class="nova-row">`;
+      if (it.max===1){
+        html += `<label class="need-row" style="border:none;background:transparent;padding:0"><input type="checkbox" ${lv?"checked":""} onchange="setNovaLvl('${it.id}',this.checked?1:0)"> Unlocked</label>`;
+      } else {
+        html += `<button type="button" onclick="bumpNova('${it.id}',-1)">−</button>`;
+        html += `<span class="nova-lv">${lv} / ${it.max}</span>`;
+        html += `<button type="button" onclick="bumpNova('${it.id}',1)">+</button>`;
+      }
+      html += `</div></article>`;
+    });
+    html += `</div></details>`;
+  });
+  return html;
+}
 function renderFusionTracker(){
   const plan = fusePlan();
   const nPick = plan.picks.length;
@@ -2635,6 +2741,9 @@ function render(){
       });
       html += `</div><div class="act" style="margin-top:10px"><button onclick="testAlarm('${name}')">Test ${name}</button></div></article>`;
     });
+  }
+  if (tab==="nova") {
+    html += renderNovaShop();
   }
   if (tab==="cosmetics") {
     html += `<div class="hint">Workshop paints. These are not Droidex entries.</div><div class="paint-grid">`;
