@@ -2252,7 +2252,7 @@ function fusePlan(){
   return state.fusePlan;
 }
 function fusePickKey(n,v){ return n+"@"+v; }
-function fuseNeedKey(n,v){ return n+"|"+v; }
+function fuseNeedKey(target,v,ing,idx){ return [target,v,ing,idx].join("|"); }
 function fusePicked(n,v){
   return fusePlan().picks.some(p => p.name===n && p.variant===v);
 }
@@ -2266,9 +2266,9 @@ function toggleFusePick(n,v){
   }
   save(); render();
 }
-function toggleFuseNeed(n,v){
+function toggleFuseNeed(target,v,ing,idx){
   const p = fusePlan();
-  const k = fuseNeedKey(n,v);
+  const k = fuseNeedKey(target,v,ing,idx);
   p.checks[k] = !p.checks[k];
   save(); render();
 }
