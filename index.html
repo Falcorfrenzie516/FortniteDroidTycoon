@@ -653,7 +653,7 @@ let FUSIONS = [
   ["RIV-3T","Mythic","Worker",["KX","IG","RIC"]],
   ["LUG-G","Mythic","Worker",["Loadlifter","ID10","R5"]],
   ["LOW-MO","Mythic","Worker",["A-LT","A-LT","Loadlifter"]],
-  ["AXL-POD","Mythic","Astromech",["RIC","BDX Explorer","R7"]],
+  ["AXI-POD","Mythic","Astromech",["RIC","BDX Explorer","R7"]],
   ["SRV-0","Mythic","Battle",["RIC-1200","B1 Heavy","B1 Heavy"]],
   ["X-ONK","Mythic","Battle",["KX","KX","Gonk"]]
 ];
@@ -686,7 +686,7 @@ let RATE = {
   "LUG-G":[7600,15200,30400,60800,121600,334400,950000],"Loadlifter":[7200,14400,28800,57600,115200,316800,900000],
   "LEP":[6500,13000,26000,52000,104000,286000,812500],"RIC-1200":[5800,11600,23200,46400,92800,255200,725000],
   "RIC":[5100,10200,20400,40800,81600,224400,637500],"Snow Mouse":[4400,8800,17600,35200,70400,193600,550000],
-  "AXL-POD":[8000,16000,32000,64000,128000,352000,1000000],"MO-TRAK":[7200,14400,28800,57600,115200,316800,900000],
+  "AXI-POD":[8000,16000,32000,64000,128000,352000,1000000],"MO-TRAK":[7200,14400,28800,57600,115200,316800,900000],
   "TRI-TEK":[6500,13000,26000,52000,104000,286000,812500],"DRFT-R":[5800,11600,23200,46400,92800,255200,725000],
   "CYCLENS":[4400,8800,17600,35200,70400,193600,550000],"X-ONK":[8000,16000,32000,64000,128000,352000,1000000],
   "SRV-0":[7600,15200,30400,60800,121600,334400,950000],"KX":[7200,14400,28800,57600,115200,316800,900000],
@@ -1731,6 +1731,14 @@ function applyState(st){
   if (!state.i) state.i = {};
   if (!state.c) state.c = {};
   if (!state.nova) state.nova = {};
+  if (state.f){
+    Object.keys(state.f).forEach(k => {
+      if (k.indexOf("AXL-POD")===0){
+        const nk = k.replace("AXL-POD","AXI-POD");
+        if (state.f[k] && !state.f[nk]) state.f[nk] = state.f[k];
+      }
+    });
+  }
   if (!state.rb) state.rb = {};
   ensureDecks(state);
   srbCycle = Number(state.rb.cycle || 1);
@@ -2214,7 +2222,7 @@ function assetName(name){
   return name.toUpperCase().replace(/\s+/g,"_");
 }
 const IMG_ALIAS = {
-  "AXL-POD":"AXI-POD",
+  "AXI-POD":"AXI-POD",
   "BU-4D":"B-U4D",
   "D-O":"D-0",
   "DJ R-3X":"DJ_R-3X",
