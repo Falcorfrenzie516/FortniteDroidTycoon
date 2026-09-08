@@ -1758,13 +1758,15 @@ function updateSaveLabel(){
   }
 }
 function savePanel(){
-  let html = `<div class="hint">Each profile is a separate checklist. Download a file to keep a copy. Load a file to come back to that point.</div>`;
-  html += `<article class="card"><div class="name">Rebirth highlight</div><div class="meta" style="margin:6px 0 8px">Cycle plus how many unfinished rebirths ahead to mark on Base. Neon blue = parked at the needed variant. Orange = parked but too low.</div>`;
-  html += `<div class="meta" style="margin:8px 0 6px">Current cycle</div><select class="deck-field" onchange="setRbSetting('cycle',this.value)">`;
-  [1,2,3,4,5].forEach(n => { html += `<option value="${n}" ${srbCycle===n?"selected":""}>Cycle ${n}</option>`; });
-  html += `</select><div class="meta" style="margin:10px 0 6px">Highlight next rebirths (1–10)</div><select class="deck-field" onchange="setRbSetting('ahead',this.value)">`;
-  for (let n=1;n<=10;n++) html += `<option value="${n}" ${highlightAhead()===n?"selected":""}>${n} rebirth${n>1?"s":""} ahead</option>`;
-  html += `</select></article>`;
+  const fold = (id, title, body) => `<details class="floor worker" ${floorOpen("prof-"+id,false)?"open":""} ontoggle="toggleFloor('prof-${id}',this.open)"><summary>${title}</summary>${body}</details>`;
+  let html = `<div class="hint">Each profile is a separate checklist. Download a file to keep a copy. Load a file to come back to that point. Sections start closed.</div>`;
+  let rebirth = `<div class="meta" style="margin:6px 0 8px">Cycle plus how many unfinished rebirths ahead to mark on Base. Neon blue = parked at the needed variant. Orange = parked but too low.</div>`;
+  rebirth += `<div class="meta" style="margin:8px 0 6px">Current cycle</div><select class="deck-field" onchange="setRbSetting('cycle',this.value)">`;
+  [1,2,3,4,5].forEach(n => { rebirth += `<option value="${n}" ${srbCycle===n?"selected":""}>Cycle ${n}</option>`; });
+  rebirth += `</select><div class="meta" style="margin:10px 0 6px">Highlight next rebirths (1–10)</div><select class="deck-field" onchange="setRbSetting('ahead',this.value)">`;
+  for (let n=1;n<=10;n++) rebirth += `<option value="${n}" ${highlightAhead()===n?"selected":""}>${n} rebirth${n>1?"s":""} ahead</option>`;
+  rebirth += `</select>`;
+  html += fold("rebirth","Rebirth highlight", rebirth);
   const presets = ALERT_PRESETS;
   function alertRow(key, label, blurb){
     const conf = alertConf(key);
@@ -1782,48 +1784,52 @@ function savePanel(){
     row += `</div>`;
     return row;
   }
-  html += `<article class="card"><div class="name">Alert colors</div><div class="meta" style="margin:6px 0 8px">Color, animation, and brightness for each Base highlight.</div>`;
-  html += alertRow("ready","Ready","Parked at the needed variant or higher");
-  html += alertRow("low","Too low","Needed name, variant below the requirement");
-  html += alertRow("upgrade","Upgrade","UP — a better variant is checked in Droidex");
-  html += alertRow("fuse","Fuse","Ingredient for a fusion you do not own yet");
-  html += alertRow("solo","Only copy","Heavier glow when it is the only copy on Base");
-  html += `</article>`;
-  html += `<article class="card"><div class="name">Bases</div><div class="meta" style="margin:6px 0 8px">Each base is its own pad map and multiplier. The Base tab shows the active one.</div>`;
-  html += `<div class="meta" style="margin:8px 0 6px">Active base</div><select class="deck-field" onchange="switchDeck(this.value)">`;
+  let alerts = `<div class="meta" style="margin:6px 0 8px">Color, animation, and brightness for each Base highlight.</div>`;
+  alerts += alertRow("ready","Ready","Parked at the needed variant or higher");
+  alerts += alertRow("low","Too low","Needed name, variant below the requirement");
+  alerts += alertRow("upgrade","Upgrade","UP — a better variant is checked in Droidex");
+  alerts += alertRow("fuse","Fuse","Ingredient for a fusion you do not own yet");
+  alerts += alertRow("solo","Only copy","Heavier glow when it is the only copy on Base");
+  html += fold("alerts","Alert colors", alerts);
+  let bases = `<div class="meta" style="margin:6px 0 8px">Each base is its own pad map and multiplier. The Base tab shows the active one.</div>`;
+  bases += `<div class="meta" style="margin:8px 0 6px">Active base</div><select class="deck-field" onchange="switchDeck(this.value)">`;
   state.decks.list.forEach((d,i) => {
-    html += `<option value="${i}" ${i===state.decks.active?"selected":""}>${d.name||("Base "+(i+1))}</option>`;
+    bases += `<option value="${i}" ${i===state.decks.active?"selected":""}>${d.name||("Base "+(i+1))}</option>`;
   });
-  html += `</select><div class="act" style="margin-top:10px"><button onclick="addDeck()">+ Base</button>`;
-  html += `<button onclick="renameDeck()">Rename</button>`;
-  if (state.decks.list.length>1) html += `<button class="danger" onclick="deleteDeck()">Delete active</button>`;
-  html += `</div></article>`;
+  bases += `</select><div class="act" style="margin-top:10px"><button onclick="addDeck()">+ Base</button>`;
+  bases += `<button onclick="renameDeck()">Rename</button>`;
+  if (state.decks.list.length>1) bases += `<button class="danger" onclick="deleteDeck()">Delete active</button>`;
+  bases += `</div>`;
+  html += fold("bases","Bases", bases);
   const u = state.decks.unlocks || {};
-  html += `<article class="card"><div class="name">Base unlocks</div><div class="meta" style="margin:6px 0 8px">Nova Shop / rebirth purchases. Unlocked slots appear on Base in the right section.</div>`;
-  html += `<label class="chk ${u.companion2?"on":""}" style="flex-direction:row;text-transform:none;letter-spacing:0;margin:6px 0"><input type="checkbox" ${u.companion2?"checked":""} onchange="setUnlock('companion2',this.checked)">Secondary companion</label>`;
-  html += `<label class="chk ${u.chip?"on":""}" style="flex-direction:row;text-transform:none;letter-spacing:0;margin:6px 0"><input type="checkbox" ${u.chip?"checked":""} onchange="setUnlock('chip',this.checked)">Chip station</label>`;
-  html += `<label class="chk ${u.build?"on":""}" style="flex-direction:row;text-transform:none;letter-spacing:0;margin:6px 0"><input type="checkbox" ${u.build?"checked":""} onchange="setUnlock('build',this.checked)">Build slots (3)</label>`;
-  html += `<label class="chk ${state.decks.secondLab?"on":""}" style="flex-direction:row;text-transform:none;letter-spacing:0;margin:6px 0"><input type="checkbox" ${state.decks.secondLab?"checked":""} onchange="toggleSecondLab(this.checked)">Second fusion tank</label>`;
-  html += `<div class="meta" style="margin:10px 0 6px">Extra lounge stations (Nova Shop) · ${9+Number(u.loungeExtra||0)}/13</div>`;
-  html += `<select class="deck-field" onchange="setUnlock('loungeExtra',this.value)">`;
-  for (let n=0;n<=4;n++) html += `<option value="${n}" ${Number(u.loungeExtra||0)===n?"selected":""}>${n} extra · ${9+n} lounge pads</option>`;
-  html += `</select></article>`;
-  html += `<div class="card"><div class="name">${currentName()}</div><div class="meta" style="margin:4px 0 8px">Active profile on this device</div><div class="saves">`;
-  html += `<select onchange="switchSave(this.value)">`;
+  let unlocks = `<div class="meta" style="margin:6px 0 8px">Nova Shop / rebirth purchases. Unlocked slots appear on Base in the right section.</div>`;
+  unlocks += `<label class="chk ${u.companion2?"on":""}" style="flex-direction:row;text-transform:none;letter-spacing:0;margin:6px 0"><input type="checkbox" ${u.companion2?"checked":""} onchange="setUnlock('companion2',this.checked)">Secondary companion</label>`;
+  unlocks += `<label class="chk ${u.chip?"on":""}" style="flex-direction:row;text-transform:none;letter-spacing:0;margin:6px 0"><input type="checkbox" ${u.chip?"checked":""} onchange="setUnlock('chip',this.checked)">Chip station</label>`;
+  unlocks += `<label class="chk ${u.build?"on":""}" style="flex-direction:row;text-transform:none;letter-spacing:0;margin:6px 0"><input type="checkbox" ${u.build?"checked":""} onchange="setUnlock('build',this.checked)">Build slots (3)</label>`;
+  unlocks += `<label class="chk ${state.decks.secondLab?"on":""}" style="flex-direction:row;text-transform:none;letter-spacing:0;margin:6px 0"><input type="checkbox" ${state.decks.secondLab?"checked":""} onchange="toggleSecondLab(this.checked)">Second fusion tank</label>`;
+  unlocks += `<div class="meta" style="margin:10px 0 6px">Extra lounge stations (Nova Shop) · ${9+Number(u.loungeExtra||0)}/13</div>`;
+  unlocks += `<select class="deck-field" onchange="setUnlock('loungeExtra',this.value)">`;
+  for (let n=0;n<=4;n++) unlocks += `<option value="${n}" ${Number(u.loungeExtra||0)===n?"selected":""}>${n} extra · ${9+n} lounge pads</option>`;
+  unlocks += `</select>`;
+  html += fold("unlocks","Base unlocks", unlocks);
+  let prof = `<div class="meta" style="margin:4px 0 8px">Active profile on this device</div><div class="saves">`;
+  prof += `<select onchange="switchSave(this.value)">`;
   Object.keys(bank.slots).forEach(id => {
     const s = bank.slots[id];
-    html += `<option value="${id}" ${id===bank.current?"selected":""}>${s.name}</option>`;
+    prof += `<option value="${id}" ${id===bank.current?"selected":""}>${s.name}</option>`;
   });
-  html += `</select></div><div class="act">`;
-  html += `<button onclick="newSave(true)">Save as new</button>`;
-  html += `<button onclick="newSave(false)">New blank</button>`;
-  html += `<button onclick="renameSave()">Rename</button>`;
-  html += `<button onclick="downloadSave()">Download file</button>`;
-  html += `<button onclick="document.getElementById('loadFile').click()">Load file</button>`;
-  html += `<button onclick="deleteSave()">Delete profile</button>`;
-  html += `</div></div>`;
+  prof += `</select></div><div class="act">`;
+  prof += `<button onclick="newSave(true)">Save as new</button>`;
+  prof += `<button onclick="newSave(false)">New blank</button>`;
+  prof += `<button onclick="renameSave()">Rename</button>`;
+  prof += `<button onclick="downloadSave()">Download file</button>`;
+  prof += `<button onclick="document.getElementById('loadFile').click()">Load file</button>`;
+  prof += `<button onclick="deleteSave()">Delete profile</button>`;
+  prof += `</div>`;
+  html += fold("profile", currentName(), prof);
   return html;
 }
+
 function switchSave(id){
   if (!bank.slots[id]) return;
   writeBank();
@@ -2962,11 +2968,10 @@ let FOAD_HISTORY = [
   {name:"Stellar Event", when:"Aug 15–16, 2026", windows:"New Stellar variant"},
   {name:"Droid Fusion weekend", when:"Aug 22–24, 2026", windows:"Fusion lab live"},
   {name:"D-O first run", when:"Aug 29, 2026", windows:"24h from Sat 4PM ET"},
-  {name:"Mega Crate Mini (Thu Sep 3)", when:"Sep 3, 2026", windows:"Morning 10AM–1PM ET + Evening 8–11PM ET · FOAD updated schedule"}
+  {name:"Mega Crate Mini (Thu Sep 3)", when:"Sep 3, 2026", windows:"Morning 10AM–1PM ET + Evening 8–11PM ET · FOAD updated schedule"},
+  {name:"D-O Event rerun", when:"Sep 5–6, 2026", windows:"24h from Sat 4PM ET · FOAD Sep 2"}
 ];
 let FOAD_EVENTS = [
-
-  {name:"D-O Event rerun", start:"2026-09-05T16:00:00-04:00", end:"2026-09-06T16:00:00-04:00", rewards:["D-O Iconic","D-O Base Paint","Nova Crystals"], bonuses:["2× credits","2× chips","2× flawless"], how:"24 hours · Sat 4PM ET / 1PM PT · announced by @FoadZone Sep 2"},
   {name:"Mega Crate Mini Event (morning)", start:"2026-09-10T10:00:00-04:00", end:"2026-09-10T13:00:00-04:00", rewards:["Chopper mega crate loot"], bonuses:["2× upgrade chips"], how:"Weekly Thursday morning · 10AM–1PM ET · FOAD Sep 3 post · Mega Crate every 15 min"},
   {name:"Mega Crate Mini Event (evening)", start:"2026-09-10T20:00:00-04:00", end:"2026-09-10T23:00:00-04:00", rewards:["Chopper mega crate loot"], bonuses:["2× upgrade chips"], how:"Weekly Thursday evening · 8PM–11PM ET · FOAD Sep 3 post · Mega Crate every 15 min"}
 ];
