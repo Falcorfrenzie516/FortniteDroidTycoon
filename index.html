@@ -1189,15 +1189,19 @@ function addIconicEntry(name, typ, ev, how){
   ICONICS.push([name, typ||"Worker", ev||"Event", how||"Limited event iconic"]);
   return true;
 }
+function canonName(name){
+  if (name==="AXL-POD") return "AXI-POD";
+  return name;
+}
 function applyRegistry(pack){
   if (!pack) return {added:[]};
   const added = [];
   (pack.droids||[]).forEach(d => {
-    const name=d.name||d[0], typ=d.type||d[1], rar=d.rarity||d[2];
-    if (addDroidEntry(name,typ,rar)) added.push(name+" ("+rar+")");
+    const name=canonName(d.name||d[0]), typ=d.type||d[1], rar=d.rarity||d[2];
+    if (name && addDroidEntry(name,typ,rar)) added.push(name+" ("+rar+")");
   });
   (pack.fusions||[]).forEach(d => {
-    const name=d.name||d[0];
+    const name=canonName(d.name||d[0]);
     if (addFusionEntry(name, d.rarity||d[1], d.type||d[2], d.recipe||d[3])) added.push(name+" (Fusion)");
   });
   (pack.iconics||[]).forEach(d => {
@@ -1207,11 +1211,21 @@ function applyRegistry(pack){
   if (pack.updated) state._regUpdated = pack.updated;
   return {added};
 }
+function dropAliasDupes(){
+  const kill = n => n==="AXL-POD";
+  if (typeof DROIDS!=="undefined") {
+    for (let i=DROIDS.length-1;i>=0;i--) if (kill(DROIDS[i][0])) DROIDS.splice(i,1);
+  }
+  if (typeof FUSIONS!=="undefined") {
+    for (let i=FUSIONS.length-1;i>=0;i--) if (kill(FUSIONS[i][0])) FUSIONS.splice(i,1);
+  }
+}
 function loadCachedRegistry(){
   try {
     const raw = localStorage.getItem(REG_KEY);
     if (raw) applyRegistry(JSON.parse(raw));
   } catch(e){}
+  dropAliasDupes();
 }
 async function scanRegistry(silent){
   let pack = null;
