@@ -231,6 +231,9 @@
   .floor.battle-wrap > summary { color:#fca5a5; }
   .floor.lounge { border-color:#fbbf24; }
   .floor.lounge > summary { color:#fcd34d; }
+  .zone.protocol { border:1px dashed #fbbf24; border-radius:12px; padding:8px; }
+  .zone.protocol .zone-h { color:#fcd34d; }
+  .pad.protocol, button.pad.protocol { border-color:#fbbf24; }
   .floor.companion { border-color:#cbd5e1; }
   .floor.companion > summary { color:#e2e8f0; }
   .floor.fuse { border-color:#facc15; }
@@ -1078,7 +1081,6 @@ let FLOORS = [
   {id:"firing", label:"Firing range", kind:"Battle", count:6},
   {id:"lounge", label:"Lounge · storage only", kind:"Lounge", count:13},
   {id:"companion", label:"Companion · buff only", kind:"Companion", count:2, group:"base"},
-  {id:"protocol", label:"Protocol stations", kind:"Protocol", count:6, group:"base"},
   {id:"chip", label:"Chip station", kind:"Lounge", count:0, group:"base"},
   {id:"build", label:"Build slots", kind:"Build", count:0},
   {id:"benchW", label:"Worker bench", kind:"Worker", count:1, group:"bench"},
@@ -1099,6 +1101,11 @@ function padList(){
       const n = i+1;
       const astroM = f.id==="astromech" && [1,4,5,6,9].includes(n);
       pads.push({id:f.id+i, kind:f.kind, floor:f.id, n, mission: astroM, zone: f.id==="worker" ? (n<=8?"carousel":"control") : (f.id==="astromech" ? (astroM?"mission":"deck") : "")});
+    }
+    if (f.id==="worker" || f.id==="astromech" || f.id==="battle"){
+      for (let j=0;j<2;j++){
+        pads.push({id:f.id+"p"+j, kind:"Protocol", floor:f.id, n:"P"+(j+1), mission:false, zone:"protocol"});
+      }
     }
   });
   return pads;
@@ -1456,7 +1463,7 @@ function renderDecks(){
   let parked = 0;
   visiblePads.forEach(p => { if (padSlot(deck,p.id) && padSlot(deck,p.id).name) parked++; });
   const visTotal = visiblePads.length;
-  let html = `<div class="hint">Hard caps: 11 worker · 9 astromech · 11 battle (5 + 6 firing range) · 13 lounge · 2 companion. Fusion lab is 3 pads + 1 chamber; a second tank (300 Nova / 1,800 V-Bucks) unlocks another 3+1. Lounge, companions, fusion, and chamber do not earn credits/s. Lounge + fusion/chamber still count for rebirths. Green = matching type +10%. Neon blue pad = ready for an upcoming rebirth. Orange pad = needed name, variant too low.</div>`;
+  let html = `<div class="hint">Hard caps: 11 worker + 2 protocol · 9 astromech + 2 protocol · 5 battle + 6 range + 2 protocol · 13 lounge · 2 companion. Fusion lab is 3 pads + 1 chamber; a second tank (300 Nova / 1,800 V-Bucks) unlocks another 3+1. Lounge, companions, fusion, and chamber do not earn credits/s. Lounge + fusion/chamber still count for rebirths. Green = matching type +10%. Neon blue pad = ready for an upcoming rebirth. Orange pad = needed name, variant too low.</div>`;
   html += `<div class="meta" style="margin:0 0 8px">Active base: <b>${esc(deck.name||"Base")}</b> · switch bases on Profiles</div>`;
   const icons = iconicBoost(deck);
   const rate = fmtRate(deckCps(deck));
@@ -1502,7 +1509,11 @@ function renderDecks(){
         group.forEach(p => html += padButton(p,deck));
         html += `</div></div>`;
       });
-      html += `</div></details>`;
+      const proto = slice.filter(p=>p.zone==="protocol");
+      const pu = proto.filter(p => padSlot(deck,p.id)&&padSlot(deck,p.id).name).length;
+      html += `<div class="zone protocol"><div class="zone-h">Protocol (${pu}/2)</div><div class="pads">`;
+      proto.forEach(p => html += padButton(p,deck));
+      html += `</div></div></div></details>`;
       return;
     }
     if (f.id==="firing") return;
@@ -1514,6 +1525,11 @@ function renderDecks(){
       slice.forEach(p => html += padButton(p,deck));
       html += `</div></div><div class="zone firing-zone"><div class="zone-h">Firing Range (${fu}/6)</div><div class="pads">`;
       fire.forEach(p => html += padButton(p,deck));
+      html += `</div></div>`;
+      const proto = slice.filter(p=>p.zone==="protocol");
+      const pu = proto.filter(p => padSlot(deck,p.id)&&padSlot(deck,p.id).name).length;
+      html += `<div class="zone protocol"><div class="zone-h">Protocol (${pu}/2)</div><div class="pads">`;
+      proto.forEach(p => html += padButton(p,deck));
       html += `</div></div></details>`;
       return;
     }
@@ -1549,7 +1565,7 @@ function padButton(p, deck){
   const mission = p.mission ? "mission" : "";
   const drag = `onpointerdown="padGrab(event,'${p.id}')" onpointerup="padRelease(event,'${p.id}')" ondragover="event.preventDefault()" ondrop="swapPads('${p.id}')"`;
   if (s && s.name){
-    const typed = p.kind==="Worker"||p.kind==="Astromech"||p.kind==="Battle";
+    const typed = p.kind==="Worker"||p.kind==="Astromech"||p.kind==="Battle"||p.kind==="Protocol";
     const match = typed && classOf(s.name)===p.kind;
     const tone = p.mission ? "mission" : (p.kind==="Companion"||p.floor==="chip" ? "companion" : (!typed ? "lounge" : (match ? "match" : "offtype")));
     const lab = p.mission ? ("M"+p.n+" "+(isIconic(s.name)?"★ ":"")+s.name) : p.floor==="companion" ? ((p.n===1?"Main ":"Sec ")+(isIconic(s.name)?"★ ":"")+s.name) : (isIconic(s.name)?"★ "+s.name:s.name);
