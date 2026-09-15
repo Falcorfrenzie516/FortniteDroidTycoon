@@ -246,6 +246,7 @@
   .worker-split, .astro-split, .bench-split { display:flex; flex-wrap:wrap; gap:8px; align-items:stretch; }
   .worker-split .zone.carousel { flex:1 1 260px; }
   .worker-split .zone.control { flex:1 1 180px; }
+  .worker-split .zone.protocol, .astro-split .zone.protocol { flex:1 1 100%; }
   .astro-split .zone { flex:1 1 110px; }
   .bench-split .zone { flex:1 1 160px; }
   .zone { border:2px dashed currentColor; border-radius:16px; padding:10px 8px 8px; background:rgba(8,6,18,.35); }
@@ -752,7 +753,7 @@ function creditBoostNow(){
 let ICONICS = [
   ["BB-8","Astromech","BB-8 Event","Log in / finish the BB-8 event track"],
   ["R2-D2","Astromech","R2-D2 Event","Collect Data Chips during the event"],
-  ["C-3PO","Worker","C-3PO Event","Collect Scrap Points during the event"],
+  ["C-3PO","Protocol","C-3PO Event","Collect Scrap Points during the event"],
   ["DJ R-3X","Worker","DJ R-3X Event","Contribute to parties during the DJ event"],
   ["CB-23","Astromech","Event","Event-locked iconic"],
   ["Chopper","Astromech","Chopper Event","Collect Junk Points during the event"],
@@ -1489,6 +1490,11 @@ function renderDecks(){
       car.forEach(p => html += padButton(p,deck));
       html += `</div></div><div class="zone control"><div class="zone-h">Control Room (${tu}/3)</div><div class="pads">`;
       ctrl.forEach(p => html += padButton(p,deck));
+      html += `</div></div>`;
+      const protoW = slice.filter(x=>x.zone==="protocol");
+      const puW = protoW.filter(x => padSlot(deck,x.id)&&padSlot(deck,x.id).name).length;
+      html += `<div class="zone protocol"><div class="zone-h">Protocol (${puW}/2)</div><div class="pads">`;
+      protoW.forEach(x => html += padButton(x,deck));
       html += `</div></div></div></details>`;
       return;
     }
