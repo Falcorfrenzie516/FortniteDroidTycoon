@@ -520,7 +520,7 @@
     },
     {
       "name": "C-3PO",
-      "type": "Worker",
+      "type": "Protocol",
       "event": "C-3PO Event",
       "how": "Collect Scrap Points during the event"
     },
