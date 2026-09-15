@@ -246,7 +246,9 @@
   .worker-split, .astro-split, .bench-split { display:flex; flex-wrap:wrap; gap:8px; align-items:stretch; }
   .worker-split .zone.carousel { flex:1 1 260px; }
   .worker-split .zone.control { flex:1 1 180px; }
-  .worker-split .zone.protocol, .astro-split .zone.protocol { flex:1 1 100%; }
+  .worker-split .zone.protocol, .astro-split .zone.protocol,
+  .worker-split .zone.bench, .astro-split .zone.bench { flex:1 1 100%; }
+  .zone.bench .zone-h { color:#67e8f9; }
   .astro-split .zone { flex:1 1 110px; }
   .bench-split .zone { flex:1 1 160px; }
   .zone { border:2px dashed currentColor; border-radius:16px; padding:10px 8px 8px; background:rgba(8,6,18,.35); }
@@ -1479,7 +1481,8 @@ function renderDecks(){
   html += `<div class="vars" style="grid-template-columns:1fr;margin-top:10px"><label class="chk ${deck.bonus!==false?"on":""}" style="flex-direction:row;text-transform:none;letter-spacing:0"><input type="checkbox" ${deck.bonus!==false?"checked":""} onchange="setDeckField('bonus',this.checked)">Collection bonus (+${collectionBonus()}%)</label></div></article></details>`;
   FLOORS.filter(f => f.group!=="fusion" && f.group!=="bench" && f.count>0 && f.id!=="chip").forEach(f => {
     const slice = PADS.filter(p=>p.floor===f.id);
-    const used = slice.filter(p => padSlot(deck,p.id) && padSlot(deck,p.id).name).length;
+    const main = slice.filter(p=>p.zone!=="protocol");
+    const used = main.filter(p => padSlot(deck,p.id) && padSlot(deck,p.id).name).length;
     if (f.id==="worker"){
       const car = slice.filter(p=>p.zone==="carousel");
       const ctrl = slice.filter(p=>p.zone==="control");
@@ -1495,6 +1498,11 @@ function renderDecks(){
       const puW = protoW.filter(x => padSlot(deck,x.id)&&padSlot(deck,x.id).name).length;
       html += `<div class="zone protocol"><div class="zone-h">Protocol (${puW}/2)</div><div class="pads">`;
       protoW.forEach(x => html += padButton(x,deck));
+      html += `</div></div>`;
+      const bPadsW = PADS.filter(p=>p.floor==="benchW");
+      const bUsedW = bPadsW.filter(p => padSlot(deck,p.id)&&padSlot(deck,p.id).name).length;
+      html += `<div class="zone bench"><div class="zone-h">Worker bench (${bUsedW}/1)</div><div class="pads">`;
+      bPadsW.forEach(p => html += padButton(p,deck));
       html += `</div></div></div></details>`;
       return;
     }
@@ -1519,6 +1527,11 @@ function renderDecks(){
       const pu = proto.filter(p => padSlot(deck,p.id)&&padSlot(deck,p.id).name).length;
       html += `<div class="zone protocol"><div class="zone-h">Protocol (${pu}/2)</div><div class="pads">`;
       proto.forEach(p => html += padButton(p,deck));
+      html += `</div></div>`;
+      const bPadsA = PADS.filter(p=>p.floor==="benchA");
+      const bUsedA = bPadsA.filter(p => padSlot(deck,p.id)&&padSlot(deck,p.id).name).length;
+      html += `<div class="zone bench"><div class="zone-h">Astromech bench (${bUsedA}/1)</div><div class="pads">`;
+      bPadsA.forEach(p => html += padButton(p,deck));
       html += `</div></div></div></details>`;
       return;
     }
@@ -1528,7 +1541,7 @@ function renderDecks(){
       const bu = used;
       const fu = fire.filter(p => padSlot(deck,p.id)&&padSlot(deck,p.id).name).length;
       html += `<details class="floor battle-wrap" ${floorOpen("battle",true)?"open":""} ontoggle="toggleFloor('battle',this.open)"><summary>Battle deck · ${bu}/5 · Range ${fu}/6</summary><div class="zone battle-zone"><div class="pads">`;
-      slice.forEach(p => html += padButton(p,deck));
+      main.forEach(p => html += padButton(p,deck));
       html += `</div></div><div class="zone firing-zone"><div class="zone-h">Firing Range (${fu}/6)</div><div class="pads">`;
       fire.forEach(p => html += padButton(p,deck));
       html += `</div></div>`;
@@ -1536,6 +1549,11 @@ function renderDecks(){
       const pu = proto.filter(p => padSlot(deck,p.id)&&padSlot(deck,p.id).name).length;
       html += `<div class="zone protocol"><div class="zone-h">Protocol (${pu}/2)</div><div class="pads">`;
       proto.forEach(p => html += padButton(p,deck));
+      html += `</div></div>`;
+      const bPadsB = PADS.filter(p=>p.floor==="benchB");
+      const bUsedB = bPadsB.filter(p => padSlot(deck,p.id)&&padSlot(deck,p.id).name).length;
+      html += `<div class="zone bench"><div class="zone-h">Battle bench (${bUsedB}/1)</div><div class="pads">`;
+      bPadsB.forEach(p => html += padButton(p,deck));
       html += `</div></div></details>`;
       return;
     }
@@ -1554,15 +1572,6 @@ function renderDecks(){
   });
   const benches = PADS.filter(p=>p.floor==="benchW"||p.floor==="benchA"||p.floor==="benchB");
   const bu = benches.filter(p => padSlot(deck,p.id)&&padSlot(deck,p.id).name).length;
-  html += `<details class="floor benches" ${floorOpen("benches",false)?"open":""} ontoggle="toggleFloor('benches',this.open)"><summary>Benches · ${bu}/3</summary><div class="bench-split">`;
-  [["benchW","Worker bench","worker"],["benchA","Astromech bench","astromech"],["benchB","Battle bench","battle"]].forEach(([id,lab,theme]) => {
-    const group = PADS.filter(p=>p.floor===id);
-    const gu = group.filter(p => padSlot(deck,p.id)&&padSlot(deck,p.id).name).length;
-    html += `<div class="zone ${theme}"><div class="zone-h">${lab} (${gu}/1)</div><div class="pads">`;
-    group.forEach(p => html += padButton(p,deck));
-    html += `</div></div>`;
-  });
-  html += `</div></details>`;
   html += renderFusionLabs(deck);
   return html;
 }
