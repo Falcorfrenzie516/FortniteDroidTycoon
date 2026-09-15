@@ -1,5 +1,5 @@
 {
-  "updated": "2026-09-15T07:10:00-04:00",
+  "updated": "2026-09-15T08:20:00-04:00",
   "source": "FOAD / community announcements",
   "upcoming": [
     {
@@ -11,11 +11,11 @@
         "SA-5 / LOM / PZ / TDA blueprints"
       ],
       "bonuses": [
-        "2\u00d7 pickaxe",
-        "2\u00d7 crafting speed",
-        "2\u00d7 credits"
+        "2× pickaxe",
+        "2× crafting speed",
+        "2× credits"
       ],
-      "how": "v1.30.2 FOAD Sep 15 \u00b7 Variant Weekend moved to Sep 26"
+      "how": "v1.30.2 FOAD Sep 15 · Variant Weekend moved to Sep 26"
     },
     {
       "name": "New Variant Weekend",
@@ -25,7 +25,7 @@
         "New variant blueprints"
       ],
       "bonuses": [],
-      "how": "v1.30.2 \u00b7 Saturday Sep 26 4:00 PM EST"
+      "how": "v1.30.2 · Saturday Sep 26 4:00 PM EST"
     },
     {
       "name": "Mega Crate Mini Event (morning)",
@@ -35,9 +35,9 @@
         "Chopper mega crate loot"
       ],
       "bonuses": [
-        "2\u00d7 upgrade chips"
+        "2× upgrade chips"
       ],
-      "how": "Weekly Thursday morning \u00b7 10AM\u20131PM ET \u00b7 FOAD Sep 3 post \u00b7 Mega Crate every 15 min"
+      "how": "Weekly Thursday morning · 10AM–1PM ET · FOAD Sep 3 post · Mega Crate every 15 min"
     },
     {
       "name": "Mega Crate Mini Event (evening)",
@@ -47,9 +47,9 @@
         "Chopper mega crate loot"
       ],
       "bonuses": [
-        "2\u00d7 upgrade chips"
+        "2× upgrade chips"
       ],
-      "how": "Weekly Thursday evening \u00b7 8PM\u201311PM ET \u00b7 FOAD Sep 3 post \u00b7 Mega Crate every 15 min"
+      "how": "Weekly Thursday evening · 8PM–11PM ET · FOAD Sep 3 post · Mega Crate every 15 min"
     }
   ],
   "recurring": [
@@ -62,9 +62,9 @@
         "Chopper mega crate loot"
       ],
       "bonuses": [
-        "2\u00d7 upgrade chips"
+        "2× upgrade chips"
       ],
-      "how": "Weekly Thursday morning \u00b7 FOAD Sep 3 \u00b7 10AM\u20131PM ET \u00b7 crates every 15 min"
+      "how": "Weekly Thursday morning · FOAD Sep 3 · 10AM–1PM ET · crates every 15 min"
     },
     {
       "name": "Mega Crate Mini Event (evening)",
@@ -75,9 +75,9 @@
         "Chopper mega crate loot"
       ],
       "bonuses": [
-        "2\u00d7 upgrade chips"
+        "2× upgrade chips"
       ],
-      "how": "Weekly Thursday evening \u00b7 FOAD Sep 3 \u00b7 8PM\u201311PM ET \u00b7 crates every 15 min"
+      "how": "Weekly Thursday evening · FOAD Sep 3 · 8PM–11PM ET · crates every 15 min"
     },
     {
       "name": "Dance Party Mini Event",
@@ -86,7 +86,7 @@
       "durationHours": 3,
       "rewards": [],
       "bonuses": [],
-      "how": "Every Tuesday morning \u00b7 Sandcrawler \u00b7 FOAD Aug 17 \u00b7 8AM\u201311AM ET \u00b7 still active Sep 2026"
+      "how": "Every Tuesday morning · Sandcrawler · FOAD Aug 17 · 8AM–11AM ET · still active Sep 2026"
     },
     {
       "name": "Dance Party Mini Event",
@@ -95,63 +95,63 @@
       "durationHours": 3,
       "rewards": [],
       "bonuses": [],
-      "how": "Every Tuesday evening \u00b7 Sandcrawler \u00b7 FOAD Aug 17 \u00b7 8PM\u201311PM ET \u00b7 still active Sep 2026"
+      "how": "Every Tuesday evening · Sandcrawler · FOAD Aug 17 · 8PM–11PM ET · still active Sep 2026"
     }
   ],
   "history": [
     {
       "name": "BB-8 Weekend",
-      "when": "May 9\u201310, 2026",
+      "when": "May 9–10, 2026",
       "windows": "First iconic weekend"
     },
     {
       "name": "Mister Bones",
-      "when": "May 16\u201317, 2026",
+      "when": "May 16–17, 2026",
       "windows": "24h world window"
     },
     {
       "name": "Mandalorian / IG-11 Marshal",
-      "when": "May 23\u201324, 2026",
-      "windows": "Sat 10AM\u20134PM ET \u00b7 Sun 4PM\u201310PM ET"
+      "when": "May 23–24, 2026",
+      "windows": "Sat 10AM–4PM ET · Sun 4PM–10PM ET"
     },
     {
       "name": "Beskar Event",
-      "when": "May 30\u201331, 2026",
-      "windows": "Rerun Jun 3\u20134"
+      "when": "May 30–31, 2026",
+      "windows": "Rerun Jun 3–4"
     },
     {
       "name": "DJ R-3X",
-      "when": "Jun 13\u201314, 2026",
-      "windows": "Rerun Jun 20\u201321"
+      "when": "Jun 13–14, 2026",
+      "windows": "Rerun Jun 20–21"
     },
     {
       "name": "R2-D2",
-      "when": "Jun 27\u201328, 2026",
-      "windows": "Rerun Jul 4\u20135"
+      "when": "Jun 27–28, 2026",
+      "windows": "Rerun Jul 4–5"
     },
     {
       "name": "C-3PO",
-      "when": "Jul 11\u201312, 2026",
-      "windows": "Rerun Jul 18\u201319"
+      "when": "Jul 11–12, 2026",
+      "windows": "Rerun Jul 18–19"
     },
     {
       "name": "Galactic Event",
-      "when": "Jul 25\u201326, 2026",
+      "when": "Jul 25–26, 2026",
       "windows": "24h Galactic weekend"
     },
     {
       "name": "Chopper",
-      "when": "Aug 1\u20132, 2026",
-      "windows": "Rerun Aug 8\u20139"
+      "when": "Aug 1–2, 2026",
+      "windows": "Rerun Aug 8–9"
     },
     {
       "name": "Stellar Event",
-      "when": "Aug 15\u201316, 2026",
+      "when": "Aug 15–16, 2026",
       "windows": "New Stellar variant"
     },
     {
       "name": "Droid Fusion weekend",
-      "when": "Aug 22\u201324, 2026",
+      "when": "Aug 22–24, 2026",
       "windows": "Fusion lab live"
     },
     {
@@ -162,22 +162,22 @@
     {
       "name": "Mega Crate Mini (Thu Sep 3)",
       "when": "Sep 3, 2026",
-      "windows": "Morning 10AM\u20131PM ET + Evening 8\u201311PM ET \u00b7 FOAD updated schedule"
+      "windows": "Morning 10AM–1PM ET + Evening 8–11PM ET · FOAD updated schedule"
     },
     {
       "name": "D-O Event rerun",
-      "when": "Sep 5\u20136, 2026",
-      "windows": "24h from Sat 4PM ET \u00b7 FOAD Sep 2"
+      "when": "Sep 5–6, 2026",
+      "windows": "24h from Sat 4PM ET · FOAD Sep 2"
     },
     {
       "name": "Mega Crate Mini (Thu Sep 10)",
       "when": "Sep 10, 2026",
-      "windows": "Morning 10AM\u20131PM ET + Evening 8\u201311PM ET \u00b7 FOAD Sep 3 schedule"
+      "windows": "Morning 10AM–1PM ET + Evening 8–11PM ET · FOAD Sep 3 schedule"
     },
     {
       "name": "Protocol Droid Event",
-      "when": "Sep 12\u201314, 2026",
-      "windows": "Sat 4PM ET\u2013Mon 3AM ET \u00b7 +11h FOAD extension (timer bug) \u00b7 World Mission revamp \u00b7 Protocol Droids"
+      "when": "Sep 12–14, 2026",
+      "windows": "Sat 4PM ET–Mon 3AM ET · +11h FOAD extension (timer bug) · World Mission revamp · Protocol Droids"
     }
   ]
 }

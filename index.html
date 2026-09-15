@@ -250,6 +250,30 @@
   .worker-split .zone.bench, .astro-split .zone.bench { flex:1 1 100%; }
   .zone.bench .zone-h { color:#67e8f9; }
   .astro-split .zone { flex:1 1 110px; }
+  .astro-board {
+    display:grid;
+    grid-template-columns: minmax(240px,1.4fr) minmax(160px,1fr);
+    grid-template-areas:
+      "stations mission1"
+      "deck23 mission456"
+      "mission9 deck78";
+    gap:10px;
+    align-items:stretch;
+  }
+  .astro-board .zone.stations { grid-area:stations; }
+  .astro-board .zone.a-m1 { grid-area:mission1; }
+  .astro-board .zone.a-d23 { grid-area:deck23; }
+  .astro-board .zone.a-m456 { grid-area:mission456; }
+  .astro-board .zone.a-m9 { grid-area:mission9; }
+  .astro-board .zone.a-d78 { grid-area:deck78; }
+  @media (max-width:720px){
+    .astro-board { grid-template-columns:1fr; grid-template-areas:"stations" "mission1" "deck23" "mission456" "mission9" "deck78"; }
+  }
+  .station-row { display:flex; gap:8px; justify-content:space-around; align-items:flex-end; flex-wrap:wrap; }
+  .station { display:flex; flex-direction:column; align-items:center; min-width:72px; }
+  .zone-h.gold { color:#fbbf24; text-align:center; line-height:1.15; text-transform:uppercase; font-size:11px; }
+  .zone-h.gold span { color:#f59e0b; }
+  .zone-h.cyan { color:#67e8f9; text-align:center; text-transform:uppercase; font-size:12px; padding-top:18px; }
   .bench-split .zone { flex:1 1 160px; }
   .zone { border:2px dashed currentColor; border-radius:16px; padding:10px 8px 8px; background:rgba(8,6,18,.35); }
   .zone-h { font-size:clamp(9px,1.4vw,11px); letter-spacing:.14em; text-transform:uppercase; color:inherit; margin:0 0 8px; font-family:Orbitron,sans-serif; }
@@ -1507,32 +1531,33 @@ function renderDecks(){
       return;
     }
     if (f.id==="astromech"){
-      const groups = [
-        {title:"Mission", ids:[1]},
-        {title:"Deck", ids:[2,3]},
-        {title:"Mission", ids:[4,5,6]},
-        {title:"Deck", ids:[7,8]},
-        {title:"Mission", ids:[9]}
-      ];
-      html += `<details class="floor astromech" ${floorOpen("astromech",true)?"open":""} ontoggle="toggleFloor('astromech',this.open)"><summary>Astromech deck · ${used}/${f.count}</summary><div class="astro-split">`;
-      groups.forEach(g => {
-        const group = slice.filter(p=>g.ids.includes(p.n));
-        const gu = group.filter(p => padSlot(deck,p.id)&&padSlot(deck,p.id).name).length;
-        const mission = g.title==="Mission";
-        html += `<div class="zone ${mission?"mission":"deck"}"><div class="zone-h">${g.title} (${gu}/${g.ids.length})${mission?" · no credits/s":""}</div><div class="pads">`;
-        group.forEach(p => html += padButton(p,deck));
-        html += `</div></div>`;
-      });
+      const zoneBox = (title, extra, cls, pads) => {
+        const gu = pads.filter(p => padSlot(deck,p.id)&&padSlot(deck,p.id).name).length;
+        let h = `<div class="zone ${cls}"><div class="zone-h">${title} (${gu}/${pads.length})${extra||""}</div><div class="pads">`;
+        pads.forEach(p => h += padButton(p,deck));
+        return h + `</div></div>`;
+      };
       const proto = slice.filter(p=>p.zone==="protocol");
-      const pu = proto.filter(p => padSlot(deck,p.id)&&padSlot(deck,p.id).name).length;
-      html += `<div class="zone protocol"><div class="zone-h">Protocol (${pu}/2)</div><div class="pads">`;
-      proto.forEach(p => html += padButton(p,deck));
+      const speed = proto[0] ? [proto[0]] : [];
+      const multi = proto[1] ? [proto[1]] : proto.slice(1);
+      const bench = PADS.filter(p=>p.floor==="benchA");
+      html += `<details class="floor astromech" ${floorOpen("astromech",true)?"open":""} ontoggle="toggleFloor('astromech',this.open)"><summary>Astromech deck · ${used}/${f.count}</summary><div class="astro-board">`;
+      html += `<div class="zone stations"><div class="station-row">`;
+      html += `<div class="station"><div class="zone-h gold">Production<br>Speed<br><span>Protocol</span></div><div class="pads">`;
+      speed.forEach(p => html += padButton(p,deck));
       html += `</div></div>`;
-      const bPadsA = PADS.filter(p=>p.floor==="benchA");
-      const bUsedA = bPadsA.filter(p => padSlot(deck,p.id)&&padSlot(deck,p.id).name).length;
-      html += `<div class="zone bench"><div class="zone-h">Astromech bench (${bUsedA}/1)</div><div class="pads">`;
-      bPadsA.forEach(p => html += padButton(p,deck));
-      html += `</div></div></div></details>`;
+      html += `<div class="station"><div class="zone-h cyan">Bench</div><div class="pads">`;
+      bench.forEach(p => html += padButton(p,deck));
+      html += `</div></div>`;
+      html += `<div class="station"><div class="zone-h gold">Credit<br>Multiplier<br><span>Protocol</span></div><div class="pads">`;
+      multi.forEach(p => html += padButton(p,deck));
+      html += `</div></div></div></div>`;
+      html += zoneBox("Mission"," · no credits/s","mission a-m1", slice.filter(p=>p.n===1));
+      html += zoneBox("Deck","","deck a-d23", slice.filter(p=>[2,3].includes(p.n)));
+      html += zoneBox("Mission"," · no credits/s","mission a-m456", slice.filter(p=>[4,5,6].includes(p.n)));
+      html += zoneBox("Mission"," · no credits/s","mission a-m9", slice.filter(p=>p.n===9));
+      html += zoneBox("Deck","","deck a-d78", slice.filter(p=>[7,8].includes(p.n)));
+      html += `</div></details>`;
       return;
     }
     if (f.id==="firing") return;
@@ -3027,8 +3052,8 @@ let FOAD_HISTORY = [
   {name:"Protocol Droid Event", when:"Sep 12–14, 2026", windows:"Sat 4PM ET–Mon 3AM ET · +11h FOAD extension (timer bug) · World Mission revamp · Protocol Droids"}
 ];
 let FOAD_EVENTS = [
-  {name:"Protocol / World Mission Event rerun", start:"2026-09-19T16:00:00-04:00", end:"2026-09-20T16:00:00-04:00", rewards:["Protocol crates","SA-5 / LOM / PZ / TDA blueprints"], bonuses:["2× pickaxe","2× crafting speed","2× credits"], how:"v1.30.2 · New Variant Weekend pushed to Sep 26 · Protocol + World Missions rerun this weekend"},
-  {name:"New Variant Weekend", start:"2026-09-26T16:00:00-04:00", end:"2026-09-27T16:00:00-04:00", rewards:["New variant blueprints","Nova crystals for crafts"], bonuses:[], how:"v1.30.2 · Saturday Sep 26 4:00 PM EST"},
+  {name:"Protocol / World Mission Event rerun", start:"2026-09-19T16:00:00-04:00", end:"2026-09-20T16:00:00-04:00", rewards:["Protocol crates","SA-5 / LOM / PZ / TDA blueprints"], bonuses:["2× pickaxe","2× crafting speed","2× credits"], how:"v1.30.2 FOAD Sep 15 · Variant Weekend moved to Sep 26"},
+  {name:"New Variant Weekend", start:"2026-09-26T16:00:00-04:00", end:"2026-09-27T16:00:00-04:00", rewards:["New variant blueprints"], bonuses:[], how:"v1.30.2 · Saturday Sep 26 4:00 PM EST"},
   {name:"Mega Crate Mini Event (morning)", start:"2026-09-17T10:00:00-04:00", end:"2026-09-17T13:00:00-04:00", rewards:["Chopper mega crate loot"], bonuses:["2× upgrade chips"], how:"Weekly Thursday morning · 10AM–1PM ET · FOAD Sep 3 post · Mega Crate every 15 min"},
   {name:"Mega Crate Mini Event (evening)", start:"2026-09-17T20:00:00-04:00", end:"2026-09-17T23:00:00-04:00", rewards:["Chopper mega crate loot"], bonuses:["2× upgrade chips"], how:"Weekly Thursday evening · 8PM–11PM ET · FOAD Sep 3 post · Mega Crate every 15 min"}
 ];
