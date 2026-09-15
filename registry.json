@@ -1,5 +1,5 @@
 {
-  "updated": "2026-09-03T06:58:00-04:00",
+  "updated": "2026-09-13T07:10:00-04:00",
   "source": "Companion registry \u00b7 FOAD / wiki scans",
   "droids": [
     {
@@ -310,6 +310,26 @@
     {
       "name": "IG",
       "type": "Battle",
+      "rarity": "Mythic"
+    },
+    {
+      "name": "SA-5",
+      "type": "Protocol",
+      "rarity": "Rare"
+    },
+    {
+      "name": "LOM",
+      "type": "Protocol",
+      "rarity": "Epic"
+    },
+    {
+      "name": "PZ",
+      "type": "Protocol",
+      "rarity": "Legendary"
+    },
+    {
+      "name": "TDA",
+      "type": "Protocol",
       "rarity": "Mythic"
     }
   ],

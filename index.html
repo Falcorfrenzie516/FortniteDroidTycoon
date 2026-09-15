@@ -160,7 +160,7 @@
   }
   .tabs { display:flex; flex-direction:column; gap:4px; margin-top:10px; }
   .tabrow { display:grid; gap:4px; }
-  .tabrow.row1 { grid-template-columns:repeat(4,1fr); }
+  .tabrow.row1 { grid-template-columns:repeat(5,1fr); }
   .tabrow.row2 { grid-template-columns:repeat(4,1fr); }
   .tabs button { position:relative; overflow:hidden; background:rgba(12,10,24,.78); border:1px solid var(--line); border-radius:14px; color:var(--muted); padding:9px 2px; font-size:10px; font-weight:700; font-family:Orbitron,sans-serif; letter-spacing:.08em; text-transform:uppercase; }
   .tabs button .fill { position:absolute; left:0; top:0; bottom:0; width:0; opacity:.42; pointer-events:none; transition:width .25s ease; }
@@ -364,9 +364,13 @@
   .mini-tile.t-worker { border-color:#2dd4bf; }
   .mini-tile.t-astromech { border-color:#c084fc; }
   .mini-tile.t-battle { border-color:#f87171; }
+  .mini-tile.t-protocol { border-color:#fbbf24; }
+  .card.t-protocol, article.card.t-protocol { border-color:#fbbf24; }
+  .meta.Protocol, .mini-meta.Protocol { color:#fcd34d; }
   .mini-tile.t-worker .mini-meta { color:#5eead4; }
   .mini-tile.t-astromech .mini-meta { color:#d8b4fe; }
   .mini-tile.t-battle .mini-meta { color:#fca5a5; }
+  .mini-tile.t-protocol .mini-meta { color:#fcd34d; }
   .mini-tile.picked { outline:2px solid #2dd4bf; box-shadow:0 0 12px rgba(45,212,191,.45); }
   .mini-tile.dim { opacity:.4; }
   .fuse-slot { display:flex; gap:8px; align-items:center; margin:0 0 8px; }
@@ -593,6 +597,7 @@
       <option value="Worker">Worker</option>
       <option value="Astromech">Astromech</option>
       <option value="Battle">Battle</option>
+      <option value="Protocol">Protocol</option>
     </select>
     <select id="savePick" title="Switch profile" onchange="switchSave(this.value)"></select>
   </div>
@@ -625,7 +630,7 @@ let DROIDS = [
   ["BDX Explorer","Worker","Rare"],["ARG","Worker","Rare"],["Senate Hovercam","Worker","Rare"],["BU-4D","Worker","Rare"],
   ["Bal-Core","Worker","Rare"],["ROLL-R","Worker","Rare"],["2BB","Astromech","Rare"],["A-LT","Astromech","Rare"],
   ["R4","Astromech","Rare"],["R9","Astromech","Rare"],["B1 Security","Battle","Rare"],["NAV-EX","Battle","Rare"],
-  ["VECT-Arm","Battle","Rare"],["HOV-R","Battle","Rare"],
+  ["VECT-Arm","Battle","Rare"],["HOV-R","Battle","Rare"],["SA-5","Protocol","Rare"],["LOM","Protocol","Epic"],["PZ","Protocol","Legendary"],["TDA","Protocol","Mythic"],
   ["Groundmech","Worker","Epic"],["LO","Worker","Epic"],["AMP Walker","Worker","Epic"],["SEN-TRI","Worker","Epic"],
   ["Opti-Pod","Worker","Epic"],["Gunrunner","Worker","Epic"],["BB","Astromech","Epic"],["R2","Astromech","Epic"],
   ["R6","Astromech","Epic"],["TRAK-R","Astromech","Epic"],["ORB-Walker","Astromech","Epic"],["Util-Tec","Astromech","Epic"],
@@ -770,6 +775,8 @@ const COSMETICS = [
   ["Base paint","Stellar","Craft 30 unique Stellar droids","30 Stellar names"],
   ["Base paint","Super Stellar","Craft 60 unique Stellar droids","60 Stellar names"],
   ["Base paint","Fusion Paint","Discover all 17 fusion droids","17 fusion names"],
+  ["Base paint","Protocol Paint","v1.30 Protocol update","Patch"],
+  ["Base paint","World Mission Paint","v1.30 World Mission revamp","Patch"],
   ["Base paint","Ringmaster paints","Race the world ring courses","Wide rings, then thin rings"],
   ["Aura","Flawless aura","Roll a Flawless of that droid name","Permanent for that name"],
   ["Hat","World crate hats","Open white crates around Tatooine","RNG"],
@@ -1071,6 +1078,7 @@ let FLOORS = [
   {id:"firing", label:"Firing range", kind:"Battle", count:6},
   {id:"lounge", label:"Lounge · storage only", kind:"Lounge", count:13},
   {id:"companion", label:"Companion · buff only", kind:"Companion", count:2, group:"base"},
+  {id:"protocol", label:"Protocol stations", kind:"Protocol", count:6, group:"base"},
   {id:"chip", label:"Chip station", kind:"Lounge", count:0, group:"base"},
   {id:"build", label:"Build slots", kind:"Build", count:0},
   {id:"benchW", label:"Worker bench", kind:"Worker", count:1, group:"bench"},
@@ -1082,7 +1090,7 @@ let FLOORS = [
   {id:"chamber2", label:"Chamber", kind:"Chamber", count:1, group:"fusion", lab:2}
 ];
 const PAD_TAG = {worker:"W",astromech:"A",battle:"B",firing:"F",lounge:"L",companion:"C",chip:"CH",build:"BL",fuse1:"1-",chamber1:"C1-",fuse2:"2-",chamber2:"C2-"};
-const EARN_KINDS = {Worker:1,Astromech:1,Battle:1};
+const EARN_KINDS = {Worker:1,Astromech:1,Battle:1,Protocol:1};
 const PAD_TOTAL = FLOORS.reduce((a,f)=>a+f.count,0);
 function padList(){
   const pads = [];
@@ -1385,7 +1393,7 @@ function choosePadName(n){
   const lab = document.getElementById("padChosen");
   if (lab) lab.innerHTML = n ? ("Selected: "+n+rarityMark(rarityOf(n))+(isIconic(n)?" · iconic +15%":" · "+classOf(n))) : "No droid selected";
   const kind = n ? classOf(n) : "";
-  ["Worker","Astromech","Battle"].forEach(k => {
+  ["Worker","Astromech","Battle","Protocol"].forEach(k => {
     const sel = document.getElementById("pick-"+k);
     if (sel) sel.value = (k===kind ? n : "");
   });
@@ -1411,7 +1419,7 @@ function openPad(id){
   let html = `<div class="sheet"><h2>${pad.kind} ${pad.n}</h2><p>Pick from one type list. Matching type gets +10%.</p>`;
   html += `<input id="padName" type="hidden" value="${esc(cur.name||"")}">`;
   html += `<div id="padChosen" class="meta">${cur.name?("Selected: "+cur.name):"No droid selected"}</div>`;
-  ["Worker","Astromech","Battle"].forEach(kind => {
+  ["Worker","Astromech","Battle","Protocol"].forEach(kind => {
     html += `<div class="meta" style="margin:10px 0 6px">${kind}</div>`;
     html += `<select id="pick-${kind}" class="deck-field" onchange="choosePadName(this.value)">`;
     html += `<option value="">Empty</option>`;
@@ -2328,7 +2336,7 @@ const NOVA_SHOP = [
   {id:"credits", cat:"Core", name:"Credits", max:11, cost:2, note:"L1 2 · L5 18 · L11 42"},
   {id:"flawless-charm", cat:"Core", name:"Flawless Charm", max:1, cost:500, note:"Flawless craft chance"},
   {id:"move-speed", cat:"Core", name:"Movement Speed", max:18, cost:1, note:""},
-  {id:"pickaxe", cat:"Core", name:"Pickaxe Mastery", max:11, cost:5, note:"Keep pickaxe levels on SRB"},
+  {id:"pickaxe", cat:"Core", name:"Pickaxe Mastery", max:15, cost:5, note:"Keep pickaxe levels on SRB · v1.30.2 added ranks past 11"},
   {id:"jawa", cat:"Core", name:"Jawa Bartering", max:5, cost:5, note:"Chance to double sell rewards"},
   {id:"super-crates", cat:"Core", name:"Super Crates", max:3, cost:10, note:"Gold / Diamond / Rainbow crates"},
   {id:"double-daily", cat:"Core", name:"Double Daily Quests", max:1, cost:75, note:"Reset dailies once after all 3"},
@@ -2983,19 +2991,23 @@ let FOAD_HISTORY = [
   {name:"Droid Fusion weekend", when:"Aug 22–24, 2026", windows:"Fusion lab live"},
   {name:"D-O first run", when:"Aug 29, 2026", windows:"24h from Sat 4PM ET"},
   {name:"Mega Crate Mini (Thu Sep 3)", when:"Sep 3, 2026", windows:"Morning 10AM–1PM ET + Evening 8–11PM ET · FOAD updated schedule"},
-  {name:"D-O Event rerun", when:"Sep 5–6, 2026", windows:"24h from Sat 4PM ET · FOAD Sep 2"}
+  {name:"D-O Event rerun", when:"Sep 5–6, 2026", windows:"24h from Sat 4PM ET · FOAD Sep 2"},
+  {name:"Mega Crate Mini (Thu Sep 10)", when:"Sep 10, 2026", windows:"Morning 10AM–1PM ET + Evening 8–11PM ET · FOAD Sep 3 schedule"},
+  {name:"Protocol Droid Event", when:"Sep 12–14, 2026", windows:"Sat 4PM ET–Mon 3AM ET · +11h FOAD extension (timer bug) · World Mission revamp · Protocol Droids"}
 ];
 let FOAD_EVENTS = [
-  {name:"Mega Crate Mini Event (morning)", start:"2026-09-10T10:00:00-04:00", end:"2026-09-10T13:00:00-04:00", rewards:["Chopper mega crate loot"], bonuses:["2× upgrade chips"], how:"Weekly Thursday morning · 10AM–1PM ET · FOAD Sep 3 post · Mega Crate every 15 min"},
-  {name:"Mega Crate Mini Event (evening)", start:"2026-09-10T20:00:00-04:00", end:"2026-09-10T23:00:00-04:00", rewards:["Chopper mega crate loot"], bonuses:["2× upgrade chips"], how:"Weekly Thursday evening · 8PM–11PM ET · FOAD Sep 3 post · Mega Crate every 15 min"}
+  {name:"Protocol / World Mission Event rerun", start:"2026-09-19T16:00:00-04:00", end:"2026-09-20T16:00:00-04:00", rewards:["Protocol crates","SA-5 / LOM / PZ / TDA blueprints"], bonuses:["2× pickaxe","2× crafting speed","2× credits"], how:"v1.30.2 · New Variant Weekend pushed to Sep 26 · Protocol + World Missions rerun this weekend"},
+  {name:"New Variant Weekend", start:"2026-09-26T16:00:00-04:00", end:"2026-09-27T16:00:00-04:00", rewards:["New variant blueprints","Nova crystals for crafts"], bonuses:[], how:"v1.30.2 · Saturday Sep 26 4:00 PM EST"},
+  {name:"Mega Crate Mini Event (morning)", start:"2026-09-17T10:00:00-04:00", end:"2026-09-17T13:00:00-04:00", rewards:["Chopper mega crate loot"], bonuses:["2× upgrade chips"], how:"Weekly Thursday morning · 10AM–1PM ET · FOAD Sep 3 post · Mega Crate every 15 min"},
+  {name:"Mega Crate Mini Event (evening)", start:"2026-09-17T20:00:00-04:00", end:"2026-09-17T23:00:00-04:00", rewards:["Chopper mega crate loot"], bonuses:["2× upgrade chips"], how:"Weekly Thursday evening · 8PM–11PM ET · FOAD Sep 3 post · Mega Crate every 15 min"}
 ];
 const EVENTS = FOAD_EVENTS;
 const EVENTS_KEY = "droidex-events-cache";
 let FOAD_RECURRING = [
   {name:"Mega Crate Mini Event (morning)", weekday:4, startHourET:10, durationHours:3, rewards:["Chopper mega crate loot"], bonuses:["2× upgrade chips"], how:"Weekly Thursday morning · FOAD Sep 3 · 10AM–1PM ET · crates every 15 min"},
   {name:"Mega Crate Mini Event (evening)", weekday:4, startHourET:20, durationHours:3, rewards:["Chopper mega crate loot"], bonuses:["2× upgrade chips"], how:"Weekly Thursday evening · FOAD Sep 3 · 8PM–11PM ET · crates every 15 min"},
-  {name:"Dance Party Mini Event", weekday:2, startHourET:8, durationHours:3, rewards:[], bonuses:[], how:"Every Tuesday morning · Sandcrawler · FOAD Aug 17 announcement · still active Sep 2026"},
-  {name:"Dance Party Mini Event", weekday:2, startHourET:20, durationHours:3, rewards:[], bonuses:[], how:"Every Tuesday evening · Sandcrawler · FOAD Aug 17 announcement · still active Sep 2026"}
+  {name:"Dance Party Mini Event", weekday:2, startHourET:8, durationHours:3, rewards:[], bonuses:[], how:"Every Tuesday morning · Sandcrawler · FOAD Aug 17 · 8AM–11AM ET · still active Sep 2026"},
+  {name:"Dance Party Mini Event", weekday:2, startHourET:20, durationHours:3, rewards:[], bonuses:[], how:"Every Tuesday evening · Sandcrawler · FOAD Aug 17 · 8PM–11PM ET · still active Sep 2026"}
 ];
 function pad2(n){ return String(n).padStart(2,"0"); }
 function expandRecurring(now){
