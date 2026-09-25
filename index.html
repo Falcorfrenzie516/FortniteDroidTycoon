@@ -243,15 +243,22 @@
   .floor.build { border-color:#94a3b8; }
   .floor.stats { border-color:#c4b5fd; }
   .floor.stats > summary { color:#e9d5ff; }
-  .worker-split, .astro-split, .bench-split { display:flex; flex-wrap:wrap; gap:8px; align-items:stretch; }
+  .worker-split, .astro-split, .bench-split, .battle-split {
+    display:flex; flex-direction:column; align-items:center; gap:10px;
+  }
   .worker-split .zone.stations,
-  .floor.battle-wrap .zone.stations { flex:1 1 100%; }
-  .worker-split .zone.carousel { flex:1 1 260px; }
-  .worker-split .zone.control { flex:1 1 180px; }
-  .worker-split .zone.protocol, .astro-split .zone.protocol,
-  .worker-split .zone.bench, .astro-split .zone.bench { flex:1 1 100%; }
+  .floor.battle-wrap .zone.stations,
+  .battle-split .zone.stations { width:100%; flex:none; }
+  .worker-walk, .battle-walk {
+    display:flex; flex-wrap:wrap; justify-content:center; align-items:flex-start; gap:10px; width:100%;
+  }
+  .worker-walk .zone, .battle-walk .zone {
+    flex:0 0 auto; width:max-content; max-width:100%;
+  }
   .zone.bench .zone-h { color:#67e8f9; }
-  .astro-split .zone { flex:1 1 110px; }
+  .floor .pads {
+    display:flex; flex-wrap:wrap; justify-content:center; align-items:flex-start; gap:8px;
+  }
   .astro-board {
     display:flex;
     flex-direction:column;
@@ -1550,11 +1557,12 @@ function renderDecks(){
       html += `<div class="station"><div class="zone-h gold">Credit<br>Multiplier<br><span>Protocol</span></div><div class="pads">`;
       (protoW[1]?[protoW[1]]:protoW.slice(1)).forEach(x => html += padButton(x,deck));
       html += `</div></div></div></div>`;
+      html += `<div class="worker-walk">`;
       html += `<div class="zone carousel"><div class="zone-h">Carousel (${cu}/8)</div><div class="pads">`;
       car.forEach(p => html += padButton(p,deck));
       html += `</div></div><div class="zone control"><div class="zone-h">Control Room (${tu}/3)</div><div class="pads">`;
       ctrl.forEach(p => html += padButton(p,deck));
-      html += `</div></div></div></details>`;
+      html += `</div></div></div></div></details>`;
       return;
     }
     if (f.id==="astromech"){
@@ -1606,11 +1614,12 @@ function renderDecks(){
       html += `<div class="station"><div class="zone-h gold">Credit<br>Multiplier<br><span>Protocol</span></div><div class="pads">`;
       (protoB[1]?[protoB[1]]:protoB.slice(1)).forEach(x => html += padButton(x,deck));
       html += `</div></div></div></div>`;
+      html += `<div class="battle-walk">`;
       html += `<div class="zone battle-zone"><div class="pads">`;
       main.forEach(p => html += padButton(p,deck));
       html += `</div></div><div class="zone firing-zone"><div class="zone-h">Firing Range (${fu}/6)</div><div class="pads">`;
       fire.forEach(p => html += padButton(p,deck));
-      html += `</div></div></details>`;
+      html += `</div></div></div></details>`;
       return;
     }
     const defOpen = !(f.id==="lounge" || f.id==="companion" || f.id==="build");
@@ -1748,7 +1757,7 @@ function renderFusionLabs(deck){
     const cham = PADS.filter(p=>p.floor==="chamber"+lab);
     const used = fuse.concat(cham).filter(p => padSlot(deck,p.id)&&padSlot(deck,p.id).name).length;
     const pred = predictFusion(deck, lab);
-    let h = `<div class="meta" style="margin:10px 0 6px">Lab ${lab} · ${used}/4 · 3 fusion pads + chamber</div><div class="pads">`;
+    let h = `<div class="meta" style="margin:10px 0 6px;text-align:center">Lab ${lab} · ${used}/4 · 3 fusion pads + chamber</div><div class="pads">`;
     fuse.forEach(p => h += padButton(p,deck));
     cham.forEach(p => h += padButton(p,deck));
     h += `</div><div class="meta" style="margin:8px 0">${pred.label}</div>`;
