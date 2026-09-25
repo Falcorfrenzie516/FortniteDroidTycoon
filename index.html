@@ -253,29 +253,52 @@
   .zone.bench .zone-h { color:#67e8f9; }
   .astro-split .zone { flex:1 1 110px; }
   .astro-board {
-    display:grid;
-    grid-template-columns: minmax(240px,1.4fr) minmax(160px,1fr);
-    grid-template-areas:
-      "stations mission1"
-      "deck23 mission456"
-      "mission9 deck78";
+    display:flex;
+    flex-direction:column;
     gap:10px;
-    align-items:stretch;
+    align-items:center;
   }
-  .astro-board .zone.stations { grid-area:stations; }
-  .astro-board .zone.a-m1 { grid-area:mission1; }
-  .astro-board .zone.a-d23 { grid-area:deck23; }
-  .astro-board .zone.a-m456 { grid-area:mission456; }
-  .astro-board .zone.a-m9 { grid-area:mission9; }
-  .astro-board .zone.a-d78 { grid-area:deck78; }
-  @media (max-width:720px){
-    .astro-board { grid-template-columns:1fr; grid-template-areas:"stations" "mission1" "deck23" "mission456" "mission9" "deck78"; }
+  .astro-board .zone.stations {
+    width:100%;
   }
-  .station-row { display:flex; gap:8px; justify-content:space-around; align-items:flex-end; flex-wrap:wrap; }
-  .station { display:flex; flex-direction:column; align-items:center; min-width:72px; }
+  .astro-board .astro-walk {
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    align-items:flex-start;
+    gap:10px;
+    width:100%;
+  }
+  .astro-board .astro-walk .zone {
+    flex:0 0 auto;
+    width:max-content;
+    max-width:100%;
+  }
+  .astro-board .pads,
+  .station .pads {
+    display:flex;
+    flex-wrap:nowrap;
+    justify-content:center;
+    gap:8px;
+  }
+  .station-row {
+    display:flex;
+    justify-content:space-evenly;
+    align-items:flex-end;
+    gap:12px;
+    width:100%;
+  }
+  .station {
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    flex:1 1 0;
+    min-width:88px;
+    text-align:center;
+  }
   .zone-h.gold { color:#fbbf24; text-align:center; line-height:1.15; text-transform:uppercase; font-size:11px; }
   .zone-h.gold span { color:#f59e0b; }
-  .zone-h.cyan { color:#67e8f9; text-align:center; text-transform:uppercase; font-size:12px; padding-top:18px; }
+  .zone-h.cyan { color:#67e8f9; text-align:center; text-transform:uppercase; font-size:12px; padding-top:8px; }
   .bench-split .zone { flex:1 1 160px; }
   .zone { border:2px dashed currentColor; border-radius:16px; padding:10px 8px 8px; background:rgba(8,6,18,.35); }
   .zone-h { font-size:clamp(9px,1.4vw,11px); letter-spacing:.14em; text-transform:uppercase; color:inherit; margin:0 0 8px; font-family:Orbitron,sans-serif; }
@@ -1556,12 +1579,13 @@ function renderDecks(){
       html += `<div class="station"><div class="zone-h gold">Credit<br>Multiplier<br><span>Protocol</span></div><div class="pads">`;
       multi.forEach(p => html += padButton(p,deck));
       html += `</div></div></div></div>`;
+      html += `<div class="astro-walk">`;
       html += zoneBox("Mission"," · no credits/s","mission a-m1", slice.filter(p=>p.n===1));
       html += zoneBox("Deck","","deck a-d23", slice.filter(p=>[2,3].includes(p.n)));
       html += zoneBox("Mission"," · no credits/s","mission a-m456", slice.filter(p=>[4,5,6].includes(p.n)));
       html += zoneBox("Mission"," · no credits/s","mission a-m9", slice.filter(p=>p.n===9));
       html += zoneBox("Deck","","deck a-d78", slice.filter(p=>[7,8].includes(p.n)));
-      html += `</div></details>`;
+      html += `</div></div></details>`;
       return;
     }
     if (f.id==="firing") return;
