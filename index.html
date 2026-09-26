@@ -1,1 +1,3469 @@
-PLACEHOLDER
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#0b1220" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Pocket Droid Tycoon Companion" />
+<link rel="manifest" href="manifest.json" />
+<title>Pocket Droid Tycoon Companion</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@500;700&family=Orbitron:wght@500;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg:#0b0818; --bg2:#16122a; --card:#15122b; --line:#2b2550;
+    --ink:#ece8ff; --muted:#8b85b3; --gold:#c4b5fd; --gold2:#ddd6fe;
+    --green:#4ade80; --green-bg:rgba(74,222,128,.12);
+    --common:#a78bfa; --rare:#60a5fa; --epic:#c084fc;
+    --legendary:#fbbf24; --mythic:#fecaca; --iconic:#f472b6; --fusion:#2dd4bf;
+    --gal:#e879f9; --gal-hi:#f5d0fe; --gal-line:#c026d3; --gal-bg:#120218;
+    --myth-hi:#fecaca; --myth-line:#7f1d1d; --myth-bg:#16080a;
+    --stel:#fbbf24; --stel-hi:#fef3c7; --stel-line:#f59e0b; --stel-bg:#0a0804;
+    --safe: env(safe-area-inset-bottom, 0px);
+  }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body { margin:0; height:100%; background:#05030c; color:var(--ink); font-family:"Exo 2",sans-serif; }
+  html { height:100dvh; }
+  body { height:100dvh; overflow:hidden; display:flex; flex-direction:column; }
+  #space { position:fixed; inset:0; z-index:0; width:100%; height:100%; pointer-events:none; }
+  .nebula {
+    position:fixed; z-index:0; pointer-events:none; filter:blur(40px); opacity:.45;
+    animation:drift 80s ease-in-out infinite alternate;
+  }
+  .nebula.a { width:55vw; height:40vw; left:-8vw; top:8vh; background:radial-gradient(circle, #3b0764 0%, transparent 70%); }
+  .nebula.b { width:48vw; height:36vw; right:-10vw; top:28vh; background:radial-gradient(circle, #083344 0%, transparent 70%); animation-duration:110s; }
+  .nebula.c { width:40vw; height:30vw; left:20vw; bottom:-8vh; background:radial-gradient(circle, #4a044e 0%, transparent 72%); animation-duration:95s; }
+  .planet {
+    position:fixed; z-index:0; pointer-events:none; border-radius:50%;
+    box-shadow:inset -6px -4px 12px rgba(0,0,0,.55), 0 0 18px rgba(255,255,255,.08);
+    animation:orbit 120s linear infinite;
+  }
+  .planet.p1 { width:22px; height:22px; right:12vw; top:18vh; background:radial-gradient(circle at 35% 30%, #fde68a, #b45309 60%, #1c0a06); animation-duration:160s; }
+  .planet.p2 { width:14px; height:14px; left:8vw; top:42vh; background:radial-gradient(circle at 30% 30%, #93c5fd, #1d4ed8 62%, #0b1220); animation-duration:210s; }
+  .planet.p3 { width:9px; height:9px; right:22vw; bottom:16vh; background:radial-gradient(circle at 40% 30%, #fda4af, #9f1239 70%, #1c0a0e); animation-duration:180s; }
+  @keyframes drift { from { transform:translate3d(0,0,0) scale(1); } to { transform:translate3d(6vw,-4vh,0) scale(1.08); } }
+  @keyframes orbit { from { transform:translate3d(0,0,0); } to { transform:translate3d(-3vw,2vh,0); } }
+  header { flex:none; z-index:20; background:linear-gradient(180deg,rgba(5,3,12,.96) 60%,rgba(5,3,12,.92)); border-bottom:1px solid var(--line); padding:calc(6px + env(safe-area-inset-top,0px)) 10px 8px; backdrop-filter:blur(8px); }
+  main { position:relative; z-index:1; flex:1; min-height:0; overflow-y:auto; -webkit-overflow-scrolling:touch; overscroll-behavior:contain; padding:12px 12px calc(16px + var(--safe)); }
+  body[data-tab="decks"] .toolbar,
+  body[data-tab="alarms"] .toolbar,
+  body[data-tab="saves"] .toolbar,
+  body[data-tab="srb"] .toolbar { display:none; }
+  h1 { margin:0; font-size:0; line-height:0; }
+  h1.show { font-size:22px; line-height:1.1; text-align:center; font-family:Orbitron,sans-serif; letter-spacing:.12em; text-transform:uppercase; color:#f5d0fe; }
+  .brand { display:block; width:min(520px,94vw); max-height:none; object-fit:contain; object-position:center top; height:auto; margin:0 auto 2px; border-radius:12px; }
+  .dash { margin:0 0 6px; border:1px solid var(--line); border-radius:14px; background:rgba(12,10,24,.55); }
+  .dash > summary { list-style:none; cursor:pointer; padding:8px 10px; font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); font-family:Orbitron,sans-serif; }
+  .dash > summary::-webkit-details-marker { display:none; }
+  .dash[open] > summary { color:var(--gold2); }
+  .dash .dash-body { padding:0 8px 8px; }
+  .sub { color:var(--muted); font-size:11px; margin-top:2px; text-align:center; font-family:Orbitron,sans-serif; letter-spacing:.16em; text-transform:uppercase; }
+  .epic-pill { display:inline-block; font-size:9px; letter-spacing:.08em; text-transform:uppercase; padding:2px 8px; border-radius:999px; border:1px solid var(--line); color:var(--muted); text-decoration:none; vertical-align:middle; }
+  .epic-pill.operational { color:#4ade80; border-color:#4ade80; }
+  .epic-pill.degraded_performance,.epic-pill.partial_outage,.epic-pill.minor { color:#fbbf24; border-color:#fbbf24; }
+  .epic-pill.major_outage,.epic-pill.under_maintenance,.epic-pill.critical { color:#f87171; border-color:#f87171; }
+  .belts { display:grid; grid-template-columns:repeat(3,1fr); gap:7px; margin-top:10px; }
+  .belts.has-evt { grid-template-columns:repeat(2,1fr); }
+  @media (min-width:720px){ .belts.has-evt { grid-template-columns:repeat(4,1fr); } }
+  .belt.evt { border-color:rgba(226,195,109,.45); background:radial-gradient(circle at 50% 0%, rgba(226,195,109,.18), transparent 70%); }
+  .belt.hidden { display:none; }
+  .belt { background:var(--card); border:1px solid var(--line); border-radius:16px; padding:10px 6px; text-align:center; }
+  .belt b { display:block; font-size:16px; font-variant-numeric:tabular-nums; color:var(--gold2); font-family:Orbitron,sans-serif; letter-spacing:.08em; }
+  .belt span { font-size:9px; color:var(--muted); letter-spacing:.18em; text-transform:uppercase; font-family:Orbitron,sans-serif; }
+  .belt.soon { box-shadow:0 0 14px rgba(255,255,255,.12); }
+  .belt.gal { background:radial-gradient(circle at 50% 0%, #4a0a63, #120218 70%); border-color:#d946ef; }
+  .belt.gal b { color:#f5d0fe; text-shadow:0 0 10px #e879f9; }
+  .belt.gal span { color:#e879f9; }
+  .belt.myth { background:var(--myth-bg); border-color:var(--myth-line); }
+  .belt.myth b { color:var(--myth-hi); }
+  .belt.myth span { color:#f87171; }
+  .belt.stel { background:radial-gradient(circle at 50% 120%, #7c4a08, #0a0804 62%); border-color:#f59e0b; }
+  .belt.stel b { color:#fef3c7; text-shadow:0 0 10px #fbbf24; }
+  .belt.stel span { color:#fbbf24; }
+  .chk.v-def { color:#9ca3af; background:#141416; border-color:#4b5563; }
+  .chk.v-def.on { color:#d1d5db; background:#1f2933; border-color:#6b7280; }
+  .chk.v-gld { color:#facc15; background:linear-gradient(180deg,#3a2a08,#0c0a06); border-color:#ca8a04; }
+  .chk.v-gld.on { color:#fef08a; background:linear-gradient(180deg,#5a430c,#161008); border-color:#facc15; box-shadow:0 0 10px rgba(250,204,21,.28); }
+  .chk.v-dia {
+    color:#a5f3fc; border-color:#22d3ee;
+    background:
+      radial-gradient(circle at 50% 0%, rgba(34,211,238,.28), transparent 55%),
+      radial-gradient(circle at 18% 22%, #fff 0 1px, transparent 2px),
+      radial-gradient(circle at 78% 30%, #67e8f9 0 1px, transparent 2px),
+      #030712;
+  }
+  .chk.v-dia.on {
+    color:#ecfeff; border-color:#67e8f9;
+    box-shadow:0 0 12px rgba(34,211,238,.4);
+    background:
+      radial-gradient(circle at 50% 0%, rgba(103,232,249,.4), transparent 60%),
+      radial-gradient(circle at 22% 18%, #fff 0 1px, transparent 2px),
+      radial-gradient(circle at 70% 40%, #a5f3fc 0 1px, transparent 2px),
+      #04131c;
+  }
+  .chk.v-rbw {
+    color:#fff;
+    border-color:#a3e635;
+    background:
+      linear-gradient(135deg, rgba(163,230,53,.55), rgba(34,211,238,.45) 35%, rgba(168,85,247,.5) 65%, rgba(244,114,182,.5));
+  }
+  .chk.v-rbw.on {
+    color:#fff;
+    border-color:#f0abfc;
+    box-shadow:0 0 12px rgba(168,85,247,.35);
+    background:
+      linear-gradient(135deg, #a3e635, #22d3ee 30%, #a855f7 62%, #f472b6);
+  }
+  .chk.v-bsk { color:#e8b896; background:linear-gradient(180deg,#3f2a1e,#1c1410); border-color:#9a6b4a; }
+  .chk.v-bsk.on { color:#f5e6d3; background:linear-gradient(180deg,#5a3b28,#241810); border-color:#d6a07a; box-shadow:0 0 8px rgba(214,160,122,.28); }
+  .chk.v-gal { color:#f0abfc; background:radial-gradient(circle at 30% 0%, #3b0764, #120218 72%); border-color:#c026d3; }
+  .chk.v-gal.on { color:#fce7ff; background:radial-gradient(circle at 30% 0%, #6b21a8, #1a0424 75%); border-color:#e879f9; box-shadow:0 0 10px rgba(232,121,249,.35); }
+  .chk.v-stel { color:#fde047; background:radial-gradient(circle at 30% 0%, #7c4a08, #0a0804 72%); border-color:#d97706; }
+  .chk.v-stel.on { color:#fffbeb; background:radial-gradient(circle at 30% 0%, #b45309, #120a04 75%); border-color:#fbbf24; box-shadow:0 0 10px rgba(251,191,36,.4); }
+  .chk.v-myth { color:#f87171; background:var(--myth-bg); border-color:var(--myth-line); }
+  .chk.v-myth.on { color:var(--myth-hi); background:rgba(239,68,68,.18); border-color:#ef4444; }
+  details.tier.v-def { border-color:#4b5563; background:#141416; }
+  details.tier.v-def > summary { color:#d1d5db; }
+  details.tier.v-gld { border-color:#ca8a04; background:linear-gradient(180deg,#2a1e08,#0c0a06); }
+  details.tier.v-gld > summary { color:#fde047; }
+  details.tier.v-dia { border-color:#22d3ee; background:radial-gradient(circle at 12% 0%, #083344, #030712 70%); }
+  details.tier.v-dia > summary { color:#a5f3fc; }
+  details.tier.v-rbw { border-color:#a855f7; background:linear-gradient(135deg,#365314,#164e63 40%, #3b0764 75%, #4a044e); }
+  details.tier.v-rbw > summary { color:#ecfccb; }
+  details.tier.v-bsk { border-color:#9a6b4a; background:linear-gradient(180deg,#3f2a1e,#1c1410); }
+  details.tier.v-bsk > summary { color:#f5e6d3; }
+  details.tier.v-gal { border-color:#c026d3; background:radial-gradient(circle at 8% 0%, #3b0764, #120218 68%); }
+  details.tier.v-gal > summary { color:#f5d0fe; }
+  details.tier.v-stel { border-color:#d97706; background:radial-gradient(circle at 8% 0%, #7c4a08, #0a0804 68%); }
+  details.tier.v-stel > summary { color:#fef3c7; }
+  details.tier.v-myth { border-color:var(--myth-line); background:var(--myth-bg); }
+  details.tier.v-myth > summary { color:var(--myth-hi); }
+  .card.theme-gal { background:radial-gradient(circle at 12% 0%, #4a0a63, #120218 62%); border-color:#d946ef; }
+  .card.theme-myth { background:linear-gradient(180deg,#2a0c10,#16080a); border-color:var(--myth-line); }
+  .card.theme-stel { background:radial-gradient(circle at 12% 110%, #7c4a08, #0a0804 58%); border-color:#f59e0b; }
+  .rarity-h.Mythic { color:var(--myth-hi); }
+  .stats { display:grid; grid-template-columns:repeat(5,1fr); gap:7px; margin-top:10px; }
+  @media (max-width:560px){ .stats { grid-template-columns:repeat(3,1fr); } }
+  .stat { position:relative; overflow:hidden; background:rgba(12,10,24,.78); border:1px solid var(--line); border-radius:16px; padding:8px 4px; text-align:center; }
+  .stat .fill { position:absolute; left:0; top:0; bottom:0; width:0; background:linear-gradient(90deg,#3f6212,#84cc16 55%,#d9f99d); opacity:.42; pointer-events:none; transition:width .25s ease; }
+  .stat b, .stat span { position:relative; z-index:1; }
+  .stat b { display:block; font-size:15px; color:var(--gold2); font-family:Orbitron,sans-serif; letter-spacing:.06em; }
+  .stat span { font-size:9px; color:var(--muted); font-family:Orbitron,sans-serif; letter-spacing:.14em; text-transform:uppercase; }
+  .toolbar { display:flex; gap:8px; margin-top:10px; }
+  input[type="search"], select {
+    flex:1; background:rgba(12,10,24,.78); color:var(--ink); border:1px solid var(--line);
+    border-radius:16px; padding:10px 12px; font-size:13px; outline:none;
+    font-family:Orbitron,sans-serif; letter-spacing:.06em;
+  }
+  .tabs { display:flex; flex-direction:column; gap:4px; margin-top:10px; }
+  .tabrow { display:grid; gap:4px; }
+  .tabrow.row1 { grid-template-columns:repeat(5,1fr); }
+  .tabrow.row2 { grid-template-columns:repeat(4,1fr); }
+  .tabs button { position:relative; overflow:hidden; background:rgba(12,10,24,.78); border:1px solid var(--line); border-radius:14px; color:var(--muted); padding:9px 2px; font-size:10px; font-weight:700; font-family:Orbitron,sans-serif; letter-spacing:.08em; text-transform:uppercase; }
+  .tabs button .fill { position:absolute; left:0; top:0; bottom:0; width:0; opacity:.42; pointer-events:none; transition:width .25s ease; }
+  .tabs button span { position:relative; z-index:1; }
+  .tabs button.on { color:#fff; background:rgba(196,181,253,.12); border-color:#c4b5fd; }
+  .tabs button[data-tab="droidex"] .fill { background:linear-gradient(90deg,#0e7490,#67e8f9); }
+  .tabs button[data-tab="fusion"] .fill { background:linear-gradient(90deg,#0f766e,#2dd4bf); }
+  .tabs button[data-tab="fusion"].on { border-color:#facc15; color:#fde047; background:rgba(250,204,21,.12); }
+  .tabs button[data-tab="srb"] .fill { background:linear-gradient(90deg,#c2410c,#fb923c); }
+  .tabs button[data-tab="done"] .fill { background:linear-gradient(90deg,#166534,#4ade80); }
+  .tabs button[data-tab="iconics"] .fill { background:linear-gradient(90deg,#9d174d,#f472b6); }
+  .tabs button[data-tab="cosmetics"] .fill { background:linear-gradient(90deg,#5b21b6,#c4b5fd); }
+  .tabs button[data-tab="saves"] .fill { background:linear-gradient(90deg,#334155,#94a3b8); }
+  .tabs button[data-tab="alarms"] .fill { background:linear-gradient(90deg,#a16207,#fbbf24); }
+  .tabs button[data-tab="decks"] .fill { background:linear-gradient(90deg,#6d28d9,#c4b5fd); }
+  .hint { background:rgba(12,10,24,.72); border:1px solid var(--line); border-radius:16px; padding:12px 14px; color:var(--muted); font-size:13px; line-height:1.45; margin-bottom:12px; }
+  .rarity-h { position:sticky; top:0; z-index:10; margin:14px 0 8px; font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); background:rgba(5,3,12,.92); padding:6px 2px; font-family:Orbitron,sans-serif; }
+  .deck-total { text-align:center; padding:16px 10px; border-color:#c4b5fd; background:radial-gradient(circle at 50% 0%, #2a1848, #0c0818 70%); }
+  .money-dash { margin:0 0 10px; }
+  .boost-banner {
+    border-radius:14px; padding:10px 14px; margin:0 0 8px;
+    border:1px solid #fbbf24;
+    background:linear-gradient(90deg,#3a2208,#2a1848 40%,#083344);
+    display:flex; flex-direction:column; gap:2px;
+  }
+  .boost-banner b { color:#fde047; font-size:13px; }
+  .boost-banner span { color:#e7e5e4; font-size:12px; }
+  .stats-body { display:flex; flex-wrap:wrap; justify-content:center; align-items:flex-start; gap:12px; }
+  .stats-body .money-dash { flex:1 1 260px; min-width:0; }
+  .stats-side { flex:0 1 240px; min-width:180px; }
+  .money-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  .money-grid article { background:rgba(12,10,24,.9); border:1px solid var(--line); border-radius:12px; padding:10px 8px; }
+  .money-grid .k { font-size:9px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); margin-bottom:4px; }
+  .money-grid b { font-family:Orbitron,sans-serif; font-size:16px; }
+  .money-grid b.g { color:#4ade80; }
+  .money-grid b.c { color:#22d3ee; }
+  @media (max-width:720px){ .money-grid { grid-template-columns:1fr 1fr; } }
+  .deck-total b { display:block; font-size:22px; color:#f5d0fe; font-family:Orbitron,sans-serif; letter-spacing:.06em; }
+  .deck-total span { color:var(--muted); font-size:10px; letter-spacing:.16em; text-transform:uppercase; font-family:Orbitron,sans-serif; }
+  .deck-slot { display:grid; grid-template-columns:52px 1fr auto; gap:8px; align-items:center; }
+  .deck-slot .slot-fields { display:grid; grid-template-columns:1fr 1fr; gap:6px; }
+  .deck-slot select, .deck-field {
+    width:100%; background:#100d22; color:var(--ink); border:1px solid var(--line);
+    border-radius:12px; padding:8px; font-size:12px; font-family:Orbitron,sans-serif;
+  }
+  .floor, .zone, .pad, .pads { box-sizing:border-box; min-width:0; }
+  .floor {
+    margin-top:10px; padding:10px;
+    background:
+      radial-gradient(circle at 12% 0%, rgba(196,181,253,.08), transparent 42%),
+      repeating-linear-gradient(0deg, transparent 0 18px, rgba(196,181,253,.05) 18px 19px),
+      repeating-linear-gradient(90deg, transparent 0 18px, rgba(196,181,253,.05) 18px 19px),
+      rgba(8,6,18,.72);
+    border:2px dashed rgba(196,181,253,.35);
+    border-radius:18px;
+  }
+  .floor h3, details.floor > summary {
+    margin:0 0 8px; font-size:clamp(10px,1.6vw,12px); letter-spacing:.14em; text-transform:uppercase;
+    color:var(--gold2); font-family:Orbitron,sans-serif; cursor:pointer; list-style:none;
+    display:flex; align-items:center; justify-content:space-between; gap:8px;
+  }
+  details.floor > summary::-webkit-details-marker { display:none; }
+  details.floor > summary::after { content:"▾"; opacity:.7; flex:none; }
+  details.floor:not([open]) > summary { margin:0; }
+  details.floor:not([open]) > summary::after { content:"▸"; }
+  .floor-board { display:flex; flex-wrap:wrap; gap:10px; align-items:flex-start; justify-content:flex-start; }
+  .floor-board > details.floor { flex:1 1 100%; min-width:0; }
+  .floor-board > details.floor:not([open]) {
+    flex:1 1 calc(33.33% - 8px);
+    min-width:148px; max-width:240px;
+    aspect-ratio:1.15 / 1;
+    display:flex; align-items:center;
+    cursor:grab;
+  }
+  .floor-board > details.floor:not([open]) > summary {
+    width:100%; margin:0; align-items:flex-start; text-align:left;
+    white-space:normal; line-height:1.25;
+  }
+  @media (max-width:720px){
+    .floor-board > details.floor:not([open]) { flex:1 1 calc(50% - 8px); max-width:none; }
+  }
+  .floor-board > details.floor.drag-over { outline:2px solid #67e8f9; }
+  .floor.worker { border-color:#5eead4; }
+  .floor.worker > summary { color:#5eead4; }
+  .floor.astromech { border-color:#c084fc; }
+  .floor.astromech > summary { color:#d8b4fe; }
+  .floor.battle-wrap { border-color:#f87171; }
+  .floor.battle-wrap > summary { color:#fca5a5; }
+  .floor.lounge { border-color:#fbbf24; }
+  .floor.lounge > summary { color:#fcd34d; }
+  .zone.protocol { border:1px dashed #fbbf24; border-radius:12px; padding:8px; }
+  .zone.protocol .zone-h { color:#fcd34d; }
+  .pad.protocol, button.pad.protocol { border-color:#fbbf24; }
+  .floor.companion { border-color:#cbd5e1; }
+  .floor.companion > summary { color:#e2e8f0; }
+  .floor.fuse { border-color:#facc15; }
+  .floor.fuse > summary { color:#fde047; }
+  .floor.benches { border-color:#67e8f9; }
+  .floor.benches > summary { color:#a5f3fc; }
+  .floor.build { border-color:#94a3b8; }
+  .floor.stats { border-color:#c4b5fd; }
+  .floor.stats > summary { color:#e9d5ff; }
+  .worker-split, .astro-split, .bench-split, .battle-split {
+    display:flex; flex-direction:column; align-items:center; gap:10px;
+  }
+  .worker-split .zone.stations,
+  .floor.battle-wrap .zone.stations,
+  .battle-split .zone.stations { width:100%; flex:none; }
+  .worker-walk, .battle-walk {
+    display:flex; flex-wrap:wrap; justify-content:center; align-items:flex-start; gap:10px; width:100%;
+  }
+  .worker-walk .zone, .battle-walk .zone {
+    flex:0 0 auto; width:max-content; max-width:100%;
+  }
+  .zone.bench .zone-h { color:#67e8f9; }
+  .floor .pads {
+    display:flex; flex-wrap:wrap; justify-content:center; align-items:flex-start; gap:8px;
+  }
+  .astro-board {
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    align-items:center;
+  }
+  .astro-board .zone.stations {
+    width:100%;
+  }
+  .astro-board .astro-walk {
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    align-items:flex-start;
+    gap:10px;
+    width:100%;
+  }
+  .astro-board .astro-walk .zone {
+    flex:0 0 auto;
+    width:max-content;
+    max-width:100%;
+  }
+  .astro-board .pads,
+  .station .pads {
+    display:flex;
+    flex-wrap:nowrap;
+    justify-content:center;
+    gap:8px;
+  }
+  .station-row {
+    display:flex;
+    justify-content:space-evenly;
+    align-items:flex-end;
+    gap:12px;
+    width:100%;
+  }
+  .station {
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    flex:1 1 0;
+    min-width:88px;
+    text-align:center;
+  }
+  .zone-h.gold { color:#fbbf24; text-align:center; line-height:1.15; text-transform:uppercase; font-size:11px; }
+  .zone-h.gold span { color:#f59e0b; }
+  .zone-h.cyan { color:#67e8f9; text-align:center; text-transform:uppercase; font-size:12px; padding-top:8px; }
+  .bench-split .zone { flex:1 1 160px; }
+  .zone { border:2px dashed currentColor; border-radius:16px; padding:10px 8px 8px; background:rgba(8,6,18,.35); }
+  .zone-h { font-size:clamp(9px,1.4vw,11px); letter-spacing:.14em; text-transform:uppercase; color:inherit; margin:0 0 8px; font-family:Orbitron,sans-serif; }
+  .floor.worker, .floor.worker .zone, .zone.worker, .zone.carousel, .zone.control { color:#5eead4; border-color:#5eead4; }
+  .floor.worker .zone { background:rgba(6,40,36,.35); }
+  .floor.astromech, .floor.astromech .zone, .zone.astromech, .zone.mission, .zone.deck { color:#d8b4fe; border-color:#c084fc; }
+  .floor.astromech .zone { background:rgba(40,16,56,.35); }
+  .floor.astromech .zone.deck { border-color:#a78bfa; }
+  .floor.battle-wrap { display:flex; flex-direction:column; gap:10px; color:#fca5a5; }
+  .floor.battle-wrap .zone, .zone.battle, .zone.battle-zone, .zone.firing-zone { color:#fca5a5; border-color:#f87171; background:rgba(48,12,16,.35); }
+  .floor.lounge { color:#fcd34d; }
+  .floor.lounge .pads { color:#fcd34d; }
+  .floor.companion { color:#e2e8f0; }
+  .floor.fuse { color:#fde047; }
+  .floor.benches { color:#a5f3fc; }
+  .floor.benches .zone.worker { color:#5eead4; border-color:#5eead4; background:rgba(6,40,36,.35); }
+  .floor.benches .zone.astromech { color:#d8b4fe; border-color:#c084fc; background:rgba(40,16,56,.35); }
+  .floor.benches .zone.battle { color:#fca5a5; border-color:#f87171; background:rgba(48,12,16,.35); }
+  .floor.worker .pad.empty { border-color:#2dd4bf; }
+  .floor.astromech .pad.empty { border-color:#a78bfa; }
+  .floor.battle-wrap .pad.empty { border-color:#f87171; }
+  .floor.lounge .pad.empty { border-color:#fbbf24; }
+  .floor.companion .pad.empty { border-color:#cbd5e1; }
+  .floor.fuse .pad.empty { border-color:#facc15; }
+  .floor.benches .pad.empty { border-color:#67e8f9; }
+  .floor.benches .zone.worker .pad.empty,
+  .floor.benches .zone.worker .pad.filled,
+  .floor.benches .zone.worker .pad.match {
+    border-color:#5eead4; box-shadow:0 0 10px rgba(45,212,191,.35);
+  }
+  .floor.benches .zone.astromech .pad.empty,
+  .floor.benches .zone.astromech .pad.filled,
+  .floor.benches .zone.astromech .pad.match {
+    border-color:#c084fc; box-shadow:0 0 10px rgba(192,132,252,.4);
+  }
+  .floor.benches .zone.battle .pad.empty,
+  .floor.benches .zone.battle .pad.filled,
+  .floor.benches .zone.battle .pad.match {
+    border-color:#f87171; box-shadow:0 0 10px rgba(248,113,113,.45);
+  }
+  
+  header > h1, header > .dash, header > .toolbar, header > nav, main {
+    width:min(960px,100%);
+    margin-left:auto;
+    margin-right:auto;
+  }
+  .pads { display:flex; flex-wrap:wrap; gap:8px; }
+  .pad {
+    width:clamp(56px, 7.2vw, 68px); height:clamp(78px, 11vw, 94px); padding:3px 2px 4px; display:flex; flex-direction:column; align-items:center; justify-content:flex-start;
+    background:rgba(6,4,14,.7); border:2px dotted #5b5388; border-radius:14px; color:var(--muted); touch-action:none; flex:none;
+    overflow:hidden;
+  }
+  .pad.mission { border-color:#fbbf24; background:rgba(80,50,8,.55); box-shadow:inset 0 0 12px rgba(251,191,36,.18); }
+  .pad.mission.filled { border-style:solid; }
+  .pad.drag { opacity:.45; }
+  .pad.drop { outline:2px solid #c4b5fd; outline-offset:2px; }
+  .pad.need-ok { border-style:solid; border-color:var(--alert-ready,#00f6ff); box-shadow:0 0 calc(8px * var(--bright-ready,1)) var(--alert-ready,#00f6ff), 0 0 calc(16px * var(--bright-ready,1)) var(--alert-ready-dim,rgba(0,246,255,.35)); animation:var(--anim-ready,none) 1.3s ease-in-out infinite; }
+  .pad.need-low { border-style:solid; border-color:var(--alert-low,#ff8a00); box-shadow:0 0 calc(8px * var(--bright-low,1)) var(--alert-low,#ff8a00), 0 0 calc(16px * var(--bright-low,1)) var(--alert-low-dim,rgba(255,138,0,.32)); animation:var(--anim-low,none) 1.3s ease-in-out infinite; }
+  .pad.need-ok.need-solo, .pad.need-low.need-solo { border-width:3px; animation:var(--anim-solo,alert-pulse) 1.4s ease-in-out infinite; }
+  @keyframes alert-pulse { 50% { box-shadow:0 0 22px currentColor, 0 0 44px currentColor; } }
+  @keyframes alert-blink { 0%,45%{opacity:1} 55%,100%{opacity:.2} }
+  @keyframes alert-fade { 0%,100%{opacity:1} 50%{opacity:.3} }
+  @keyframes alert-flash { 0%,70%,100%{filter:brightness(1)} 10%,25%{filter:brightness(2.1)} }
+  @keyframes alert-glow { 0%,100%{box-shadow:0 0 6px currentColor} 50%{box-shadow:0 0 28px currentColor,0 0 48px currentColor} }
+  .pad.need-upgrade { animation:var(--anim-upgrade,none) 1.4s ease-in-out infinite; box-shadow: inset 0 0 0 2px var(--alert-upgrade,#c084fc), 0 0 12px var(--alert-upgrade-dim,rgba(192,132,252,.55)); }
+  .pad.need-upgrade.need-ok, .pad.need-upgrade.need-low { box-shadow: inset 0 0 0 2px var(--alert-upgrade,#c084fc); }
+  .pad.need-fuse { position:relative; animation:var(--anim-fuse,none) 1.4s ease-in-out infinite; }
+  .pad.need-fuse::after { content:"FUSE"; position:absolute; top:2px; right:2px; font-size:6px; letter-spacing:.06em; color:#fff; background:#1a1024; border:1px solid var(--alert-fuse,#e879f9); border-radius:4px; padding:1px 3px; }
+  .pad.need-upgrade:not(.need-fuse)::before { content:"UP"; position:absolute; top:2px; left:2px; font-size:6px; letter-spacing:.06em; color:#fff; background:#1a1024; border:1px solid var(--alert-upgrade,#c084fc); border-radius:4px; padding:1px 3px; }
+  .pad.need-upgrade { position:relative; }
+  .pad .pic { width:44px; height:44px; margin-top:4px; border-radius:10px; border-style:dotted; }
+  .pad .pic { width:36px; height:36px; flex:none; }
+  .pad-var { font-size:6px; letter-spacing:.06em; text-transform:uppercase; font-family:Orbitron,sans-serif; line-height:1; padding:1px 3px; border-radius:4px; margin:2px 0 0; border:1px solid transparent; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; flex:none; }
+  .pad .pad-lab {
+    font-size:6.5px; letter-spacing:.03em; text-transform:uppercase; font-family:Orbitron,sans-serif;
+    width:100%; max-width:100%; padding:0 3px; line-height:1.15; text-align:center;
+    overflow:hidden; display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2;
+    word-break:break-word; overflow-wrap:anywhere;
+  }
+  .pad.empty .pic { background:transparent; border:2px dotted #3f3a63; display:flex; align-items:center; justify-content:center; color:#5b5388; font-size:16px; }
+  .pad.filled { border-style:solid; border-color:#a78bfa; background:rgba(20,12,40,.85); }
+  .pad.match { border-color:#4ade80; }
+  .floor.worker .pad.filled, .floor.worker .pad.match { border-color:#5eead4; box-shadow:0 0 10px rgba(45,212,191,.35); }
+  .floor.astromech .pad.filled, .floor.astromech .pad.match {
+    border-color:#c084fc; box-shadow:0 0 10px rgba(192,132,252,.4);
+  }
+  .floor.battle-wrap .pad.filled, .floor.battle-wrap .pad.match {
+    border-color:#f87171; box-shadow:0 0 10px rgba(248,113,113,.45);
+  }
+  .floor.benches .zone.astromech .pad.filled { border-color:#c084fc; }
+  .floor.benches .zone.battle .pad.filled { border-color:#f87171; }
+  .floor.benches .zone.worker .pad.filled { border-color:#5eead4; }
+  .pad.offtype { border-color:#fbbf24; }
+  .pad.lounge { border-color:#ca8a04; }
+  .pad.companion, .floor.companion .pad.filled {
+    border-color:#f8fafc; box-shadow:0 0 10px rgba(248,250,252,.35);
+  }
+  .deck-bar { display:flex; gap:6px; flex-wrap:wrap; margin:0 0 10px; align-items:center; }
+  .deck-bar button { background:var(--card); color:var(--muted); border:1px solid var(--line); border-radius:14px; padding:7px 10px; font-size:10px; font-weight:700; font-family:Orbitron,sans-serif; letter-spacing:.1em; text-transform:uppercase; }
+  .deck-bar button.on { color:#0b1220; background:var(--gold); border-color:var(--gold); }
+  .xbtn { background:#3b1020; color:#fb7185; border:1px solid #7f1d3a; border-radius:12px; padding:8px 10px; font-size:11px; font-weight:800; }
+  .pick-grid { display:grid; grid-template-columns:1fr; gap:10px; margin-top:8px; }
+  @media (min-width:720px){ .pick-grid { grid-template-columns:1fr 1fr 1fr; } }
+  .pick-col { background:rgba(8,6,18,.7); border:1px dashed rgba(196,181,253,.3); border-radius:14px; padding:8px; }
+  .pick-col h3 { margin:0 0 6px; font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--gold2); font-family:Orbitron,sans-serif; }
+  .pick-list { max-height:160px; overflow-y:auto; display:flex; flex-direction:column; gap:4px; margin-top:6px; }
+  .pick-item { text-align:left; background:#100d22; color:var(--ink); border:1px solid var(--line); border-radius:10px; padding:7px 8px; font-size:11px; font-family:Orbitron,sans-serif; letter-spacing:.04em; }
+  .pick-item.on { border-color:#c4b5fd; background:rgba(196,181,253,.16); color:#f5d0fe; }
+  .grid { display:grid; grid-template-columns:1fr; gap:8px; }
+  @media (min-width:720px){ .grid { grid-template-columns:1fr 1fr; } }
+  .mini-grid { display:flex; flex-wrap:wrap; justify-content:center; gap:8px; margin-top:8px; }
+  .mini-tile {
+    display:flex; flex-direction:column; align-items:center; gap:6px;
+    width:118px; background:rgba(12,10,24,.92); border:1px solid var(--line); border-radius:14px;
+    padding:8px; text-align:center; color:var(--ink); cursor:pointer;
+  }
+  .mini-tile .pic { width:48px; height:48px; margin:0 auto; }
+  .mini-tile.t-worker { border-color:#2dd4bf; }
+  .mini-tile.t-astromech { border-color:#c084fc; }
+  .mini-tile.t-battle { border-color:#f87171; }
+  .mini-tile.t-protocol { border-color:#fbbf24; }
+  .card.t-protocol, article.card.t-protocol { border-color:#fbbf24; }
+  .meta.Protocol, .mini-meta.Protocol { color:#fcd34d; }
+  .mini-tile.t-worker .mini-meta { color:#5eead4; }
+  .mini-tile.t-astromech .mini-meta { color:#d8b4fe; }
+  .mini-tile.t-battle .mini-meta { color:#fca5a5; }
+  .mini-tile.t-protocol .mini-meta { color:#fcd34d; }
+  .mini-tile.picked { outline:2px solid #2dd4bf; box-shadow:0 0 12px rgba(45,212,191,.45); }
+  .mini-tile.dim { opacity:.4; }
+  .fuse-slot { display:flex; gap:8px; align-items:center; margin:0 0 8px; }
+  .fuse-slot select { flex:1; min-width:0; }
+  .need-list { display:flex; flex-direction:column; gap:6px; }
+  .need-row { display:flex; align-items:center; gap:8px; background:rgba(8,6,18,.7); border:1px solid var(--line); border-radius:12px; padding:6px 8px; }
+  .need-row.on { border-color:#4ade80; }
+  .need-row.have b { color:#4ade80; }
+  .need-row .pic { width:36px; height:36px; flex:none; }
+  .need-row span { display:flex; flex-direction:column; min-width:0; }
+  .need-row i { font-style:normal; font-size:10px; color:var(--muted); }
+
+  .fuse-table-wrap { overflow:auto; -webkit-overflow-scrolling:touch; margin:0 0 8px; }
+  .fuse-table { width:100%; border-collapse:collapse; font-size:11px; min-width:520px; }
+  .fuse-table th, .fuse-table td { padding:6px 4px; text-align:center; border-bottom:1px solid var(--line); }
+  .fuse-table th { letter-spacing:.08em; text-transform:uppercase; font-size:9px; color:var(--muted); }
+  .fuse-table td:first-child, .fuse-table th:first-child { text-align:left; white-space:nowrap; }
+  .fuse-table td:first-child { display:flex; align-items:center; gap:6px; }
+  .fuse-table td:first-child .pic { width:28px; height:28px; }
+  .fuse-table td.have-var { color:#4ade80; font-weight:800; font-size:16px; }
+  .fuse-boards { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px; }
+  @media (max-width:720px){ .fuse-boards { grid-template-columns:1fr; } }
+  .fuse-board { margin:0; padding:12px; border:2px dashed var(--line); border-radius:16px; min-width:0; }
+  .fuse-board.v-gld { border-color:#ca8a04; }
+  .fuse-board.v-dia { border-color:#7dd3fc; }
+  .fuse-board.v-rbw { border-color:#e879f9; }
+  .fuse-board.v-bsk { border-color:#94a3b8; }
+  .fuse-board.v-gal { border-color:#c084fc; }
+  .fuse-board.v-stel { border-color:#fbbf24; }
+  .fuse-board h3 { margin:0 0 10px; font-family:Orbitron,sans-serif; letter-spacing:.08em; font-size:16px; }
+  .fuse-board h3 em { font-style:normal; }
+  .fuse-board.v-gld h3 em { color:#facc15; }
+  .fuse-board.v-dia h3 em { color:#7dd3fc; }
+  .fuse-board.v-rbw h3 em { color:#e879f9; }
+  .fuse-board.v-gal h3 em { color:#c084fc; }
+  .fuse-board.v-stel h3 em { color:#fbbf24; }
+  .fuse-ings { display:flex; flex-wrap:wrap; gap:10px; }
+  .fuse-ing { display:flex; flex-direction:column; align-items:center; gap:4px; width:92px; padding:8px 6px; border-radius:14px; border:2px solid #64748b; background:rgba(8,6,18,.8); }
+  .fuse-ing.v-def { border-color:#94a3b8; }
+  .fuse-ing.v-gld { border-color:#f59e0b; }
+  .fuse-ing.v-dia { border-color:#7dd3fc; }
+  .fuse-ing.v-rbw { border-color:#e879f9; }
+  .fuse-ing.v-bsk { border-color:#cbd5e1; }
+  .fuse-ing.v-gal { border-color:#c084fc; }
+  .fuse-ing.v-stel { border-color:#fbbf24; }
+  .fuse-ing.on { box-shadow:0 0 10px currentColor; }
+  .fuse-ing .pic { width:56px; height:56px; }
+  
+  .nova-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+  @media (max-width:420px){ .nova-grid { grid-template-columns:1fr; } }
+  .nova-card { border:1px solid var(--line); border-radius:14px; padding:10px; background:rgba(8,6,18,.8); }
+  .nova-card.maxed { border-color:#22d3ee; }
+  .nova-top { display:flex; justify-content:space-between; gap:8px; align-items:baseline; }
+  .nova-cost { color:#67e8f9; font-family:Orbitron,sans-serif; font-size:12px; white-space:nowrap; }
+  .nova-row { display:flex; align-items:center; gap:8px; margin-top:8px; }
+  .nova-lv { font-family:Orbitron,sans-serif; min-width:64px; text-align:center; }
+
+  .fuse-ing .ing-name { font-size:10px; line-height:1.2; text-align:center; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:#e2e8f0; }
+
+  .fuse-filters button { font-size:11px; letter-spacing:.08em; text-transform:uppercase; }
+  .swatches { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin:6px 0 8px; }
+  .swatch { width:22px; height:22px; border-radius:50%; border:2px solid #1e1b2e; padding:0; cursor:pointer; }
+  .swatch.on { outline:2px solid #fff; }
+  .swatches input[type=color] { width:28px; height:22px; padding:0; border:1px solid var(--line); background:transparent; cursor:pointer; }
+  .alert-opts { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin:4px 0 8px; }
+  .alert-opts label { display:flex; align-items:center; gap:6px; font-size:10px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); }
+  .alert-opts input[type=range] { width:120px; }
+  .bonus-grid { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:8px; margin:8px 0 14px; }
+  .bonus-card {
+    width:auto; min-height:118px; box-sizing:border-box; padding:12px 10px 10px; border-radius:14px;
+    background:rgba(12,10,24,.92); border:1px solid var(--line); text-align:left;
+  }
+  .bonus-card.on { border-color:var(--c,#4ade80); }
+  .bonus-name { font-family:Orbitron,sans-serif; font-size:12px; letter-spacing:.06em; color:var(--c,#ece8ff); }
+  .bonus-bar { height:4px; border-radius:99px; background:#1e1b2e; margin:8px 0 6px; overflow:hidden; }
+  .bonus-bar i { display:block; height:100%; background:var(--b,#64748b); }
+  .bonus-row { display:flex; justify-content:space-between; gap:6px; font-size:10px; color:var(--muted); }
+  .bonus-row b { color:var(--c,#ece8ff); }
+  .bonus-sub { font-size:9px; color:var(--muted); margin-top:6px; line-height:1.3; }
+  .paint-grid { display:flex; flex-wrap:wrap; justify-content:center; gap:10px; margin-top:8px; }
+  .paint-tile {
+    width:148px; min-height:148px; box-sizing:border-box;
+    display:flex; flex-direction:column; align-items:center; justify-content:space-between; gap:6px;
+    text-align:center; padding:12px 10px; border-radius:16px;
+    background:rgba(12,10,24,.92); border:1px solid var(--line); color:var(--ink);
+  }
+  .paint-tile .name { font-family:Orbitron,sans-serif; font-size:11px; letter-spacing:.08em; text-transform:uppercase; }
+  .paint-tile .how { font-size:9px; }
+  .paint-tile.on { border-color:#4ade80; background:rgba(6,32,18,.55); }
+  .mini-name { font-family:Orbitron,sans-serif; font-size:11px; letter-spacing:.08em; text-transform:uppercase; }
+  .mini-meta { font-size:9px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); }
+  .card-pop {
+    position:fixed; inset:0; z-index:80; background:rgba(4,2,12,.72);
+    display:flex; align-items:flex-start; justify-content:center;
+    padding:18px 12px calc(24px + var(--safe)); overflow:auto;
+  }
+  .card-pop.hidden { display:none; }
+  .card-pop .pop-card { width:min(640px,100%); }
+  .evt-count { font-variant-numeric:tabular-nums; font-size:20px; color:var(--gold2); margin:8px 0 6px; font-family:Orbitron,sans-serif; }
+  .badge.live { color:#4ade80; border-color:#4ade80; }
+  .badge.upcoming { color:#7dd3fc; border-color:#7dd3fc; }
+  .badge.ended { color:var(--muted); border-color:var(--line); }
+  .evt-table { width:100%; border-collapse:collapse; font-size:11px; margin-top:8px; }
+  .evt-table th,.evt-table td { text-align:left; padding:6px 4px; border-bottom:1px solid var(--line); color:var(--muted); }
+  .card { position:relative; overflow:hidden; background:rgba(12,10,24,.78); border:1px solid var(--line); border-radius:16px; padding:12px; }
+  .card > i.fill { position:absolute; left:0; top:0; height:76px; bottom:auto; width:0; background:linear-gradient(90deg,#365314,#84cc16 70%,#d9f99d); opacity:.28; pointer-events:none; }
+  details.drop > i.fill { display:none; }
+  details.drop > summary > i.fill {
+    position:absolute; left:0; top:0; bottom:0; height:auto; width:0;
+    background:linear-gradient(90deg,#365314,#84cc16 70%,#d9f99d);
+    opacity:.38; pointer-events:none;
+  }
+  details.drop > summary { border-bottom:1px solid rgba(43,37,80,.85); }
+  details.drop:not([open]) > summary { border-bottom:0; }
+  .card.done { border-color:rgba(74,222,128,.35); }
+  .top { display:flex; gap:8px; align-items:center; flex-wrap:nowrap; min-width:0; }
+  .pills { display:flex; flex-direction:column; gap:6px; flex:none; align-items:stretch; }
+  .pills .fl-pill { justify-content:flex-start; min-width:128px; padding:7px 10px; }
+  .pills .badge { text-align:center; }
+  .pic { width:52px; height:52px; border-radius:10px; overflow:hidden; flex:none; background:#000; border:1px solid var(--line); position:relative; }
+  .pic img, .pic svg { width:100%; height:100%; display:block; object-fit:contain; background:#000; }
+  .pic svg.glyph { position:absolute; inset:0; }
+  .name { font-weight:800; font-size:13px; font-family:Orbitron,sans-serif; letter-spacing:.12em; text-transform:uppercase; }
+  .meta { color:var(--muted); font-size:10px; margin-top:3px; font-family:Orbitron,sans-serif; letter-spacing:.1em; text-transform:uppercase; }
+  .grow { flex:1; min-width:0; }
+  .badge { font-size:9px; font-weight:800; letter-spacing:.12em; text-transform:uppercase; padding:5px 8px; border-radius:12px; border:1px solid currentColor; white-space:nowrap; font-family:Orbitron,sans-serif; }
+  .Common{color:var(--common)} .Rare{color:var(--rare)} .Epic{color:var(--epic)}
+  .Legendary{color:var(--legendary)} .Mythic{color:var(--mythic)} .Iconic{color:var(--iconic)} .Fusion{color:var(--fusion)}
+  .vars { display:grid; grid-template-columns:repeat(7,1fr); gap:5px; margin-top:10px; }
+  .chk { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; font-size:8px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); background:#100d22; border:1px solid var(--line); border-radius:12px; font-family:Orbitron,sans-serif; padding:7px 2px; min-height:44px; }
+  .chk.on { color:var(--green); background:var(--green-bg); border-color:rgba(61,214,140,.4); }
+  .chk input { accent-color:var(--green); width:15px; height:15px; }
+  .fl-pill { display:flex; align-items:center; gap:6px; background:#100d22; border:1px solid var(--line); border-radius:14px; padding:8px 10px; font-size:10px; color:var(--muted); white-space:nowrap; flex:none; font-family:Orbitron,sans-serif; letter-spacing:.1em; text-transform:uppercase; }
+  .fl-pill.on { color:var(--green); background:var(--green-bg); border-color:rgba(61,214,140,.4); }
+  .fl-pill input { accent-color:var(--green); width:15px; height:15px; }
+  .tier { margin-top:8px; background:var(--bg2); border:1px solid var(--line); border-radius:10px; padding:0; }
+  .tier h3 { margin:0 0 6px; font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--gold2); display:flex; justify-content:space-between; align-items:center; }
+  .ings { display:flex; flex-direction:column; gap:5px; padding:0 8px 8px; }
+  .ings.srb-cards { flex-direction:row; flex-wrap:wrap; justify-content:center; gap:8px; }
+  .mini-tile.need-ok { border-color:#00f6ff; box-shadow:0 0 10px rgba(0,246,255,.35); }
+  .mini-tile.need-low { border-color:#ff8a00; box-shadow:0 0 10px rgba(255,138,0,.35); }
+  .mini-tile.ticked { outline:2px solid #4ade80; }
+  .mini-tile .rb-tick { font-size:8px; letter-spacing:.06em; text-transform:uppercase; margin:0 0 2px; }
+  .mini-tile .mini-hit { all:unset; display:flex; flex-direction:column; align-items:center; gap:6px; cursor:pointer; width:100%; }
+  .ings .chk { flex-direction:row; justify-content:flex-start; text-transform:none; letter-spacing:0; font-size:12px; min-height:0; padding:7px 8px; }
+  details.drop { padding:0; }
+  details.drop > summary { list-style:none; cursor:pointer; padding:12px; display:flex; gap:8px; align-items:center; position:relative; overflow:hidden; }
+  details.drop > summary::-webkit-details-marker { display:none; }
+  details.drop .drop-body { padding:0 12px 12px; }
+  .chev { margin-left:auto; color:var(--muted); font-size:16px; transition:transform .15s; }
+  details[open] > summary .chev { transform:rotate(90deg); }
+  details.tier { margin-top:6px; position:relative; overflow:hidden; }
+  details.tier > i.fill { position:absolute; left:0; top:0; bottom:0; width:0; background:linear-gradient(90deg,#9a3412,#fb923c 70%,#fed7aa); opacity:.32; pointer-events:none; }
+  details.tier > summary { list-style:none; cursor:pointer; padding:9px 10px; display:flex; align-items:center; gap:8px; font-size:11px; font-weight:800; letter-spacing:.12em; text-transform:uppercase; color:var(--gold2); font-family:Orbitron,sans-serif; }
+  details.tier > summary::-webkit-details-marker { display:none; }
+  details.tier > summary .chev { font-size:13px; }
+  .ready { margin-top:6px; font-size:11px; font-weight:800; color:var(--gold); }
+  .empty { text-align:center; color:var(--muted); padding:36px 12px; }
+  .cycles { display:flex; gap:6px; flex-wrap:wrap; margin:0 0 10px; }
+  .cycles button { background:var(--card); color:var(--muted); border:1px solid var(--line); border-radius:14px; padding:7px 10px; font-size:10px; font-weight:700; font-family:Orbitron,sans-serif; letter-spacing:.1em; text-transform:uppercase; }
+  .cycles button.on { color:#0b1220; background:var(--gold); border-color:var(--gold); }
+  .rb-row { display:flex; flex-direction:column; gap:6px; }
+  .rb-head { display:flex; justify-content:space-between; align-items:center; gap:8px; }
+  .rb-cost { color:var(--gold2); font-size:12px; font-weight:700; }
+  .srb { font-size:10px; color:var(--gold); font-weight:800; letter-spacing:.04em; }
+  .saves { display:flex; gap:6px; flex-wrap:wrap; margin-top:8px; align-items:center; }
+  .saves select, .saves button, .act button {
+    background:var(--bg2); color:var(--ink); border:1px solid var(--line);
+    border-radius:14px; padding:8px 10px; font-size:11px; font-weight:700;
+    font-family:Orbitron,sans-serif; letter-spacing:.08em; text-transform:uppercase;
+  }
+  .act { display:flex; gap:8px; flex-wrap:wrap; margin:10px 0 14px; }
+  .act .danger { background:#3b1020; color:#fb7185; border-color:#7f1d3a; }
+  .modal { position:fixed; inset:0; z-index:80; background:rgba(0,0,0,.65); display:flex; align-items:flex-end; justify-content:center; padding:16px; }
+  .modal.hidden { display:none; }
+  .sheet { width:min(440px,100%); background:var(--card); border:1px solid var(--line); border-radius:16px; padding:16px; }
+  .sheet h2 { margin:0 0 6px; font-size:18px; }
+  .sheet p { margin:0 0 14px; color:var(--muted); font-size:13px; line-height:1.45; }
+  .sheet .row { display:flex; gap:8px; }
+  .sheet .row button { flex:1; border-radius:10px; padding:12px; font-weight:800; border:1px solid var(--line); background:var(--bg2); color:var(--ink); }
+  .sheet .row .danger { background:#3b1020; color:#fb7185; border-color:#7f1d3a; }
+  #alarmToast {
+    position:fixed; left:12px; right:12px; top:12px; z-index:90; display:none;
+    text-align:center; font-weight:800; letter-spacing:.06em; text-transform:uppercase;
+    padding:12px 14px; border-radius:12px; border:1px solid #fbbf24; background:#1a1206; color:#fef3c7;
+  }
+  #alarmToast.show { display:block; }
+</style>
+</head>
+<body>
+<canvas id="space"></canvas>
+<div class="nebula a"></div>
+<div class="nebula b"></div>
+<div class="nebula c"></div>
+<div class="planet p1"></div>
+<div class="planet p2"></div>
+<div class="planet p3"></div>
+<header>
+  <h1>Pocket Droid Tycoon Companion</h1>
+  <details class="dash">
+    <summary>Title · belts · stats · <span id="saveLabel">Main</span> · v0906g · <a id="epicStatus" class="epic-pill unknown" href="https://status.epicgames.com" target="_blank" rel="noopener" onclick="event.stopPropagation()">Epic · …</a></summary>
+    <div class="dash-body">
+  <img class="brand" src="img/pocket-droidex.jpg" alt="Pocket Droid Tycoon Companion" onerror="this.style.display='none';document.querySelector('h1').classList.add('show')" />
+  <div class="sub">Profile: <span id="saveLabel2">Main</span></div>
+  <div class="belts">
+    <div class="belt gal" id="beltGal"><b>--</b><span>Galactic</span></div>
+    <div class="belt myth" id="beltMyth"><b>--</b><span>Mythic</span></div>
+    <div class="belt stel" id="beltStel"><b>--</b><span>Stellar</span></div>
+    <div class="belt evt hidden" id="beltEvt"><b>--</b><span id="beltEvtName">Event</span></div>
+  </div>
+  <div class="stats">
+    <div class="stat"><i class="fill" id="fillNames"></i><b id="sNames">0</b><span>Droids</span></div>
+    <div class="stat"><i class="fill" id="fillVars"></i><b id="sVars">0</b><span>Variants</span></div>
+    <div class="stat"><i class="fill" id="fillFuse"></i><b id="sFuse">0/17</b><span>Fusion</span></div>
+    <div class="stat"><i class="fill" id="fillDone"></i><b id="sDone">0</b><span>Completed</span></div>
+    <div class="stat"><i class="fill" id="fillFlaw"></i><b id="sFlaw">0</b><span>Flawless</span></div>
+  </div>
+    </div>
+  </details>
+  <div class="toolbar">
+    <input id="q" type="search" placeholder="Search droids…" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" name="droidex-search" />
+    <select id="filter">
+      <option value="all">All types</option>
+      <option value="Worker">Worker</option>
+      <option value="Astromech">Astromech</option>
+      <option value="Battle">Battle</option>
+      <option value="Protocol">Protocol</option>
+    </select>
+    <select id="savePick" title="Switch profile" onchange="switchSave(this.value)"></select>
+  </div>
+  <nav class="tabs">
+    <div class="tabrow row1">
+      <button data-tab="fusion"><i class="fill" id="tabFill-fusion"></i><span>Fusion</span></button>
+      <button class="on" data-tab="droidex"><i class="fill" id="tabFill-droidex"></i><span>Droidex</span></button>
+      <button data-tab="decks"><i class="fill" id="tabFill-decks"></i><span>Base</span></button>
+      <button data-tab="srb"><i class="fill" id="tabFill-srb"></i><span>Super Rebirth</span></button>
+      <button data-tab="done"><i class="fill" id="tabFill-done"></i><span>Done</span></button>
+    </div>
+    <div class="tabrow row2">
+      <button data-tab="cosmetics"><i class="fill" id="tabFill-cosmetics"></i><span>Paint</span></button>
+      <button data-tab="nova"><i class="fill" id="tabFill-nova"></i><span>Nova</span></button>
+      <button data-tab="saves"><i class="fill" id="tabFill-saves"></i><span>Profiles</span></button>
+      <button data-tab="alarms"><i class="fill" id="tabFill-alarms"></i><span>Events</span></button>
+    </div>
+  </nav>
+</header>
+<main id="app"></main>
+<input id="loadFile" type="file" accept="application/json,.json" hidden />
+<div id="modal" class="modal hidden"></div>
+<div id="alarmToast"></div>
+<script>
+const VARIANTS = ["Basic","Gold","Diamond","Rainbow","Beskar","Galactic","Stellar"];
+let DROIDS = [
+  ["Mouse","Worker","Common"],["Pit","Worker","Common"],["Gonk","Worker","Common"],
+  ["CB","Astromech","Common"],["R3","Astromech","Common"],["R5","Astromech","Common"],["R8","Astromech","Common"],
+  ["Imperial Probe","Battle","Common"],["B1 Battle","Battle","Common"],["DRK-1 Probe","Battle","Common"],["ID10","Battle","Common"],
+  ["BDX Explorer","Worker","Rare"],["ARG","Worker","Rare"],["Senate Hovercam","Worker","Rare"],["BU-4D","Worker","Rare"],
+  ["Bal-Core","Worker","Rare"],["ROLL-R","Worker","Rare"],["2BB","Astromech","Rare"],["A-LT","Astromech","Rare"],
+  ["R4","Astromech","Rare"],["R9","Astromech","Rare"],["B1 Security","Battle","Rare"],["NAV-EX","Battle","Rare"],
+  ["VECT-Arm","Battle","Rare"],["HOV-R","Battle","Rare"],["SA-5","Protocol","Rare"],["LOM","Protocol","Epic"],["PZ","Protocol","Legendary"],["TDA","Protocol","Mythic"],
+  ["Groundmech","Worker","Epic"],["LO","Worker","Epic"],["AMP Walker","Worker","Epic"],["SEN-TRI","Worker","Epic"],
+  ["Opti-Pod","Worker","Epic"],["Gunrunner","Worker","Epic"],["BB","Astromech","Epic"],["R2","Astromech","Epic"],
+  ["R6","Astromech","Epic"],["TRAK-R","Astromech","Epic"],["ORB-Walker","Astromech","Epic"],["Util-Tec","Astromech","Epic"],
+  ["B1 Heavy","Battle","Epic"],["B2 Super","Battle","Epic"],["B2 Heavy","Battle","Epic"],["Strike-Orb","Battle","Epic"],
+  ["Haul-R","Battle","Epic"],["LNG-Shot","Battle","Epic"],
+  ["Proto-Roller","Worker","Legendary"],["Mecha-Droid","Worker","Legendary"],["Mono-WLKR","Worker","Legendary"],
+  ["BB9","Astromech","Legendary"],["R7","Astromech","Legendary"],["B2-RP","Battle","Legendary"],
+  ["Cyclo-Grav","Battle","Legendary"],["Opti-STRK","Battle","Legendary"],
+  ["Snow Mouse","Worker","Mythic"],["RIC","Worker","Mythic"],["RIC-1200","Worker","Mythic"],["LEP","Worker","Mythic"],
+  ["Loadlifter","Worker","Mythic"],["DRFT-R","Astromech","Mythic"],["MO-TRAK","Astromech","Mythic"],
+  ["TRI-TEK","Astromech","Mythic"],["CYCLENS","Astromech","Mythic"],["KX","Battle","Mythic"],["IG","Battle","Mythic"]
+];
+let FUSIONS = [
+  ["WHL-EX","Rare","Worker",["Mouse","Mouse","ARG"]],
+  ["ZRO-TEC","Rare","Astromech",["ID10","ID10","2BB"]],
+  ["BTL-R","Rare","Battle",["B1 Battle","R9","BDX Explorer"]],
+  ["N-UL","Epic","Worker",["B1 Heavy","Gunrunner","BB"]],
+  ["SCRP-R","Epic","Astromech",["Gonk","Groundmech","R6"]],
+  ["ARM-CORE","Epic","Battle",["ARG","ARG","B2 Heavy"]],
+  ["OPT-AR","Epic","Battle",["R2","R2","B2 Super"]],
+  ["RO-TOR","Legendary","Worker",["BB9","Pit","B1 Battle"]],
+  ["FUS-3","Legendary","Worker",["R7","BU-4D","BU-4D"]],
+  ["QIK-BIT","Legendary","Astromech",["Groundmech","Groundmech","BB9"]],
+  ["ORB-XL","Legendary","Battle",["CB","Gunrunner","B2-RP"]],
+  ["RIV-3T","Mythic","Worker",["KX","IG","RIC"]],
+  ["LUG-G","Mythic","Worker",["Loadlifter","ID10","R5"]],
+  ["LOW-MO","Mythic","Worker",["A-LT","A-LT","Loadlifter"]],
+  ["AXI-POD","Mythic","Astromech",["RIC","BDX Explorer","R7"]],
+  ["SRV-0","Mythic","Battle",["RIC-1200","B1 Heavy","B1 Heavy"]],
+  ["X-ONK","Mythic","Battle",["KX","KX","Gonk"]]
+];
+let RATE = {
+  "Gonk":[4,8,16,32,48,96,128],"Mouse":[2,4,8,16,24,48,64],"Pit":[2,4,8,16,24,48,64],
+  "R8":[4,8,16,32,48,96,128],"CB":[3,6,12,24,36,72,96],"R3":[3,6,12,24,36,72,96],"R5":[3,6,12,24,36,72,96],
+  "Imperial Probe":[6,12,24,48,72,144,192],"B1 Battle":[5,10,20,40,60,120,160],"ID10":[4,8,16,32,48,96,128],"DRK-1 Probe":[3,6,12,24,36,72,96],
+  "WHL-EX":[72,144,288,576,864,1728,2300],"BU-4D":[58,116,232,464,696,1400,1900],"Senate Hovercam":[46,92,184,368,552,1100,1500],
+  "ARG":[42,84,168,336,504,1000,1300],"ROLL-R":[31,62,124,248,372,744,992],"Bal-Core":[23,46,92,184,276,552,736],
+  "BDX Explorer":[15,30,60,120,180,360,480],"ZRO-TEC":[72,144,288,576,864,1700,2300],"R9":[54,108,216,432,648,1300,1730],
+  "R4":[50,100,200,400,600,1200,1600],"A-LT":[36,72,144,288,432,864,1100],"2BB":[17,34,68,136,204,408,544],
+  "BTL-R":[72,144,288,576,864,1700,2300],"B1 Security":[66,132,264,528,792,1600,2100],"HOV-R":[62,124,248,496,744,1500,2000],
+  "VECT-Arm":[27,54,108,216,324,648,864],"NAV-EX":[18,36,72,144,216,432,576],
+  "N-UL":[720,1400,2900,5800,24500,37400,57600],"Gunrunner":[660,1300,2600,5300,22400,34300,52800],
+  "AMP Walker":[570,1100,2300,4600,19400,29600,45600],"SEN-TRI":[510,1000,2000,4100,17300,26500,40800],
+  "Opti-Pod":[390,780,1600,3100,13300,20300,31200],"LO":[240,480,960,1900,8200,12500,19200],"Groundmech":[120,240,480,960,4100,6200,9600],
+  "SCRP-R":[720,1400,2900,5800,24500,37400,57600],"R2":[360,720,1400,2900,12200,18700,28800],"TRAK-R":[330,660,1300,2600,11200,17200,26400],
+  "R6":[300,600,1200,2400,10200,15600,24000],"Util-Tec":[210,420,840,1700,7100,10900,16800],"ORB-Walker":[180,360,720,1400,6100,9400,14400],
+  "BB":[150,300,600,1200,5100,7800,12000],"OPT-AR":[720,1400,2900,5800,24500,37400,57600],"ARM-CORE":[690,1400,2800,5500,23200,35900,55200],
+  "B1 Heavy":[630,1300,2500,4800,20400,31200,48000],"Strike-Orb":[540,1100,2200,4300,18400,28100,43200],
+  "B2 Heavy":[480,960,1900,3800,16300,25000,38400],"LNG-Shot":[450,900,1800,3600,15300,23400,36000],
+  "B2 Super":[420,840,1700,3400,14300,21800,33600],"Haul-R":[270,540,1100,2200,9200,14000,21600],
+  "FUS-3":[1600,3200,6400,12800,38400,96000,240000],"Mono-WLKR":[1500,3000,6000,12000,36000,90000,225000],
+  "RO-TOR":[1500,3000,6000,12000,36000,90000,225000],"Mecha-Droid":[1200,2500,5000,9900,29900,74600,186600],
+  "Proto-Roller":[972,1900,3900,7800,23300,58300,145800],"QIK-BIT":[1600,3200,6400,12800,38400,96000,240000],
+  "R7":[1500,3000,6000,12000,36000,90000,225000],"BB9":[1400,2800,5600,11200,33600,84000,210000],
+  "B2-RP":[1400,2800,5600,11200,33600,84000,210000],"Cyclo-Grav":[1350,2700,5400,10800,32400,81000,202500],
+  "Opti-STRK":[1500,3000,6000,12000,36000,90000,225000],"ORB-XL":[1600,3200,6400,12800,38400,96000,240000],
+  "RIV-3T":[8400,16800,33600,67200,134400,369600,1050000],"LOW-MO":[7800,15600,31200,62400,124800,343200,975000],
+  "LUG-G":[7600,15200,30400,60800,121600,334400,950000],"Loadlifter":[7200,14400,28800,57600,115200,316800,900000],
+  "LEP":[6500,13000,26000,52000,104000,286000,812500],"RIC-1200":[5800,11600,23200,46400,92800,255200,725000],
+  "RIC":[5100,10200,20400,40800,81600,224400,637500],"Snow Mouse":[4400,8800,17600,35200,70400,193600,550000],
+  "AXI-POD":[8000,16000,32000,64000,128000,352000,1000000],"MO-TRAK":[7200,14400,28800,57600,115200,316800,900000],
+  "TRI-TEK":[6500,13000,26000,52000,104000,286000,812500],"DRFT-R":[5800,11600,23200,46400,92800,255200,725000],
+  "CYCLENS":[4400,8800,17600,35200,70400,193600,550000],"X-ONK":[8000,16000,32000,64000,128000,352000,1000000],
+  "SRV-0":[7600,15200,30400,60800,121600,334400,950000],"KX":[7200,14400,28800,57600,115200,316800,900000],
+  "IG":[5800,11600,23200,46400,92800,255200,725000]
+};
+const RARITY_FALLBACK = {Common:2,Rare:30,Epic:300,Legendary:1400,Mythic:5000,Iconic:0};
+const VAR_FALLBACK = [1,2,4,8,16,44,125];
+function rateOf(name, variant){
+  const i = VARIANTS.indexOf(variant);
+  if (i<0) return 0;
+  if (RATE[name] && RATE[name][i]) return RATE[name][i];
+  const rar = (DROIDS.find(d=>d[0]===name)||FUSIONS.find(d=>d[0]===name)||[])[2] || (FUSIONS.find(d=>d[0]===name)||[])[1] || "Epic";
+  const base = (RATE[name] && RATE[name][0]) || RARITY_FALLBACK[rar] || 100;
+  return Math.round(base * VAR_FALLBACK[i]);
+}
+function fmtNum(n){
+  n = Number(n)||0;
+  const sign = n<0 ? "-" : "";
+  n = Math.abs(n);
+  if (!n) return "0";
+  const units = [[1e15,"Qa"],[1e12,"T"],[1e9,"B"],[1e6,"M"],[1e3,"K"]];
+  for (const [div,suf] of units){
+    if (n >= div){
+      const v = n/div;
+      let s = v.toFixed(v>=100?1:2);
+      s = s.replace(/\.00$/,"").replace(/(\.\d)0$/,"$1");
+      return sign+s+suf;
+    }
+  }
+  return sign+String(Math.round(n*100)/100);
+}
+function fmtRate(n){ return fmtNum(n)+"/s"; }
+function creditBoostNow(){
+  const now = Date.now();
+  let best = 1;
+  let lists = [];
+  try { lists = lists.concat(typeof FOAD_EVENTS!=="undefined" ? FOAD_EVENTS : []); } catch(e){}
+  try { lists = lists.concat(computeFoadEvents(now)||[]); } catch(e){}
+  try { lists = lists.concat(expandRecurring(now)||[]); } catch(e){}
+  lists.forEach(ev => {
+    if (!ev) return;
+    let live = false;
+    try { live = ev.status==="live" || eventStatus(ev, now)==="live"; } catch(e){}
+    if (!live) return;
+    (ev.bonuses||[]).forEach(b => {
+      const m = String(b).toLowerCase();
+      if (m.indexOf("credit")<0) return;
+      const n = parseFloat(String(b).replace(/[^\d.]/g,""));
+      if (n>best) best = n;
+    });
+  });
+  return best;
+}
+
+let ICONICS = [
+  ["BB-8","Astromech","BB-8 Event","Log in / finish the BB-8 event track"],
+  ["R2-D2","Astromech","R2-D2 Event","Collect Data Chips during the event"],
+  ["C-3PO","Protocol","C-3PO Event","Collect Scrap Points during the event"],
+  ["DJ R-3X","Worker","DJ R-3X Event","Contribute to parties during the DJ event"],
+  ["CB-23","Astromech","Event","Event-locked iconic"],
+  ["Chopper","Astromech","Chopper Event","Collect Junk Points during the event"],
+  ["IG-11 Marshal","Battle","Mandalorian Event","Complete the Mandalorian event track"],
+  ["Mister Bones","Battle","Mister Bones Event","Defeat Stormtroopers during the event"],
+  ["D-O","Worker","D-O Event","Log in during the 24-hour D-O window"]
+];
+const COSMETICS = [
+  ["Base paint","Red / Yellow","Starter paints","Free"],
+  ["Base paint","Blue","Reach Rebirth 1","Rebirth 1"],
+  ["Base paint","Gold","Reach Rebirth 5","Rebirth 5"],
+  ["Base paint","Diamond","Reach Rebirth 10","Rebirth 10"],
+  ["Base paint","Rainbow","Reach Rebirth 15","Rebirth 15"],
+  ["Base paint","Worker Green","Craft 100 droids","100 crafts"],
+  ["Base paint","Battle Orange","Craft 250 droids","250 crafts"],
+  ["Base paint","Astromech Purple","Craft 500 droids","500 crafts"],
+  ["Base paint","Flawless","Craft 15 unique Flawless droids","15 Flawless names"],
+  ["Base paint","Super Flawless","Craft 50 unique Flawless droids","50 Flawless names"],
+  ["Base paint","Beskar","Craft 25 unique Beskar droids","25 Beskar names"],
+  ["Base paint","Super Beskar","Craft 50 unique Beskar droids","50 Beskar names"],
+  ["Base paint","Galactic","Craft 30 unique Galactic droids","30 Galactic names"],
+  ["Base paint","Super Galactic","Craft 60 unique Galactic droids","60 Galactic names"],
+  ["Base paint","Stellar","Craft 30 unique Stellar droids","30 Stellar names"],
+  ["Base paint","Super Stellar","Craft 60 unique Stellar droids","60 Stellar names"],
+  ["Base paint","Fusion Paint","Discover all 17 fusion droids","17 fusion names"],
+  ["Base paint","Protocol Paint","v1.30 Protocol update","Patch"],
+  ["Base paint","World Mission Paint","v1.30 World Mission revamp","Patch"],
+  ["Base paint","Ringmaster paints","Race the world ring courses","Wide rings, then thin rings"],
+  ["Aura","Flawless aura","Roll a Flawless of that droid name","Permanent for that name"],
+  ["Hat","World crate hats","Open white crates around Tatooine","RNG"],
+  ["Hat","Traveling Merchant hats","Buy from the traveling merchant","2.5M–100B credits"],
+  ["Hat","VIP Crown","VIP Pack at Cantina Shop","2200 V-Bucks"],
+  ["Hat","Event hats","Finish the matching event grind","Event window"]
+];
+
+const CREDITS = ["10K","150K","975K","2.95M","5.35M","9.85M","14.5M","36M","89M","220M","550M","1.36B","3.40B","8.45B","21B","52B","130B","325B","810B","2T","3T","4.5T","6T","9T","13.5T","21T","32T","45T","68T","100T","150T","230T","345T","520T","778T"];
+const NOVA = {12:11,13:16,14:22,15:29,16:37,17:46,18:56,19:67,20:79,21:92,22:106,23:121,24:137,25:154,26:172,27:191,28:211,29:232,30:254,31:277,32:301,33:326,34:352,35:379};
+const TIER_I = {Basic:0,Gold:1,Diamond:2,Rainbow:3,Beskar:4,Galactic:5,Stellar:6};
+const CYCLES = {
+  1:[
+    [["CB","Basic"],["Pit","Basic"],["DRK-1 Probe","Basic"]],
+    [["BDX Explorer","Basic"],["2BB","Basic"],["Bal-Core","Basic"]],
+    [["A-LT","Basic"],["BU-4D","Basic"],["R9","Gold"]],
+    [["ARG","Gold"],["B1 Security","Gold"],["Groundmech","Basic"]],
+    [["BU-4D","Gold"],["HOV-R","Gold"],["R9","Diamond"]],
+    [["A-LT","Diamond"],["ARG","Diamond"],["Groundmech","Gold"]],
+    [["BU-4D","Diamond"],["B1 Security","Diamond"],["BB","Gold"]],
+    [["HOV-R","Diamond"],["LO","Gold"],["Util-Tec","Gold"]],
+    [["TRAK-R","Gold"],["R6","Gold"],["Groundmech","Rainbow"]],
+    [["Strike-Orb","Gold"],["Haul-R","Rainbow"],["LO","Rainbow"]],
+    [["AMP Walker","Rainbow"],["B1 Heavy","Rainbow"],["BB9","Basic"]],
+    [["Proto-Roller","Gold"],["Mecha-Droid","Basic"],["Mono-WLKR","Basic"]],
+    [["R7","Basic"],["Cyclo-Grav","Basic"],["B2-RP","Basic"]],
+    [["Opti-STRK","Basic"],["Mono-WLKR","Gold"],["Mecha-Droid","Gold"]],
+    [["B2-RP","Gold"],["BB9","Gold"],["R7","Gold"]],
+    [["Opti-STRK","Gold"],["Mono-WLKR","Diamond"],["Proto-Roller","Diamond"]],
+    [["B2-RP","Diamond"],["Cyclo-Grav","Diamond"],["Mecha-Droid","Diamond"]],
+    [["BB9","Diamond"],["R7","Diamond"],["Mono-WLKR","Rainbow"]],
+    [["B2-RP","Rainbow"],["Cyclo-Grav","Rainbow"],["Proto-Roller","Rainbow"]],
+    [["R7","Rainbow"],["Opti-STRK","Rainbow"],["Mecha-Droid","Rainbow"]],
+    [["BB","Beskar"],["ORB-Walker","Beskar"],["Groundmech","Beskar"]],
+    [["AMP Walker","Beskar"],["B1 Heavy","Beskar"],["Proto-Roller","Beskar"]],
+    [["Opti-STRK","Beskar"],["Mono-WLKR","Beskar"],["R7","Beskar"]],
+    [["BB9","Beskar"],["Cyclo-Grav","Beskar"],["MO-TRAK","Basic"]],
+    [["B2-RP","Beskar"],["IG","Basic"],["DRFT-R","Gold"]],
+    [["CYCLENS","Gold"],["Loadlifter","Diamond"],["RIC-1200","Rainbow"]],
+    [["KX","Diamond"],["TRI-TEK","Rainbow"],["Snow Mouse","Beskar"]],
+    [["Proto-Roller","Galactic"],["MO-TRAK","Rainbow"],["DRFT-R","Beskar"]],
+    [["Mono-WLKR","Galactic"],["Mecha-Droid","Galactic"],["IG","Beskar"]],
+    [["B2-RP","Galactic"],["CYCLENS","Beskar"],["Loadlifter","Galactic"]],
+    [["SEN-TRI","Stellar"],["Proto-Roller","Beskar"],["KX","Beskar"]],
+    [["ORB-Walker","Galactic"],["Opti-Pod","Galactic"],["RIC","Beskar"]],
+    [["B1 Heavy","Stellar"],["Cyclo-Grav","Galactic"],["DRFT-R","Galactic"]],
+    [["Groundmech","Stellar"],["BB","Stellar"],["CYCLENS","Galactic"]],
+    [["BB9","Stellar"],["IG","Stellar"],["Snow Mouse","Stellar"]]
+  ],
+  2:[
+    [["ID10","Basic"],["Mouse","Basic"],["Gonk","Basic"]],
+    [["ROLL-R","Basic"],["Senate Hovercam","Basic"],["NAV-EX","Basic"]],
+    [["R4","Basic"],["VECT-Arm","Basic"],["BDX Explorer","Gold"]],
+    [["2BB","Gold"],["Bal-Core","Gold"],["ORB-Walker","Basic"]],
+    [["R4","Gold"],["VECT-Arm","Gold"],["NAV-EX","Gold"]],
+    [["Gunrunner","Basic"],["2BB","Diamond"],["Bal-Core","Diamond"]],
+    [["ROLL-R","Diamond"],["BDX Explorer","Diamond"],["R2","Gold"]],
+    [["R4","Diamond"],["B2 Super","Gold"],["Gunrunner","Gold"]],
+    [["NAV-EX","Rainbow"],["Strike-Orb","Gold"],["AMP Walker","Gold"]],
+    [["VECT-Arm","Rainbow"],["R2","Diamond"],["B2 Super","Diamond"]],
+    [["Bal-Core","Rainbow"],["Strike-Orb","Diamond"],["B2 Heavy","Diamond"]],
+    [["ORB-Walker","Rainbow"],["R2","Rainbow"],["BB9","Basic"]],
+    [["B2 Super","Rainbow"],["Mecha-Droid","Basic"],["Proto-Roller","Basic"]],
+    [["B2 Heavy","Rainbow"],["B2-RP","Basic"],["R7","Gold"]],
+    [["Strike-Orb","Rainbow"],["BB9","Gold"],["Proto-Roller","Gold"]],
+    [["AMP Walker","Rainbow"],["Mecha-Droid","Gold"],["B2-RP","Diamond"]],
+    [["Opti-Pod","Rainbow"],["Mono-WLKR","Gold"],["R7","Diamond"]],
+    [["Util-Tec","Rainbow"],["BB9","Diamond"],["Proto-Roller","Diamond"]],
+    [["Mecha-Droid","Diamond"],["R7","Rainbow"],["B2-RP","Rainbow"]],
+    [["Mono-WLKR","Rainbow"],["Opti-STRK","Rainbow"],["Cyclo-Grav","Rainbow"]],
+    [["LO","Beskar"],["R6","Beskar"],["Haul-R","Beskar"]],
+    [["SEN-TRI","Beskar"],["Strike-Orb","Beskar"],["Proto-Roller","Beskar"]],
+    [["BB9","Beskar"],["Cyclo-Grav","Beskar"],["B2-RP","Beskar"]],
+    [["Opti-STRK","Beskar"],["B2-RP","Beskar"],["Snow Mouse","Basic"]],
+    [["Mono-WLKR","Beskar"],["TRI-TEK","Gold"],["RIC-1200","Basic"]],
+    [["KX","Gold"],["DRFT-R","Diamond"],["IG","Rainbow"]],
+    [["LEP","Diamond"],["Loadlifter","Rainbow"],["MO-TRAK","Beskar"]],
+    [["Mecha-Droid","Galactic"],["Snow Mouse","Rainbow"],["TRI-TEK","Beskar"]],
+    [["Cyclo-Grav","Galactic"],["R7","Galactic"],["RIC","Beskar"]],
+    [["Opti-STRK","Galactic"],["KX","Beskar"],["DRFT-R","Galactic"]],
+    [["B2 Super","Stellar"],["B2-RP","Beskar"],["Loadlifter","Beskar"]],
+    [["Gunrunner","Galactic"],["B1 Heavy","Galactic"],["LEP","Beskar"]],
+    [["R2","Stellar"],["Opti-STRK","Galactic"],["KX","Galactic"]],
+    [["R6","Stellar"],["LO","Stellar"],["RIC","Galactic"]],
+    [["R7","Stellar"],["DRFT-R","Stellar"],["CYCLENS","Stellar"]]
+  ],
+  3:[
+    [["Mouse","Basic"],["Pit","Basic"],["Gonk","Basic"]],
+    [["R3","Basic"],["2BB","Basic"],["Senate Hovercam","Basic"]],
+    [["R8","Basic"],["R5","Basic"],["R4","Basic"]],
+    [["B1 Battle","Gold"],["R9","Gold"],["B1 Security","Gold"]],
+    [["R3","Gold"],["2BB","Gold"],["Senate Hovercam","Gold"]],
+    [["R5","Diamond"],["R4","Diamond"],["BDX Explorer","Diamond"]],
+    [["R8","Diamond"],["B1 Battle","Diamond"],["R9","Diamond"]],
+    [["R3","Rainbow"],["2BB","Rainbow"],["B1 Security","Rainbow"]],
+    [["R5","Rainbow"],["R4","Rainbow"],["BDX Explorer","Rainbow"]],
+    [["Senate Hovercam","Rainbow"],["Groundmech","Basic"],["TRAK-R","Basic"]],
+    [["B2 Heavy","Basic"],["B2 Super","Basic"],["Util-Tec","Basic"]],
+    [["Bal-Core","Rainbow"],["Groundmech","Gold"],["TRAK-R","Gold"]],
+    [["B2 Super","Rainbow"],["Mecha-Droid","Basic"],["Proto-Roller","Basic"]],
+    [["B2 Heavy","Rainbow"],["B2-RP","Basic"],["R7","Gold"]],
+    [["Strike-Orb","Rainbow"],["BB9","Gold"],["Proto-Roller","Gold"]],
+    [["AMP Walker","Rainbow"],["Mecha-Droid","Gold"],["B2-RP","Diamond"]],
+    [["Opti-Pod","Rainbow"],["Mono-WLKR","Gold"],["R7","Diamond"]],
+    [["Util-Tec","Rainbow"],["BB9","Diamond"],["Proto-Roller","Diamond"]],
+    [["Mecha-Droid","Diamond"],["R7","Rainbow"],["B2-RP","Rainbow"]],
+    [["Mono-WLKR","Rainbow"],["Opti-STRK","Rainbow"],["Cyclo-Grav","Rainbow"]],
+    [["B2 Super","Beskar"],["Opti-Pod","Beskar"],["R2","Beskar"]],
+    [["Gunrunner","Beskar"],["LNG-Shot","Beskar"],["B2-RP","Beskar"]],
+    [["Mono-WLKR","Beskar"],["Cyclo-Grav","Beskar"],["Mecha-Droid","Beskar"]],
+    [["BB9","Beskar"],["B2-RP","Beskar"],["RIC","Basic"]],
+    [["Proto-Roller","Beskar"],["Loadlifter","Basic"],["MO-TRAK","Gold"]],
+    [["LEP","Gold"],["TRI-TEK","Diamond"],["Snow Mouse","Rainbow"]],
+    [["RIC-1200","Diamond"],["IG","Rainbow"],["DRFT-R","Beskar"]],
+    [["BB9","Galactic"],["RIC","Rainbow"],["MO-TRAK","Beskar"]],
+    [["Mecha-Droid","Galactic"],["Opti-STRK","Galactic"],["IG","Beskar"]],
+    [["R7","Galactic"],["LEP","Beskar"],["DRFT-R","Galactic"]],
+    [["B2 Heavy","Stellar"],["Mecha-Droid","Beskar"],["RIC-1200","Beskar"]],
+    [["Groundmech","Galactic"],["BB","Galactic"],["MO-TRAK","Beskar"]],
+    [["TRAK-R","Stellar"],["Mono-WLKR","Galactic"],["Loadlifter","Galactic"]],
+    [["ORB-Walker","Stellar"],["B2 Super","Stellar"],["LEP","Galactic"]],
+    [["Proto-Roller","Stellar"],["KX","Stellar"],["RIC","Stellar"]]
+  ],
+  4:[
+    [["ID10","Basic"],["Pit","Basic"],["DRK-1 Probe","Basic"]],
+    [["R3","Basic"],["2BB","Basic"],["Senate Hovercam","Basic"]],
+    [["R5","Gold"],["R8","Gold"],["R4","Basic"]],
+    [["B1 Battle","Gold"],["R9","Gold"],["B1 Security","Gold"]],
+    [["R3","Gold"],["2BB","Gold"],["Senate Hovercam","Gold"]],
+    [["R5","Diamond"],["R4","Diamond"],["BDX Explorer","Diamond"]],
+    [["R8","Diamond"],["B1 Battle","Diamond"],["R9","Diamond"]],
+    [["R3","Rainbow"],["B1 Security","Rainbow"],["2BB","Rainbow"]],
+    [["R5","Rainbow"],["R4","Rainbow"],["BDX Explorer","Rainbow"]],
+    [["Senate Hovercam","Rainbow"],["Groundmech","Basic"],["TRAK-R","Basic"]],
+    [["B2 Heavy","Basic"],["B2 Super","Basic"],["Util-Tec","Basic"]],
+    [["Bal-Core","Rainbow"],["Groundmech","Gold"],["TRAK-R","Gold"]],
+    [["B2 Super","Rainbow"],["Mecha-Droid","Basic"],["Proto-Roller","Basic"]],
+    [["Bal-Core","Diamond"],["Groundmech","Diamond"],["TRAK-R","Rainbow"]],
+    [["B2 Heavy","Diamond"],["B2 Super","Rainbow"],["B2-RP","Basic"]],
+    [["Util-Tec","Rainbow"],["BB9","Basic"],["R7","Gold"]],
+    [["Opti-STRK","Basic"],["Cyclo-Grav","Gold"],["Mecha-Droid","Gold"]],
+    [["B2-RP","Gold"],["BB9","Gold"],["R7","Diamond"]],
+    [["Mecha-Droid","Diamond"],["R7","Rainbow"],["B2-RP","Rainbow"]],
+    [["Mono-WLKR","Rainbow"],["Opti-STRK","Rainbow"],["Cyclo-Grav","Rainbow"]],
+    [["AMP Walker","Beskar"],["Groundmech","Beskar"],["Haul-R","Beskar"]],
+    [["Gunrunner","Beskar"],["Strike-Orb","Beskar"],["B2 Super","Beskar"]],
+    [["Mono-WLKR","Beskar"],["Cyclo-Grav","Beskar"],["B2-RP","Beskar"]],
+    [["Mecha-Droid","Beskar"],["Proto-Roller","Beskar"],["MO-TRAK","Basic"]],
+    [["Opti-STRK","Beskar"],["TRI-TEK","Basic"],["DRFT-R","Gold"]],
+    [["CYCLENS","Gold"],["LEP","Diamond"],["MO-TRAK","Rainbow"]],
+    [["RIC-1200","Diamond"],["Snow Mouse","Rainbow"],["Loadlifter","Beskar"]],
+    [["Opti-STRK","Galactic"],["IG","Rainbow"],["KX","Beskar"]],
+    [["BB9","Galactic"],["R7","Galactic"],["TRI-TEK","Beskar"]],
+    [["Mono-WLKR","Galactic"],["CYCLENS","Beskar"],["IG","Galactic"]],
+    [["TRAK-R","Stellar"],["Cyclo-Grav","Beskar"],["TRI-TEK","Beskar"]],
+    [["R2","Galactic"],["R6","Galactic"],["IG","Beskar"]],
+    [["B2 Heavy","Stellar"],["BB9","Galactic"],["RIC-1200","Galactic"]],
+    [["Strike-Orb","Stellar"],["AMP Walker","Stellar"],["MO-TRAK","Galactic"]],
+    [["B2-RP","Stellar"],["Loadlifter","Stellar"],["LEP","Stellar"]]
+  ],
+  5:[
+    [["ID10","Basic"],["Mouse","Basic"],["Gonk","Basic"]],
+    [["Imperial Probe","Gold"],["2BB","Basic"],["ROLL-R","Basic"]],
+    [["R4","Basic"],["VECT-Arm","Basic"],["BDX Explorer","Gold"]],
+    [["B1 Battle","Gold"],["R9","Gold"],["B1 Security","Gold"]],
+    [["R3","Gold"],["Bal-Core","Gold"],["R4","Gold"]],
+    [["2BB","Diamond"],["BDX Explorer","Diamond"],["Gunrunner","Basic"]],
+    [["R5","Diamond"],["ROLL-R","Diamond"],["R2","Gold"]],
+    [["R8","Diamond"],["B1 Battle","Diamond"],["B2 Super","Gold"]],
+    [["NAV-EX","Rainbow"],["Strike-Orb","Gold"],["AMP Walker","Gold"]],
+    [["Imperial Probe","Beskar"],["Groundmech","Basic"],["TRAK-R","Basic"]],
+    [["B2 Heavy","Basic"],["B2 Super","Basic"],["Util-Tec","Basic"]],
+    [["Bal-Core","Rainbow"],["Groundmech","Gold"],["TRAK-R","Gold"]],
+    [["B2 Super","Gold"],["B2 Heavy","Gold"],["R2","Diamond"]],
+    [["Groundmech","Diamond"],["TRAK-R","Diamond"],["Util-Tec","Rainbow"]],
+    [["B2 Heavy","Diamond"],["B2 Super","Diamond"],["B2-RP","Basic"]],
+    [["BB9","Basic"],["R7","Gold"],["Proto-Roller","Gold"]],
+    [["Opti-STRK","Basic"],["Cyclo-Grav","Gold"],["Mecha-Droid","Gold"]],
+    [["BB9","Gold"],["B2-RP","Gold"],["R7","Diamond"]],
+    [["Opti-STRK","Diamond"],["Cyclo-Grav","Diamond"],["Mecha-Droid","Rainbow"]],
+    [["B2-RP","Rainbow"],["BB9","Rainbow"],["R7","Rainbow"]],
+    [["LO","Beskar"],["Strike-Orb","Beskar"],["Haul-R","Beskar"]],
+    [["SEN-TRI","Beskar"],["R6","Beskar"],["Gunrunner","Beskar"]],
+    [["BB9","Beskar"],["Cyclo-Grav","Beskar"],["B2-RP","Beskar"]],
+    [["Mono-WLKR","Beskar"],["Opti-STRK","Beskar"],["MO-TRAK","Basic"]],
+    [["Mecha-Droid","Beskar"],["RIC","Basic"],["TRI-TEK","Gold"]],
+    [["CYCLENS","Gold"],["LEP","Diamond"],["Snow Mouse","Rainbow"]],
+    [["RIC-1200","Diamond"],["IG","Rainbow"],["Loadlifter","Beskar"]],
+    [["BB9","Galactic"],["RIC","Rainbow"],["MO-TRAK","Beskar"]],
+    [["Mecha-Droid","Galactic"],["Opti-STRK","Galactic"],["IG","Beskar"]],
+    [["R7","Galactic"],["LEP","Beskar"],["CYCLENS","Galactic"]],
+    [["AMP Walker","Stellar"],["Opti-STRK","Beskar"],["Snow Mouse","Beskar"]],
+    [["LO","Galactic"],["TRAK-R","Galactic"],["DRFT-R","Beskar"]],
+    [["Util-Tec","Stellar"],["R7","Galactic"],["TRI-TEK","Galactic"]],
+    [["Haul-R","Stellar"],["LNG-Shot","Stellar"],["IG","Galactic"]],
+    [["Mecha-Droid","Stellar"],["RIC-1200","Stellar"],["MO-TRAK","Stellar"]]
+  ]
+};
+
+const KEY = "droidex-v2";
+const SAVES_KEY = "droidex-saves";
+function renderMoneyDash(deck){
+  try {
+  deck = deck || activeDeck();
+  if (!deck) return "";
+  normalizeDeck(deck);
+  const parked = PADS.filter(p => padSlot(deck,p.id) && padSlot(deck,p.id).name).length;
+  const visTotal = PADS.length;
+  const icons = iconicBoost(deck);
+  const boost = creditBoostNow();
+  const shown = deckCps(deck) * boost;
+  let html = `<div class="money-dash">`;
+  if (boost>1) html += `<div class="boost-banner"><b>Credits are boosted!</b><span>Double credits event active: ${boost}x</span></div>`;
+  html += `<div class="money-grid">`;
+  html += `<article><div class="k">Per second</div><b class="g">${fmtNum(shown)}/s</b></article>`;
+  html += `<article><div class="k">Per minute</div><b class="g">${fmtNum(shown*60)}/m</b></article>`;
+  html += `<article><div class="k">Per hour</div><b class="g">${fmtNum(shown*3600)}/h</b></article>`;
+  html += `<article><div class="k">Offline (10%)</div><b class="c">${fmtNum(shown*3600*0.1)}/h</b></article>`;
+  html += `</div><div class="meta" style="text-align:center;margin:6px 0 0">${parked}/${visTotal} parked${icons?" · "+icons+" iconic x15%":""}${boost>1?" · includes event boost":""}</div></div>`;
+  return html;
+  } catch(e){ return ""; }
+}
+
+function blankState(cycle){ return {d:{},f:{},i:{},c:{},nova:{},rb:{cycle:cycle||1},decks:{active:0,list:[blankDeck("Deck 1")]}}; }
+function blankDeck(name){ return {name:name||"Base",mult:1,bonus:true,slots:[]}; }
+function allDeckNames(){
+  return DROIDS.map(d=>d[0]).concat(FUSIONS.map(d=>d[0])).concat(ICONICS.map(d=>d[0]));
+}
+function isIconic(name){ return ICONICS.some(d => d[0]===name); }
+function ownedOptions(){
+  const names = [];
+  DROIDS.forEach(([n]) => { if (ownedTiers(n)) names.push(n); });
+  FUSIONS.forEach(([n]) => { if (fuseTiers(n)) names.push(n); });
+  ICONICS.forEach(([n]) => { if (iconOwned(n)) names.push(n); });
+  return names.length ? names : allDeckNames();
+}
+function collectionBonus(){
+  let n = 0;
+  DROIDS.forEach(([nm]) => { if (ownedTiers(nm)) n++; });
+  FUSIONS.forEach(([nm]) => { if (fuseTiers(nm)) n++; });
+  ICONICS.forEach(([nm]) => { if (iconOwned(nm)) n++; });
+  return n;
+}
+const VARIANT_BONUS = [
+  {tier:"Basic", label:"Default", bonus:25, color:"#94a3b8", bar:"#64748b"},
+  {tier:"Gold", label:"Gold", bonus:30, color:"#f59e0b", bar:"#d97706"},
+  {tier:"Diamond", label:"Diamond", bonus:35, color:"#22d3ee", bar:"#0891b2"},
+  {tier:"Rainbow", label:"Rainbow", bonus:40, color:"#e879f9", bar:"#c026d3"},
+  {tier:"Beskar", label:"Beskar", bonus:60, color:"#cbd5e1", bar:"#94a3b8"},
+  {tier:"Galactic", label:"Galactic", bonus:100, color:"#c084fc", bar:"#7c3aed"},
+  {tier:"Stellar", label:"Stellar", bonus:200, color:"#fbbf24", bar:"#d97706"}
+];
+function craftNames(){ return DROIDS.map(d=>d[0]).concat(FUSIONS.map(f=>f[0])); }
+function ownedAtLeast(name, tier){
+  const need = TIER_I[tier] ?? 0;
+  let best = -1;
+  VARIANTS.forEach(v => { if (has(name,v) || fuseHas(name,v)) best = Math.max(best, TIER_I[v]??-1); });
+  return best >= need;
+}
+function variantPoolNames(scope){
+  if (scope==="fusion") return FUSIONS.map(f=>f[0]);
+  return craftNames();
+}
+function variantHave(tier, scope){
+  if (scope==="fusion") return FUSIONS.filter(([nm]) => fuseHas(nm, tier)).length;
+  let n = variantPoolNames(scope).filter(nm => ownedAtLeast(nm, tier)).length;
+  if (tier==="Basic") ICONICS.forEach(([nm]) => { if (iconOwned(nm)) n++; });
+  return n;
+}
+function variantTotal(tier, scope){
+  if (scope==="fusion") return FUSIONS.length;
+  return craftNames().length + (tier==="Basic" ? ICONICS.length : 0);
+}
+function renderVariantBonuses(scope){
+  scope = scope || "all";
+  let h = `<div class="bonus-grid">`;
+  VARIANT_BONUS.forEach(v => {
+    const have = variantHave(v.tier, scope);
+    const tot = variantTotal(v.tier, scope);
+    const pct = tot ? Math.round(have/tot*100) : 0;
+    const left = Math.max(0, 25-have);
+    const on = scope==="fusion" ? have>=tot && tot>0 : have >= 25;
+    const sub = scope==="fusion"
+      ? (have>=tot ? "All fusion variants" : `${tot-have} fusion left at ${v.label}+`)
+      : (on ? "Bonus unlocked" : `Unlock ${left} more ${v.label.toLowerCase()} droids to get the bonus`);
+    h += `<article class="bonus-card ${on?"on":""}" style="--b:${v.bar};--c:${v.color}">`;
+    h += `<div class="bonus-name">${v.label}</div>`;
+    h += `<div class="bonus-bar"><i style="width:${pct}%"></i></div>`;
+    h += `<div class="bonus-row"><span>${have} / ${tot} (${pct}%)</span><b>+${v.bonus}%</b></div>`;
+    h += `<div class="bonus-sub">${sub}</div></article>`;
+  });
+  h += `</div>`;
+  return h;
+}
+let FLOORS = [
+  {id:"worker", label:"Worker deck", kind:"Worker", count:11},
+  {id:"astromech", label:"Astromech deck", kind:"Astromech", count:9},
+  {id:"battle", label:"Battle deck", kind:"Battle", count:5},
+  {id:"firing", label:"Firing range", kind:"Battle", count:6},
+  {id:"lounge", label:"Lounge · storage only", kind:"Lounge", count:13},
+  {id:"companion", label:"Companion · buff only", kind:"Companion", count:2, group:"base"},
+  {id:"chip", label:"Chip station", kind:"Lounge", count:0, group:"base"},
+  {id:"build", label:"Build slots", kind:"Build", count:0},
+  {id:"benchW", label:"Worker bench", kind:"Worker", count:1, group:"bench"},
+  {id:"benchA", label:"Astromech bench", kind:"Astromech", count:1, group:"bench"},
+  {id:"benchB", label:"Battle bench", kind:"Battle", count:1, group:"bench"},
+  {id:"fuse1", label:"Fusion pads", kind:"Fusion", count:3, group:"fusion", lab:1},
+  {id:"chamber1", label:"Chamber 1", kind:"Chamber", count:1, group:"fusion", lab:1},
+  {id:"chamber2", label:"Chamber 2", kind:"Chamber", count:1, group:"fusion", lab:2},
+  {id:"chamber3", label:"Chamber 3", kind:"Chamber", count:1, group:"fusion", lab:3}
+];
+const PAD_TAG = {worker:"W",astromech:"A",battle:"B",firing:"F",lounge:"L",companion:"C",chip:"CH",build:"BL",fuse1:"1-",chamber1:"C1-",chamber2:"C2-",chamber3:"C3-"};
+const EARN_KINDS = {Worker:1,Astromech:1,Battle:1,Protocol:1};
+const PAD_TOTAL = FLOORS.reduce((a,f)=>a+f.count,0);
+function padList(){
+  const pads = [];
+  FLOORS.forEach(f => {
+    for (let i=0;i<f.count;i++){
+      const n = i+1;
+      const astroM = f.id==="astromech" && [1,4,5,6,9].includes(n);
+      pads.push({id:f.id+i, kind:f.kind, floor:f.id, n, mission: astroM, zone: f.id==="worker" ? (n<=8?"carousel":"control") : (f.id==="astromech" ? (astroM?"mission":"deck") : "")});
+    }
+    if (f.id==="worker" || f.id==="astromech" || f.id==="battle"){
+      for (let j=0;j<2;j++){
+        pads.push({id:f.id+"p"+j, kind:"Protocol", floor:f.id, n:"P"+(j+1), mission:false, zone:"protocol"});
+      }
+    }
+  });
+  return pads;
+}
+let PADS = padList();
+const PATCH_KEY = "droidex-patches-cache";
+function rebuildPads(){ PADS = padList(); }
+function applyUnlocks(){
+  if (!state.decks) return;
+  if (!state.decks.unlocks) state.decks.unlocks = {};
+  const u = state.decks.unlocks;
+  if (typeof novaLvl === "function"){
+    if (novaLvl("companion-slot")>=1) u.companion2 = true;
+    else if (u.companion2 && novaLvl("companion-slot")===0 && !state.nova["companion-slot"]) { /* keep until migrated */ }
+    if (novaLvl("chip-station")>=1) u.chip = true;
+    if (novaLvl("build-slots")>=1) u.build = true;
+    if (novaLvl("lounge-slot")>0) u.loungeExtra = Math.min(4, novaLvl("lounge-slot"));
+    if (novaLvl("fusion-tank-2")>=1) state.decks.secondLab = true;
+    if (novaLvl("fusion-tank-3")>=1) state.decks.thirdLab = true;
+  }
+  const extra = Math.min(4, Math.max(0, Number(u.loungeExtra||0)));
+  FLOORS.forEach(f => {
+    if (f.id==="lounge") f.count = 9 + extra;
+    if (f.id==="companion") f.count = u.companion2 ? 2 : 1;
+    if (f.id==="chip") f.count = u.chip ? 1 : 0;
+    if (f.id==="build") f.count = u.build ? 3 : 0;
+  });
+  rebuildPads();
+}
+function setUnlock(key, val){
+  if (!state.decks.unlocks) state.decks.unlocks = {};
+  if (key==="loungeExtra") state.decks.unlocks.loungeExtra = Math.min(4, Math.max(0, Number(val)||0));
+  else state.decks.unlocks[key] = !!val;
+  applyUnlocks();
+applyAlertColors();
+  save(); render();
+}
+function applyPatches(pack){
+  if (!pack) return;
+  if (pack.slots){
+    FLOORS.forEach(f => {
+      if (pack.slots[f.id] != null) f.count = Number(pack.slots[f.id]);
+    });
+    rebuildPads();
+  }
+  if (Array.isArray(pack.notes)) state._patchNotes = pack.notes;
+  if (pack.updated) state._patchUpdated = pack.updated;
+}
+function loadCachedPatches(){
+  try {
+    const raw = localStorage.getItem(PATCH_KEY);
+    if (raw) applyPatches(JSON.parse(raw));
+  } catch(e){}
+}
+async function scanPatches(silent){
+  let pack = null;
+  try {
+    const res = await fetch("patches.json?t="+Date.now(), {cache:"no-store"});
+    if (res.ok) pack = await res.json();
+  } catch(e){}
+  if (!pack){
+    if (!silent) alert("Could not refresh patches.json. Keep it next to index.html on GitHub Pages.");
+    return false;
+  }
+  applyPatches(pack);
+  try { localStorage.setItem(PATCH_KEY, JSON.stringify(pack)); } catch(e){}
+  if (!silent){
+    const latest = (pack.notes&&pack.notes[0]) ? ("Latest: v"+pack.notes[0].ver) : "Slots refreshed";
+    alert(latest);
+    render();
+  } else render();
+  return true;
+}
+loadCachedPatches();
+function classOf(name){
+  const d = DROIDS.find(x=>x[0]===name);
+  if (d) return d[1];
+  const f = FUSIONS.find(x=>x[0]===name);
+  if (f) return f[2];
+  const ic = ICONICS.find(x=>x[0]===name);
+  if (ic) return ic[1];
+  return "";
+}
+const RARITY_RANK = {Common:0,Rare:1,Epic:2,Legendary:3,Mythic:4,Iconic:5,Fusion:2};
+const REG_KEY = "droidex-registry-cache";
+const DEFAULT_RATE = [2,4,8,16,24,48,64];
+function knownName(n){
+  return DROIDS.some(x=>x[0]===n) || FUSIONS.some(x=>x[0]===n) || ICONICS.some(x=>x[0]===n);
+}
+function addDroidEntry(name, typ, rarity){
+  if (!name || knownName(name)) return false;
+  typ = typ||"Worker";
+  rarity = rarity||"Common";
+  DROIDS.push([name, typ, rarity]);
+  if (!RATE[name]) RATE[name] = DEFAULT_RATE.slice();
+  return true;
+}
+function addFusionEntry(name, rarity, typ, recipe){
+  if (!name || knownName(name)) return false;
+  FUSIONS.push([name, rarity||"Rare", typ||"Worker", recipe||["",""," "]]);
+  if (!RATE[name]) RATE[name] = DEFAULT_RATE.slice();
+  return true;
+}
+function addIconicEntry(name, typ, ev, how){
+  if (!name || knownName(name)) return false;
+  ICONICS.push([name, typ||"Worker", ev||"Event", how||"Limited event iconic"]);
+  return true;
+}
+function canonName(name){
+  if (name==="AXL-POD") return "AXI-POD";
+  return name;
+}
+function applyRegistry(pack){
+  if (!pack) return {added:[]};
+  const added = [];
+  (pack.droids||[]).forEach(d => {
+    const name=canonName(d.name||d[0]), typ=d.type||d[1], rar=d.rarity||d[2];
+    if (name && addDroidEntry(name,typ,rar)) added.push(name+" ("+rar+")");
+  });
+  (pack.fusions||[]).forEach(d => {
+    const name=canonName(d.name||d[0]);
+    if (addFusionEntry(name, d.rarity||d[1], d.type||d[2], d.recipe||d[3])) added.push(name+" (Fusion)");
+  });
+  (pack.iconics||[]).forEach(d => {
+    const name=d.name||d[0];
+    if (addIconicEntry(name, d.type||d[1], d.event||d[2], d.how||d[3])) added.push(name+" (Iconic)");
+  });
+  if (pack.updated) state._regUpdated = pack.updated;
+  return {added};
+}
+function dropAliasDupes(){
+  const kill = n => n==="AXL-POD";
+  if (typeof DROIDS!=="undefined") {
+    for (let i=DROIDS.length-1;i>=0;i--) if (kill(DROIDS[i][0])) DROIDS.splice(i,1);
+  }
+  if (typeof FUSIONS!=="undefined") {
+    for (let i=FUSIONS.length-1;i>=0;i--) if (kill(FUSIONS[i][0])) FUSIONS.splice(i,1);
+  }
+}
+function loadCachedRegistry(){
+  try {
+    const raw = localStorage.getItem(REG_KEY);
+    if (raw) applyRegistry(JSON.parse(raw));
+  } catch(e){}
+  dropAliasDupes();
+}
+async function scanRegistry(silent){
+  let pack = null;
+  try {
+    const res = await fetch("registry.json?t="+Date.now(), {cache:"no-store"});
+    if (res.ok) pack = await res.json();
+  } catch(e){}
+  if (!pack){
+    if (!silent) alert("Could not refresh registry.json. Keep it next to index.html on GitHub Pages.");
+    return false;
+  }
+  const {added} = applyRegistry(pack);
+  try { localStorage.setItem(REG_KEY, JSON.stringify(pack)); } catch(e){}
+  if (!silent){
+    alert(added.length ? ("Added: "+added.join(", ")) : "No new droids, iconics, or rarities.");
+    render();
+  } else if (added.length) render();
+  return true;
+}
+loadCachedRegistry();
+function rarityOf(name){
+  const d = DROIDS.find(x=>x[0]===name);
+  if (d) return d[2];
+  const f = FUSIONS.find(x=>x[0]===name);
+  if (f) return f[1];
+  if (ICONICS.some(x=>x[0]===name)) return "Iconic";
+  return "";
+}
+function rarityMark(r){
+  if (!r) return "";
+  return ` <span class="${r}">(${r})</span>`;
+}
+function sortByRarity(names){
+  return names.slice().sort((a,b) => {
+    const ra = RARITY_RANK[rarityOf(a)] ?? 9;
+    const rb = RARITY_RANK[rarityOf(b)] ?? 9;
+    return ra-rb || a.localeCompare(b);
+  });
+}
+function normalizeDeck(deck){
+  if (!deck.pads) deck.pads = {};
+  if (Array.isArray(deck.slots) && deck.slots.length && !Object.keys(deck.pads).length){
+    deck.slots.forEach((s,i) => {
+      if (s && s.name && PADS[i]) deck.pads[PADS[i].id] = {name:s.name, variant:s.variant||"Basic", mult:s.mult||1};
+    });
+  }
+  const seen = new Set();
+  PADS.forEach(p => {
+    const s = deck.pads[p.id];
+    if (!s || !s.name || !isIconic(s.name)) return;
+    if (seen.has(s.name)) delete deck.pads[p.id];
+    else seen.add(s.name);
+  });
+  return deck;
+}
+function padSlot(deck, id){
+  return (deck.pads && deck.pads[id]) || null;
+}
+function earnsIncome(kind){ return !!EARN_KINDS[kind]; }
+function slotCps(slot, kind, pad){
+  if (!slot || !slot.name) return 0;
+  if (pad && pad.mission) return 0;
+  if (pad && String(pad.floor||"").indexOf("bench")===0) return 0;
+  if (!earnsIncome(kind)) return 0;
+  if (isIconic(slot.name)) return 0;
+  const raw = rateOf(slot.name, slot.variant||"Basic") * (Number(slot.mult)||1);
+  const match = classOf(slot.name)===kind ? 1.1 : 1;
+  return raw * match;
+}
+function iconicBoost(deck){
+  let n = 0;
+  PADS.forEach(p => {
+    if (!earnsIncome(p.kind)) return;
+    const s = padSlot(deck,p.id);
+    if (s && s.name && isIconic(s.name)) n++;
+  });
+  return n;
+}
+function deckCps(deck){
+  if (!deck) return 0;
+  normalizeDeck(deck);
+  const raw = PADS.reduce((a,p)=>a+slotCps(padSlot(deck,p.id), p.kind, p),0);
+  const bonus = deck.bonus===false ? 1 : (1 + collectionBonus()/100);
+  const icon = 1 + iconicBoost(deck)*0.15;
+  return raw * (Number(deck.mult)||1) * bonus * icon;
+}
+function activeDeck(){
+  ensureDecks(state);
+applyUnlocks();
+  return normalizeDeck(state.decks.list[state.decks.active] || state.decks.list[0]);
+}
+function setDeckField(field, value){
+  const d = activeDeck();
+  if (field==="name") d.name = value;
+  if (field==="mult") d.mult = Math.max(0, Number(value)||0);
+  if (field==="bonus") d.bonus = !!value;
+  save(); render();
+}
+function addDeck(){
+  ensureDecks(state);
+  state.decks.list.push(blankDeck("Base "+(state.decks.list.length+1)));
+  state.decks.active = state.decks.list.length-1;
+  save(); render();
+}
+function switchDeck(i){
+  state.decks.active = Number(i)||0;
+  save(); render();
+}
+function renameDeck(){
+  const d = activeDeck();
+  const n = prompt("Base name", d.name||"Base");
+  if (n==null) return;
+  d.name = String(n).trim() || d.name;
+  save(); render();
+}
+function deleteDeck(){
+  ensureDecks(state);
+  if (state.decks.list.length<2) return;
+  if (!confirm("Delete this base map?")) return;
+  state.decks.list.splice(state.decks.active,1);
+  if (state.decks.active >= state.decks.list.length) state.decks.active = state.decks.list.length-1;
+  save(); render();
+}
+function parkedIconics(exceptId){
+  const d = activeDeck();
+  const used = new Set();
+  PADS.forEach(p => {
+    if (exceptId && p.id===exceptId) return;
+    const s = padSlot(d, p.id);
+    if (s && s.name && isIconic(s.name)) used.add(s.name);
+  });
+  return used;
+}
+function setPad(id, name, variant){
+  const d = activeDeck();
+  if (!d.pads) d.pads = {};
+  if (!name) delete d.pads[id];
+  else {
+    if (isIconic(name) && !iconOwned(name)) return;
+    if (isIconic(name)) {
+      PADS.forEach(p => {
+        if (p.id===id) return;
+        const s = padSlot(d, p.id);
+        if (s && s.name===name) delete d.pads[p.id];
+      });
+    }
+    d.pads[id] = {name, variant: variant||"Basic", mult:1};
+  }
+  save(); render();
+}
+function namesOfType(kind){
+  return allDeckNames().filter(n => classOf(n)===kind);
+}
+function choosePadName(n){
+  window._padPick = n || "";
+  const hid = document.getElementById("padName");
+  if (hid) hid.value = n || "";
+  const lab = document.getElementById("padChosen");
+  if (lab) lab.innerHTML = n ? ("Selected: "+n+rarityMark(rarityOf(n))+(isIconic(n)?" · iconic +15%":" · "+classOf(n))) : "No droid selected";
+  const kind = n ? classOf(n) : "";
+  ["Worker","Astromech","Battle","Protocol"].forEach(k => {
+    const sel = document.getElementById("pick-"+k);
+    if (sel) sel.value = (k===kind ? n : "");
+  });
+  const varBox = document.getElementById("padVarBox");
+  if (varBox){
+    if (n && isIconic(n)) varBox.innerHTML = `<input id="padVar" type="hidden" value="Basic"><div class="meta">Iconic · +15% income when parked</div>`;
+    else {
+      let html = `<div class="meta" style="margin:10px 0 6px">Variant</div><select id="padVar" class="deck-field">`;
+      VARIANTS.forEach(v => { html += `<option value="${v}">${v}</option>`; });
+      html += `</select>`;
+      varBox.innerHTML = html;
+    }
+  }
+}
+function openPad(id){
+  const deck = activeDeck();
+  const pad = PADS.find(p=>p.id===id);
+  const cur = padSlot(deck, id) || {};
+  window._padPick = cur.name || "";
+  const owned = new Set(ownedOptions());
+  const box = document.getElementById("modal");
+  box.classList.remove("hidden");
+  let html = `<div class="sheet"><h2>${pad.kind} ${pad.n}</h2><p>Pick from one type list. Matching type gets +10%.</p>`;
+  html += `<input id="padName" type="hidden" value="${esc(cur.name||"")}">`;
+  html += `<div id="padChosen" class="meta">${cur.name?("Selected: "+cur.name):"No droid selected"}</div>`;
+  ["Worker","Astromech","Battle","Protocol"].forEach(kind => {
+    html += `<div class="meta" style="margin:10px 0 6px">${kind}</div>`;
+    html += `<select id="pick-${kind}" class="deck-field" onchange="choosePadName(this.value)">`;
+    html += `<option value="">Empty</option>`;
+    const groups = ["Common","Rare","Epic","Legendary","Mythic","Iconic"];
+    groups.forEach(r => {
+      const taken = parkedIconics(id);
+      const list = sortByRarity(namesOfType(kind)).filter(n => rarityOf(n)===r && (!isIconic(n) || ((iconOwned(n) || n===cur.name) && (!taken.has(n) || n===cur.name))));
+      if (!list.length) return;
+      html += `<optgroup label="${r}">`;
+      list.forEach(n => {
+        const sel = n===cur.name ? "selected" : "";
+        html += `<option value="${esc(n)}" ${sel}>${owned.has(n)?"● ":""}${n} (${r})${isIconic(n)?" ★":""}</option>`;
+      });
+      html += `</optgroup>`;
+    });
+    html += `</select>`;
+  });
+  html += `<div id="padVarBox">`;
+  if (cur.name && isIconic(cur.name)) html += `<input id="padVar" type="hidden" value="Basic"><div class="meta" style="margin-top:8px">Iconic · +15% income when parked</div>`;
+  else {
+    html += `<div class="meta" style="margin:10px 0 6px">Variant</div><select id="padVar" class="deck-field">`;
+    VARIANTS.forEach(v => { html += `<option value="${v}" ${v===(cur.variant||"Basic")?"selected":""}>${v}</option>`; });
+    html += `</select>`;
+  }
+  html += `</div><div class="row" style="margin-top:12px"><button onclick="closeModal()">Cancel</button><button class="danger" onclick="setPad('${id}','','');closeModal()">Clear</button><button onclick="setPad('${id}',document.getElementById('padName').value,document.getElementById('padVar').value);closeModal()">Park</button></div></div>`;
+  box.innerHTML = html;
+}
+function renderDecks(){
+  const deck = activeDeck();
+  const visiblePads = PADS.filter(p => {
+    const f = FLOORS.find(x=>x.id===p.floor);
+    if (!f || f.group!=="fusion") return true;
+    if (f.id==="fuse1" || f.id==="chamber1") return true;
+    if (f.id==="chamber2") return !!(state.decks.secondLab || novaLvl("fusion-tank-2")>=1);
+    if (f.id==="chamber3") return !!(state.decks.thirdLab || novaLvl("fusion-tank-3")>=1);
+    return false;
+  });
+  let parked = 0;
+  visiblePads.forEach(p => { if (padSlot(deck,p.id) && padSlot(deck,p.id).name) parked++; });
+  const visTotal = visiblePads.length;
+  let html = `<div class="hint">Hard caps: 11 worker + 2 protocol · 9 astromech + 2 protocol · 5 battle + 6 range + 2 protocol · 13 lounge · 2 companion. Fusion lab is 3 pads + 1 chamber; a second tank (300 Nova / 1,800 V-Bucks) unlocks another 3+1. Lounge, companions, fusion, and chamber do not earn credits/s. Lounge + fusion/chamber still count for rebirths. Green = matching type +10%. Neon blue pad = ready for an upcoming rebirth. Orange pad = needed name, variant too low.</div>`;
+  html += `<div class="meta" style="margin:0 0 8px">Active base: <b>${esc(deck.name||"Base")}</b> · switch bases on Profiles</div>`;
+  const icons = iconicBoost(deck);
+  const rate = fmtRate(deckCps(deck));
+  const boost = creditBoostNow();
+  const shown = deckCps(deck) * boost;
+  html += `<div class="floor-board" id="floorBoard">`;
+  html += `<details class="floor stats" ${floorOpen("stats",true)?"open":""} ontoggle="toggleFloor('stats',this.open)" draggable="true" data-fid="stats" ondragstart="floorDragStart(event,'stats')" ondragover="floorDragOver(event)" ondrop="floorDrop(event,'stats')">`;
+  html += `<summary>${esc(deck.name||"Base")} · ${fmtRate(shown)} · ${parked}/${visTotal}</summary>`;
+  html += `<div class="stats-body">`;
+  html += renderMoneyDash(deck);
+  html += `<div class="stats-side"><div class="meta" style="margin:0 0 6px">Base multiplier (1 = none)</div><input class="deck-field" type="number" min="0" step="0.01" value="${deck.mult||1}" onchange="setDeckField('mult',this.value)">`;
+  html += `<div class="vars" style="grid-template-columns:1fr;margin-top:10px"><label class="chk ${deck.bonus!==false?"on":""}" style="flex-direction:row;text-transform:none;letter-spacing:0"><input type="checkbox" ${deck.bonus!==false?"checked":""} onchange="setDeckField('bonus',this.checked)">Collection bonus (+${collectionBonus()}%)</label></div></div></div></details>`;
+  const floorChunks = {};
+  FLOORS.filter(f => f.group!=="fusion" && f.group!=="bench" && f.count>0).forEach(f => {
+    const slice = PADS.filter(p=>p.floor===f.id);
+    const main = slice.filter(p=>p.zone!=="protocol");
+    const used = main.filter(p => padSlot(deck,p.id) && padSlot(deck,p.id).name).length;
+    if (f.id==="worker"){
+      const car = slice.filter(p=>p.zone==="carousel");
+      const ctrl = slice.filter(p=>p.zone==="control");
+      const cu = car.filter(p => padSlot(deck,p.id)&&padSlot(deck,p.id).name).length;
+      const tu = ctrl.filter(p => padSlot(deck,p.id)&&padSlot(deck,p.id).name).length;
+      html += `<details class="floor worker" ${floorOpen("worker",true)?"open":""} ontoggle="toggleFloor('worker',this.open)" draggable="true" data-fid="worker" ondragstart="floorDragStart(event,'worker')" ondragover="floorDragOver(event)" ondrop="floorDrop(event,'worker')"><summary>Worker deck · ${used}/${f.count}</summary><div class="worker-split">`;
+      const protoW = slice.filter(x=>x.zone==="protocol");
+      const bPadsW = PADS.filter(p=>p.floor==="benchW");
+      html += `<div class="zone stations"><div class="station-row">`;
+      html += `<div class="station"><div class="zone-h gold">Production<br>Speed<br><span>Protocol</span></div><div class="pads">`;
+      (protoW[0]?[protoW[0]]:[]).forEach(x => html += padButton(x,deck));
+      html += `</div></div>`;
+      html += `<div class="station"><div class="zone-h cyan">Bench</div><div class="pads">`;
+      bPadsW.forEach(x => html += padButton(x,deck));
+      html += `</div></div>`;
+      html += `<div class="station"><div class="zone-h gold">Credit<br>Multiplier<br><span>Protocol</span></div><div class="pads">`;
+      (protoW[1]?[protoW[1]]:protoW.slice(1)).forEach(x => html += padButton(x,deck));
+      html += `</div></div></div></div>`;
+      html += `<div class="worker-walk">`;
+      html += `<div class="zone carousel"><div class="zone-h">Carousel (${cu}/8)</div><div class="pads">`;
+      car.forEach(p => html += padButton(p,deck));
+      html += `</div></div><div class="zone control"><div class="zone-h">Control Room (${tu}/3)</div><div class="pads">`;
+      ctrl.forEach(p => html += padButton(p,deck));
+      html += `</div></div></div></div></details>`;
+      return;
+    }
+    if (f.id==="astromech"){
+      const zoneBox = (title, extra, cls, pads) => {
+        const gu = pads.filter(p => padSlot(deck,p.id)&&padSlot(deck,p.id).name).length;
+        let h = `<div class="zone ${cls}"><div class="zone-h">${title} (${gu}/${pads.length})${extra||""}</div><div class="pads">`;
+        pads.forEach(p => h += padButton(p,deck));
+        return h + `</div></div>`;
+      };
+      const proto = slice.filter(p=>p.zone==="protocol");
+      const speed = proto[0] ? [proto[0]] : [];
+      const multi = proto[1] ? [proto[1]] : proto.slice(1);
+      const bench = PADS.filter(p=>p.floor==="benchA");
+      html += `<details class="floor astromech" ${floorOpen("astromech",true)?"open":""} ontoggle="toggleFloor('astromech',this.open)" draggable="true" data-fid="astromech" ondragstart="floorDragStart(event,'astromech')" ondragover="floorDragOver(event)" ondrop="floorDrop(event,'astromech')"><summary>Astromech deck · ${used}/${f.count}</summary><div class="astro-board">`;
+      html += `<div class="zone stations"><div class="station-row">`;
+      html += `<div class="station"><div class="zone-h gold">Production<br>Speed<br><span>Protocol</span></div><div class="pads">`;
+      speed.forEach(p => html += padButton(p,deck));
+      html += `</div></div>`;
+      html += `<div class="station"><div class="zone-h cyan">Bench</div><div class="pads">`;
+      bench.forEach(p => html += padButton(p,deck));
+      html += `</div></div>`;
+      html += `<div class="station"><div class="zone-h gold">Credit<br>Multiplier<br><span>Protocol</span></div><div class="pads">`;
+      multi.forEach(p => html += padButton(p,deck));
+      html += `</div></div></div></div>`;
+      html += `<div class="astro-walk">`;
+      html += zoneBox("Mission"," · no credits/s","mission a-m1", slice.filter(p=>p.n===1));
+      html += zoneBox("Deck","","deck a-d23", slice.filter(p=>[2,3].includes(p.n)));
+      html += zoneBox("Mission"," · no credits/s","mission a-m456", slice.filter(p=>[4,5,6].includes(p.n)));
+      html += zoneBox("Mission"," · no credits/s","mission a-m9", slice.filter(p=>p.n===9));
+      html += zoneBox("Deck","","deck a-d78", slice.filter(p=>[7,8].includes(p.n)));
+      html += `</div></div></details>`;
+      return;
+    }
+    if (f.id==="firing") return;
+    if (f.id==="battle"){
+      const fire = PADS.filter(p=>p.floor==="firing");
+      const bu = used;
+      const fu = fire.filter(p => padSlot(deck,p.id)&&padSlot(deck,p.id).name).length;
+      html += `<details class="floor battle-wrap" ${floorOpen("battle",true)?"open":""} ontoggle="toggleFloor('battle',this.open)" draggable="true" data-fid="battle" ondragstart="floorDragStart(event,'battle')" ondragover="floorDragOver(event)" ondrop="floorDrop(event,'battle')"><summary>Battle deck · ${bu}/5 · Range ${fu}/6</summary>`;
+      const protoB = slice.filter(p=>p.zone==="protocol");
+      const bPadsB = PADS.filter(p=>p.floor==="benchB");
+      html += `<div class="zone stations"><div class="station-row">`;
+      html += `<div class="station"><div class="zone-h gold">Production<br>Speed<br><span>Protocol</span></div><div class="pads">`;
+      (protoB[0]?[protoB[0]]:[]).forEach(x => html += padButton(x,deck));
+      html += `</div></div>`;
+      html += `<div class="station"><div class="zone-h cyan">Bench</div><div class="pads">`;
+      bPadsB.forEach(x => html += padButton(x,deck));
+      html += `</div></div>`;
+      html += `<div class="station"><div class="zone-h gold">Credit<br>Multiplier<br><span>Protocol</span></div><div class="pads">`;
+      (protoB[1]?[protoB[1]]:protoB.slice(1)).forEach(x => html += padButton(x,deck));
+      html += `</div></div></div></div>`;
+      html += `<div class="battle-walk">`;
+      html += `<div class="zone battle-zone"><div class="pads">`;
+      main.forEach(p => html += padButton(p,deck));
+      html += `</div></div><div class="zone firing-zone"><div class="zone-h">Firing Range (${fu}/6)</div><div class="pads">`;
+      fire.forEach(p => html += padButton(p,deck));
+      html += `</div></div></div></details>`;
+      return;
+    }
+    const defOpen = !(f.id==="lounge" || f.id==="companion" || f.id==="build");
+    let extra = "";
+    const lab = f.id==="companion" ? (slice.length>1 ? "Companion · main + secondary" : "Companion · main") : f.label;
+    html += `<details class="floor ${f.id}" ${floorOpen(f.id, defOpen)?"open":""} ontoggle="toggleFloor('${f.id}',this.open)" draggable="true" data-fid="${f.id}" ondragstart="floorDragStart(event,'${f.id}')" ondragover="floorDragOver(event)" ondrop="floorDrop(event,'${f.id}')"><summary>${lab} · ${used}/${f.count}</summary><div class="pads">`;
+    slice.forEach(p => { html += padButton(p,deck); });
+    html += `</div>${extra}</details>`;
+  });
+  const benches = PADS.filter(p=>p.floor==="benchW"||p.floor==="benchA"||p.floor==="benchB");
+  const bu = benches.filter(p => padSlot(deck,p.id)&&padSlot(deck,p.id).name).length;
+  html += renderFusionLabs(deck);
+  html += `</div>`;
+  return html;
+}
+function padButton(p, deck){
+  const s = padSlot(deck,p.id);
+  const mission = p.mission ? "mission" : "";
+  const drag = `onpointerdown="padGrab(event,'${p.id}')" onpointerup="padRelease(event,'${p.id}')" ondragover="event.preventDefault()" ondrop="swapPads('${p.id}')"`;
+  if (s && s.name){
+    const typed = p.kind==="Worker"||p.kind==="Astromech"||p.kind==="Battle"||p.kind==="Protocol";
+    const match = typed && classOf(s.name)===p.kind;
+    const tone = p.mission ? "mission" : (p.kind==="Companion"||p.floor==="chip" ? "companion" : (!typed ? "lounge" : (match ? "match" : "offtype")));
+    const lab = p.mission ? ("M"+p.n+" "+(isIconic(s.name)?"★ ":"")+s.name) : p.floor==="companion" ? ((p.n===1?"Main ":"Sec ")+(isIconic(s.name)?"★ ":"")+s.name) : (isIconic(s.name)?"★ "+s.name:s.name);
+    const vv = isIconic(s.name) ? "Iconic" : (s.variant||"Basic");
+    const vlab = isIconic(s.name) ? "ICN" : (SHORT[vv]||vv);
+    return `<button class="pad filled ${tone} ${mission} ${padNeedClass(s)}" data-pad="${p.id}" ${drag}>${picWrap(s.name,p.kind,isIconic(s.name)?"Iconic":rarityOf(s.name)||"Common")}<span class="pad-var ${vTheme(vv)}">${vlab}</span><span class="pad-lab">${lab}</span></button>`;
+  }
+  const tag = p.mission ? ("M"+p.n) : p.floor==="companion" ? (p.n===1?"Main":"Sec") : ((PAD_TAG[p.floor]||p.kind[0])+p.n);
+  return `<button class="pad empty ${p.kind==="Lounge"||p.kind==="Companion"||p.mission?"lounge":""} ${mission}" data-pad="${p.id}" ${drag}><div class="pic">+</div><span class="pad-lab">${tag}</span></button>`;
+}
+let _grab = null;
+function padGrab(ev, id){
+  const s = padSlot(activeDeck(), id);
+  _grab = {id, x:ev.clientX, y:ev.clientY, moved:false, filled:!!(s&&s.name)};
+  const el = ev.currentTarget;
+  if (el) el.classList.add("drag");
+  try { ev.currentTarget.setPointerCapture(ev.pointerId); } catch(e){}
+}
+function padRelease(ev, id){
+  const g = _grab;
+  _grab = null;
+  document.querySelectorAll(".pad.drag,.pad.drop").forEach(n => n.classList.remove("drag","drop"));
+  if (!g) return;
+  if (Math.hypot((ev.clientX||0)-g.x, (ev.clientY||0)-g.y) > 12 && g.filled){
+    const hit = document.elementFromPoint(ev.clientX, ev.clientY);
+    const btn = hit && hit.closest ? hit.closest("[data-pad]") : null;
+    const dest = btn ? btn.getAttribute("data-pad") : id;
+    if (dest && dest !== g.id){ swapPads(dest, g.id); return; }
+  }
+  if (!g.moved && Math.hypot((ev.clientX||0)-g.x, (ev.clientY||0)-g.y) < 12) openPad(id);
+}
+function swapPads(dest, src){
+  src = src || (_grab && _grab.id);
+  if (!src || !dest || src===dest) return;
+  const d = activeDeck();
+  if (!d.pads) d.pads = {};
+  const a = d.pads[src];
+  const b = d.pads[dest];
+  if (a) d.pads[dest] = a; else delete d.pads[dest];
+  if (b) d.pads[src] = b; else delete d.pads[src];
+  if (a && isIconic(a.name)) {
+    PADS.forEach(p => {
+      if (p.id===dest) return;
+      const s = d.pads[p.id];
+      if (s && s.name===a.name && p.id!==src) delete d.pads[p.id];
+    });
+  }
+  save(); render();
+}
+const RARITY_UP = {Common:"Rare",Rare:"Epic",Epic:"Legendary",Legendary:"Mythic"};
+function labFuseSlots(deck, lab){
+  return PADS.filter(p=>p.floor==="fuse1").map(p => padSlot(deck,p.id)).filter(s => s && s.name);
+}
+function predictFusion(deck, lab){
+  const slots = labFuseSlots(deck, lab);
+  if (slots.length !== 3) return {ok:false, label:"Park 3 droids to preview"};
+  const names = slots.map(s=>s.name);
+  const variants = slots.map(s=>s.variant||"Basic");
+  const sorted = names.slice().sort().join("|");
+  for (const f of FUSIONS){
+    if ((f[3]||[]).slice().sort().join("|") === sorted){
+      const variant = variants.reduce((a,b)=> (TIER_I[a]||0)<=(TIER_I[b]||0)?a:b);
+      return {ok:true, kind:"secret", name:f[0], rarity:f[1], type:f[2], variant, label:"Secret fusion: "+variant+" "+f[0]+" ("+f[1]+")"};
+    }
+  }
+  const sameName = names.every(n=>n===names[0]);
+  const sameVar = variants.every(v=>v===variants[0]);
+  if (sameName && sameVar){
+    const i = TIER_I[variants[0]] ?? 0;
+    if (i >= 6) return {ok:false, label:"Already Stellar — cannot variant-up"};
+    const next = VARIANTS[i+1];
+    return {ok:true, kind:"variant", name:names[0], variant:next, rarity:rarityOf(names[0]), label:"Variant upgrade: "+names[0]+" → "+next};
+  }
+  const rares = names.map(rarityOf);
+  if (rares.every(r=>r && r===rares[0] && r!=="Iconic")){
+    const next = RARITY_UP[rares[0]];
+    if (!next) return {ok:false, label:"No rarity above Mythic"};
+    const variant = sameVar ? variants[0] : variants.reduce((a,b)=> (TIER_I[a]||0)<=(TIER_I[b]||0)?a:b);
+    const pool = DROIDS.filter(d=>d[2]===next).map(d=>[d[0],d[1],d[2]])
+      .concat(FUSIONS.filter(f=>f[1]===next).map(f=>[f[0],f[2],f[1]]));
+    return {ok:true, kind:"rarity", nextRarity:next, variant, pool, label:"Rarity upgrade: pick a "+variant+" "+next};
+  }
+  return {ok:false, label:"No match — need a secret recipe, 3 of the same droid+variant, or 3 of the same rarity"};
+}
+function runFusion(lab, pick){
+  const deck = activeDeck();
+  const pred = predictFusion(deck, lab);
+  if (!pred.ok) return;
+  let name = pred.name, variant = pred.variant, rarity = pred.rarity;
+  if (pred.kind==="rarity"){
+    name = pick || pred.pool[0] && pred.pool[0][0];
+    if (!name) return;
+    rarity = pred.nextRarity;
+    variant = pred.variant;
+  }
+  const fuse = PADS.filter(p=>p.floor==="fuse1");
+  fuse.forEach(p => { if (deck.pads) delete deck.pads[p.id]; });
+  const cham = PADS.find(p=>p.floor==="chamber"+lab) || PADS.find(p=>p.floor==="chamber1");
+  if (cham){
+    if (!deck.pads) deck.pads = {};
+    deck.pads[cham.id] = {name, variant: isIconic(name)?"Iconic":(variant||"Basic")};
+  }
+  save(); render();
+}
+function renderFusionLabs(deck){
+  const second = !!state.decks.secondLab || novaLvl("fusion-tank-2")>=1;
+  const third = !!state.decks.thirdLab || novaLvl("fusion-tank-3")>=1;
+  const fuse = PADS.filter(p=>p.floor==="fuse1");
+  const chans = [1,2,3].filter(n => n===1 || (n===2 && second) || (n===3 && third)).map(n => PADS.filter(p=>p.floor==="chamber"+n)).flat();
+  const pred = predictFusion(deck, 1);
+  let html = `<details class="floor fuse" ${floorOpen("fuse",false)?"open":""} ontoggle="toggleFloor('fuse',this.open)" draggable="true" data-fid="fuse" ondragstart="floorDragStart(event,'fuse')" ondragover="floorDragOver(event)" ondrop="floorDrop(event,'fuse')"><summary>Fusion lab</summary>`;
+  html += `<p class="meta">3 shared pads. Chamber 1 comes with Rebirth 3. Chambers 2 and 3 unlock in the Nova Shop (300 Nova or 1,800 V-Bucks each).</p>`;
+  html += `<div class="meta" style="text-align:center;margin:8px 0">Fusion pads</div><div class="pads">`;
+  fuse.forEach(p => html += padButton(p,deck));
+  html += `</div><div class="meta" style="text-align:center;margin:10px 0 6px">Chambers</div><div class="pads">`;
+  chans.forEach(p => html += padButton(p,deck));
+  html += `</div><div class="meta" style="margin:8px 0;text-align:center">${pred.label}</div>`;
+  if (pred.ok && pred.kind==="rarity"){
+    html += `<div class="row"><select id="fusePick1" class="deck-field">`;
+    (pred.pool||[]).forEach(([n,typ,rar]) => {
+      html += `<option value="${n}">${n} (${rar}${typ?" · "+typ:""})</option>`;
+    });
+    html += `</select><button onclick="runFusion(1, document.getElementById('fusePick1').value)">Fuse → chamber 1</button>`;
+    if (second) html += `<button onclick="runFusion(2, document.getElementById('fusePick1').value)">Fuse → chamber 2</button>`;
+    if (third) html += `<button onclick="runFusion(3, document.getElementById('fusePick1').value)">Fuse → chamber 3</button>`;
+    html += `</div>`;
+  } else if (pred.ok){
+    html += `<div class="act"><button onclick="runFusion(1)">Fuse → chamber 1</button>`;
+    if (second) html += `<button onclick="runFusion(2)">Fuse → chamber 2</button>`;
+    if (third) html += `<button onclick="runFusion(3)">Fuse → chamber 3</button>`;
+    html += `</div>`;
+  }
+  html += `</details>`;
+  return html;
+}
+function toggleSecondLab(on){
+  state.decks.secondLab = !!on;
+  save(); render();
+}
+function floorOpen(id, def){
+  if (!state.decks.fold) state.decks.fold = {};
+  if (state.decks.fold[id] == null) return !!def;
+  return !!state.decks.fold[id];
+}
+function toggleFloor(id, on){
+  if (!state.decks.fold) state.decks.fold = {};
+  state.decks.fold[id] = !!on;
+  save();
+}
+function defaultFloorOrder(){ return ["stats","worker","astromech","battle","lounge","companion","chip","build","fuse"]; }
+function getFloorOrder(){
+  const def = defaultFloorOrder();
+  const cur = (state.decks && state.decks.floorOrder) || [];
+  const out = cur.filter(id => def.includes(id));
+  def.forEach(id => { if (!out.includes(id)) out.push(id); });
+  return out;
+}
+let _dragFloor = null;
+function floorDragStart(ev, id){
+  _dragFloor = id;
+  try { ev.dataTransfer.setData("text/plain", id); ev.dataTransfer.effectAllowed = "move"; } catch(e){}
+}
+function floorDragOver(ev){ ev.preventDefault(); }
+function floorDrop(ev, dest){
+  ev.preventDefault();
+  const src = _dragFloor || (ev.dataTransfer && ev.dataTransfer.getData("text/plain"));
+  if (!src || src===dest) return;
+  const order = getFloorOrder();
+  const i = order.indexOf(src);
+  const j = order.indexOf(dest);
+  if (i<0 || j<0) return;
+  order.splice(i,1);
+  order.splice(j,0,src);
+  state.decks.floorOrder = order;
+  save(); render();
+}
+
+function ensureDecks(st){
+  if (!st.decks || !Array.isArray(st.decks.list) || !st.decks.list.length) {
+    st.decks = {active:0,list:[blankDeck("Base 1")], secondLab:false};
+  }
+  if (st.decks.secondLab == null) st.decks.secondLab = false;
+  if (!st.nova) st.nova = {};
+  if (!st.decks.unlocks){
+    st.decks.unlocks = {companion2:false, loungeExtra:0, chip:false, build:false};
+  }
+  const u = st.decks.unlocks;
+  if (u.companion2 && !st.nova["companion-slot"]) st.nova["companion-slot"] = 1;
+  if (u.chip && !st.nova["chip-station"]) st.nova["chip-station"] = 1;
+  if (u.build && !st.nova["build-slots"]) st.nova["build-slots"] = 1;
+  if (Number(u.loungeExtra||0) && !st.nova["lounge-slot"]) st.nova["lounge-slot"] = Number(u.loungeExtra||0);
+  if (st.decks.secondLab && !st.nova["fusion-tank-2"]) st.nova["fusion-tank-2"] = 1;
+  if (st.decks.thirdLab && !st.nova["fusion-tank-3"]) st.nova["fusion-tank-3"] = 1;
+  if (st.i){
+    Object.keys(st.i).forEach(n => {
+      if (!st.i[n] || n.indexOf("|")>=0) return;
+      const row = (typeof NOVA_SHOP!=="undefined") && NOVA_SHOP.find(x => x.cat==="Iconic" && x.name===n);
+      if (row && !st.nova[row.id]) st.nova[row.id] = 1;
+    });
+  }
+  if (st.decks.active >= st.decks.list.length) st.decks.active = 0;
+  st.decks.list.forEach(normalizeDeck);
+  return st;
+}
+let state = JSON.parse(localStorage.getItem(KEY) || localStorage.getItem("droidex-v1") || '{"d":{},"f":{},"i":{},"c":{}}');
+if (!state.rb) state.rb = {};
+if (!state.rb.ahead) state.rb.ahead = 3;
+if (!state.rb.cycle) state.rb.cycle = 1;
+if (!state.alerts) state.alerts = {};
+if (!state.fusePlan) state.fusePlan = {pick:[], rarity:"all"};
+ensureDecks(state);
+const TABS = ["droidex","fusion","decks","srb","done","cosmetics","nova","saves","alarms"];
+let tab = localStorage.getItem(KEY+"-tab") || "droidex";
+if (TABS.indexOf(tab)<0) tab = "droidex";
+let srbCycle = Number(state.rb.cycle || 1);
+function loadBank(){
+  try {
+    const raw = JSON.parse(localStorage.getItem(SAVES_KEY) || "null");
+    if (raw && raw.slots && raw.current && raw.slots[raw.current]) return raw;
+  } catch(e){}
+  return { current:"main", slots:{ main:{ name:"Main", updated:Date.now(), state } } };
+}
+let bank = loadBank();
+if (bank.slots[bank.current] && bank.slots[bank.current].state) {
+  state = bank.slots[bank.current].state;
+  if (!state.rb) state.rb = {};
+  ensureDecks(state);
+  srbCycle = Number(state.rb.cycle || 1);
+}
+function writeBank(){
+  if (!bank.slots[bank.current]) bank.slots[bank.current] = { name:"Main", updated:Date.now(), state };
+  bank.slots[bank.current].state = state;
+  bank.slots[bank.current].updated = Date.now();
+  localStorage.setItem(SAVES_KEY, JSON.stringify(bank));
+  localStorage.setItem(KEY, JSON.stringify(state));
+}
+function save(){ writeBank(); updateStats(); updateSaveLabel(); }
+function applyState(st){
+  state = JSON.parse(JSON.stringify(st));
+  if (!state.d) state.d = {};
+  if (!state.f) state.f = {};
+  if (!state.i) state.i = {};
+  if (!state.c) state.c = {};
+  if (!state.nova) state.nova = {};
+  if (state.f){
+    Object.keys(state.f).forEach(k => {
+      if (k.indexOf("AXL-POD")===0){
+        const nk = k.replace("AXL-POD","AXI-POD");
+        if (state.f[k] && !state.f[nk]) state.f[nk] = state.f[k];
+      }
+    });
+  }
+  if (!state.rb) state.rb = {};
+  ensureDecks(state);
+  srbCycle = Number(state.rb.cycle || 1);
+}
+function currentName(){ return (bank.slots[bank.current]||{}).name || "Main"; }
+function updateSaveLabel(){
+  const el = document.getElementById("saveLabel");
+  if (el) el.textContent = currentName();
+  const el2 = document.getElementById("saveLabel2");
+  if (el2) el2.textContent = currentName();
+  const pick = document.getElementById("savePick");
+  if (pick){
+    pick.innerHTML = Object.keys(bank.slots).map(id => {
+      const s = bank.slots[id];
+      return `<option value="${id}" ${id===bank.current?"selected":""}>${s.name}</option>`;
+    }).join("");
+  }
+}
+function savePanel(){
+  const fold = (id, title, body) => `<details class="floor worker" ${floorOpen("prof-"+id,false)?"open":""} ontoggle="toggleFloor('prof-${id}',this.open)"><summary>${title}</summary>${body}</details>`;
+  let html = `<div class="hint">Each profile is a separate checklist. Download a file to keep a copy. Load a file to come back to that point. Sections start closed.</div>`;
+  let rebirth = `<div class="meta" style="margin:6px 0 8px">Cycle plus how many unfinished rebirths ahead to mark on Base. Neon blue = parked at the needed variant. Orange = parked but too low.</div>`;
+  rebirth += `<div class="meta" style="margin:8px 0 6px">Current cycle</div><select class="deck-field" onchange="setRbSetting('cycle',this.value)">`;
+  [1,2,3,4,5].forEach(n => { rebirth += `<option value="${n}" ${srbCycle===n?"selected":""}>Cycle ${n}</option>`; });
+  rebirth += `</select><div class="meta" style="margin:10px 0 6px">Highlight next rebirths (1–10)</div><select class="deck-field" onchange="setRbSetting('ahead',this.value)">`;
+  for (let n=1;n<=10;n++) rebirth += `<option value="${n}" ${highlightAhead()===n?"selected":""}>${n} rebirth${n>1?"s":""} ahead</option>`;
+  rebirth += `</select>`;
+  html += fold("rebirth","Rebirth highlight", rebirth);
+  const presets = ALERT_PRESETS;
+  function alertRow(key, label, blurb){
+    const conf = alertConf(key);
+    const cur = conf.color;
+    let row = `<div class="meta" style="margin:10px 0 4px">${label}</div><div class="meta">${blurb}</div><div class="swatches">`;
+    presets.forEach(c => {
+      row += `<button type="button" class="swatch ${c.toLowerCase()===cur.toLowerCase()?"on":""}" style="background:${c}" onclick="setAlertField('${key}','color','${c}')"></button>`;
+    });
+    row += `<input type="color" value="${cur}" onchange="setAlertField('${key}','color',this.value)" title="RGB picker">`;
+    row += `</div><div class="alert-opts">`;
+    row += `<label>Anim <select onchange="setAlertField('${key}','anim',this.value)">`;
+    ALERT_ANIMS.forEach(([id,lab]) => { row += `<option value="${id}" ${conf.anim===id?"selected":""}>${lab}</option>`; });
+    row += `</select></label>`;
+    row += `<label>Bright ${conf.bright}% <input type="range" min="10" max="150" value="${conf.bright}" oninput="setAlertField('${key}','bright',this.value,true)"></label>`;
+    row += `</div>`;
+    return row;
+  }
+  let alerts = `<div class="meta" style="margin:6px 0 8px">Color, animation, and brightness for each Base highlight.</div>`;
+  alerts += alertRow("ready","Ready","Parked at the needed variant or higher");
+  alerts += alertRow("low","Too low","Needed name, variant below the requirement");
+  alerts += alertRow("upgrade","Upgrade","UP — a better variant is checked in Droidex");
+  alerts += alertRow("fuse","Fuse","Ingredient for a fusion you do not own yet");
+  alerts += alertRow("solo","Only copy","Heavier glow when it is the only copy on Base");
+  html += fold("alerts","Alert colors", alerts);
+  let bases = `<div class="meta" style="margin:6px 0 8px">Each base is its own pad map and multiplier. The Base tab shows the active one.</div>`;
+  bases += `<div class="meta" style="margin:8px 0 6px">Active base</div><select class="deck-field" onchange="switchDeck(this.value)">`;
+  state.decks.list.forEach((d,i) => {
+    bases += `<option value="${i}" ${i===state.decks.active?"selected":""}>${d.name||("Base "+(i+1))}</option>`;
+  });
+  bases += `</select><div class="act" style="margin-top:10px"><button onclick="addDeck()">+ Base</button>`;
+  bases += `<button onclick="renameDeck()">Rename</button>`;
+  if (state.decks.list.length>1) bases += `<button class="danger" onclick="deleteDeck()">Delete active</button>`;
+  bases += `</div>`;
+  html += fold("bases","Bases", bases);
+  let prof = `<div class="meta" style="margin:4px 0 8px">Active profile on this device</div><div class="saves">`;
+  prof += `<select onchange="switchSave(this.value)">`;
+  Object.keys(bank.slots).forEach(id => {
+    const s = bank.slots[id];
+    prof += `<option value="${id}" ${id===bank.current?"selected":""}>${s.name}</option>`;
+  });
+  prof += `</select></div><div class="act">`;
+  prof += `<button onclick="newSave(true)">Save as new</button>`;
+  prof += `<button onclick="newSave(false)">New blank</button>`;
+  prof += `<button onclick="renameSave()">Rename</button>`;
+  prof += `<button onclick="downloadSave()">Download file</button>`;
+  prof += `<button onclick="document.getElementById('loadFile').click()">Load file</button>`;
+  prof += `<button onclick="deleteSave()">Delete profile</button>`;
+  prof += `</div>`;
+  html += fold("profile", currentName(), prof);
+  return html;
+}
+
+function switchSave(id){
+  if (!bank.slots[id]) return;
+  writeBank();
+  bank.current = id;
+  applyState(bank.slots[id].state);
+  writeBank();
+  render();
+}
+function newSave(copy){
+  const name = prompt(copy ? "Name this copy of your current save:" : "Name the new blank save:", copy ? currentName()+" copy" : "Save "+(Object.keys(bank.slots).length+1));
+  if (!name) return;
+  writeBank();
+  const id = "s"+Date.now();
+  const st = copy ? JSON.parse(JSON.stringify(state)) : blankState(srbCycle);
+  bank.slots[id] = { name:name.trim(), updated:Date.now(), state:st };
+  bank.current = id;
+  applyState(st);
+  writeBank();
+  render();
+}
+function renameSave(){
+  const name = prompt("Rename this save:", currentName());
+  if (!name) return;
+  bank.slots[bank.current].name = name.trim();
+  writeBank();
+  render();
+}
+function deleteSave(){
+  if (Object.keys(bank.slots).length < 2) { alert("Keep at least one save."); return; }
+  if (!confirm("Are you sure?\n\nDelete save “"+currentName()+"”? This cannot be undone unless you downloaded a file.")) return;
+  delete bank.slots[bank.current];
+  bank.current = Object.keys(bank.slots)[0];
+  applyState(bank.slots[bank.current].state);
+  writeBank();
+  render();
+}
+function downloadSave(){
+  writeBank();
+  const payload = { name: currentName(), saved: new Date().toISOString(), state };
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(payload,null,2)],{type:"application/json"}));
+  a.download = currentName().replace(/[^\w.-]+/g,"_")+".json";
+  a.click();
+}
+function importSave(file){
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const data = JSON.parse(reader.result);
+      const st = data.state || data;
+      if (!st || typeof st !== "object") throw new Error("bad");
+      if (!st.d) st.d = {};
+      writeBank();
+      const id = "s"+Date.now();
+      bank.slots[id] = { name:(data.name || file.name.replace(/\.json$/i,"").replace(/_/g," ")), updated:Date.now(), state:st };
+      bank.current = id;
+      applyState(st);
+      writeBank();
+      render();
+    } catch(e) { alert("Could not read that save file."); }
+  };
+  reader.readAsText(file);
+}
+function askSuperRebirth(){
+  const box = document.getElementById("modal");
+  box.classList.remove("hidden");
+  box.innerHTML = `<div class="sheet"><h2>Are you sure?</h2><p>Super Rebirth will clear every droid, fusion, iconic, and rebirth check on <b>${currentName()}</b>. Fashion paints stay. A backup save named “Before Super Rebirth” is kept so you can reload where you were.</p><div class="row"><button onclick="closeModal()">Cancel</button><button class="danger" onclick="doSuperRebirth()">Super Rebirth</button></div></div>`;
+}
+function closeModal(){ document.getElementById("modal").classList.add("hidden"); document.getElementById("modal").innerHTML=""; }
+function doSuperRebirth(){
+  writeBank();
+  const id = "s"+Date.now();
+  bank.slots[id] = { name:"Before Super Rebirth", updated:Date.now(), state:JSON.parse(JSON.stringify(state)) };
+  const paints = state.c || {};
+  const next = (Number(state.rb.cycle || 1) % 5) + 1;
+  applyState({d:{},f:{},i:{},c:paints,rb:{cycle:next}});
+  writeBank();
+  closeModal();
+  tab = "droidex";
+  document.querySelectorAll(".tabs button").forEach(b => b.classList.toggle("on", b.dataset.tab==="droidex"));
+  render();
+}
+function dKey(n,v){ return n+"|"+v; }
+function has(n,v){ return !!state.d[dKey(n,v)]; }
+function toggle(n,v){ state.d[dKey(n,v)] = !state.d[dKey(n,v)]; save(); render(); }
+function completeAll(n){
+  const allOn = VARIANTS.every(v => has(n,v));
+  VARIANTS.forEach(v => { state.d[dKey(n,v)] = !allOn; });
+  save(); render();
+}
+function markTier(n,v,on){
+  if (on) state.d[dKey(n,v)] = true;
+  else delete state.d[dKey(n,v)];
+}
+function fusionIngs(name){
+  const row = FUSIONS.find(([n]) => n===name);
+  return row ? row[3] : [];
+}
+function setFusionVariant(name,v,on){
+  const ings = fusionIngs(name);
+  state.f[name+"|"+v] = !!on;
+  ings.forEach((ing,i) => {
+    state.f[name+"|"+v+"|i"+i] = !!on;
+    if (on) state.d[dKey(ing,v)] = true;
+  });
+}
+function toggleFusionVariant(name,v,on){
+  setFusionVariant(name,v,on);
+  save(); render();
+}
+function toggleFusionIng(name,v,i,ing,on){
+  state.f[name+"|"+v+"|i"+i] = !!on;
+  if (on) state.d[dKey(ing,v)] = true;
+  save(); render();
+}
+function completeFusion(name){
+  const ings = fusionIngs(name);
+  const allOn = VARIANTS.every(v => fuseHas(name,v) && ings.every((_,i)=>fuseIng(name,v,i)));
+  VARIANTS.forEach(v => setFusionVariant(name,v,!allOn));
+  save(); render();
+}
+function rebirthNeeds(key){
+  const m = /^c(\d+)r(\d+)$/.exec(key);
+  if (!m) return [];
+  const cyc = CYCLES[Number(m[1])] || [];
+  return cyc[Number(m[2])-1] || [];
+}
+function toggleRebirth(key,on){
+  state.rb[key] = !!on;
+  save(); render();
+}
+function rbNeedKey(rb, name){ return "c"+srbCycle+"r"+rb+"|"+name; }
+function toggleRbNeed(rb, name, ev){
+  if (ev){ ev.preventDefault(); ev.stopPropagation(); }
+  state.rb[rbNeedKey(rb,name)] = !state.rb[rbNeedKey(rb,name)];
+  save(); render();
+}
+function completeRebirthList(list,on){
+  (list||[]).forEach(rb => {
+    const key = "c"+srbCycle+"r"+rb;
+    state.rb[key] = !!on;
+  });
+  save(); render();
+}
+function ownedTiers(n){ return VARIANTS.filter(v => has(n,v)).length; }
+function fuseHas(n,v){ return !!state.f[n+"|"+v]; }
+function fuseIng(n,v,i){ return !!state.f[n+"|"+v+"|i"+i]; }
+function fuseTiers(n){ return VARIANTS.filter(v => fuseHas(n,v)).length; }
+function iconNovaId(n){
+  const row = NOVA_SHOP.find(x => x.cat==="Iconic" && x.name===n);
+  return row ? row.id : "";
+}
+function iconOwned(n){
+  const id = iconNovaId(n);
+  if (id && novaLvl(id)>=1) return true;
+  return !!(state.i && state.i[n]);
+}
+function stripIconicFromPads(n){
+  if (!state.decks || !Array.isArray(state.decks.list)) return;
+  state.decks.list.forEach(d => {
+    if (!d.pads) return;
+    Object.keys(d.pads).forEach(id => {
+      if (d.pads[id] && d.pads[id].name===n) delete d.pads[id];
+    });
+  });
+}
+function droidDone(n){ return ownedTiers(n)===7; }
+function fuseDone(n){ return fuseTiers(n)===7; }
+function iconDone(n){ return iconOwned(n); }
+function esc(s){ return String(s).replace(/\\/g,"\\\\").replace(/'/g,"\\'"); }
+function bestTier(n){
+  let best = -1;
+  VARIANTS.forEach(v => { if (has(n,v) || fuseHas(n,v)) best = Math.max(best, TIER_I[v]); });
+  return best;
+}
+function parkedBest(n){
+  try {
+    const deck = activeDeck();
+    let best = -1;
+    PADS.forEach(p => {
+      if (p.kind==="Companion") return;
+      const s = padSlot(deck, p.id);
+      if (!s || !nameEq(s.name, n)) return;
+      if (isIconic(n) || isIconic(s.name)) { best = Math.max(best, 6); return; }
+      const i = tierOf(s.variant||"Basic");
+      if (i >= 0) best = Math.max(best, i);
+    });
+    return best;
+  } catch(e){ return -1; }
+}
+function normName(n){ return String(n||"").toLowerCase().replace(/[^a-z0-9]/g,""); }
+function nameEq(a,b){ return normName(a)===normName(b); }
+function tierOf(v){
+  if (v==null || v==="") return -1;
+  if (typeof v==="number") return v;
+  if (TIER_I[v]!==undefined) return TIER_I[v];
+  const k = String(v).toLowerCase();
+  const map = {def:0,basic:0,default:0,gld:1,gold:1,dia:2,diamond:2,rbw:3,rainbow:3,bsk:4,beskar:4,glc:5,gal:5,galactic:5,stl:6,stel:6,stellar:6,icn:6,iconic:6};
+  return map[k] ?? -1;
+}
+function meets(n, min){
+  const need = tierOf(min);
+  if (need < 0) return parkedBest(n) >= 0;
+  return parkedBest(n) >= need;
+}
+function highlightAhead(){
+  return Math.min(10, Math.max(1, Number(state.rb.ahead||3)));
+}
+function upcomingNeeds(){
+  const cyc = CYCLES[srbCycle] || CYCLES[1];
+  const need = {};
+  let left = highlightAhead();
+  for (let rb=1; rb<=35 && left>0; rb++){
+    if (state.rb["c"+srbCycle+"r"+rb]) continue;
+    const req = cyc[rb-1];
+    if (!req) continue;
+    req.forEach(([n,tier]) => {
+      const i = tierOf(tier);
+      if (i<0) return;
+      const key = n;
+      if (need[key]===undefined || i>need[key]) need[key]=i;
+    });
+    left--;
+  }
+  return need;
+}
+function copiesOnBase(name){
+  const d = activeDeck();
+  let n = 0;
+  PADS.forEach(p => {
+    const s = padSlot(d, p.id);
+    if (s && s.name===name) n++;
+  });
+  return n;
+}
+function bestOwnedTier(name){
+  if (isIconic(name)) return iconOwned(name) ? 6 : -1;
+  let best = -1;
+  VARIANTS.forEach(v => {
+    if (has(name,v) || fuseHas(name,v)) best = Math.max(best, TIER_I[v]);
+  });
+  return best;
+}
+function neededFusionIngredients(){
+  const set = new Set();
+  FUSIONS.forEach(f => {
+    if (fuseTiers(f[0]) > 0) return;
+    (f[3]||[]).forEach(ing => set.add(ing));
+  });
+  return set;
+}
+function padNeedClass(slot){
+  if (!slot || !slot.name) return "";
+  const cls = [];
+  const need = upcomingNeeds();
+  const want = Object.keys(need).find(k => nameEq(k, slot.name));
+  if (want){
+    const have = isIconic(slot.name) ? 6 : tierOf(slot.variant||"Basic");
+    const tone = have >= need[want] ? "need-ok" : "need-low";
+    cls.push(tone);
+    if (copiesOnBase(slot.name)===1) cls.push("need-solo");
+  }
+  const parked = isIconic(slot.name) ? 6 : (TIER_I[slot.variant||"Basic"] ?? -1);
+  if (bestOwnedTier(slot.name) > parked) cls.push("need-upgrade");
+  const fuseIng = neededFusionIngredients();
+  const isFusion = FUSIONS.some(f => f[0]===slot.name);
+  if (fuseIng.has(slot.name) || (isFusion && fuseTiers(slot.name)===0 && (slot.name in need || true))) {
+    if (fuseIng.has(slot.name) || (isFusion && fuseTiers(slot.name)===0)) cls.push("need-fuse");
+  }
+  return cls.join(" ");
+}
+const ALERT_PRESETS = ["#00f6ff","#ff8a00","#c084fc","#e879f9","#4ade80","#facc15"];
+const ALERT_DEFAULTS = {ready:"#00f6ff",low:"#ff8a00",upgrade:"#c084fc",fuse:"#e879f9",solo:"#00f6ff"};
+const ALERT_ANIMS = [["none","None"],["pulse","Pulse"],["blink","Blink"],["fade","Fade"],["flash","Flash"],["glow","Glow"]];
+function hexToRgb(hex){
+  const h = String(hex||"").replace("#","");
+  if (h.length!==6) return "0,246,255";
+  return [0,2,4].map(i => parseInt(h.slice(i,i+2),16)).join(",");
+}
+function alertConf(key){
+  const raw = state.alerts && state.alerts[key];
+  const defA = key==="solo" ? "pulse" : "none";
+  if (typeof raw === "string") return {color:raw, anim:defA, bright:80};
+  if (raw && typeof raw === "object") return {
+    color: raw.color || ALERT_DEFAULTS[key],
+    anim: raw.anim || defA,
+    bright: raw.bright==null ? 80 : Math.min(150, Math.max(10, Number(raw.bright)))
+  };
+  return {color:ALERT_DEFAULTS[key], anim:defA, bright:80};
+}
+function alertColor(key){ return alertConf(key).color; }
+function applyAlertColors(){
+  const root = document.documentElement;
+  ["ready","low","upgrade","fuse","solo"].forEach(k => {
+    const c = alertConf(k);
+    const hex = c.color;
+    const b = c.bright/100;
+    root.style.setProperty("--alert-"+k, hex);
+    root.style.setProperty("--alert-"+k+"-dim", "rgba("+hexToRgb(hex)+","+Math.min(1,0.25+b*0.45)+")");
+    root.style.setProperty("--bright-"+k, String(b));
+    root.style.setProperty("--anim-"+k, c.anim==="none" ? "none" : "alert-"+c.anim);
+  });
+}
+function setAlertField(key, field, val, quiet){
+  if (!state.alerts) state.alerts = {};
+  const cur = alertConf(key);
+  if (field==="bright") cur.bright = Math.min(150, Math.max(10, Number(val)||80));
+  else if (field==="anim") cur.anim = val;
+  else cur.color = val;
+  state.alerts[key] = cur;
+  applyAlertColors();
+  save();
+  if (!quiet) render();
+}
+function setAlertColor(key, hex){ setAlertField(key,"color",hex); }
+
+function setRbSetting(field, value){
+  if (!state.rb) state.rb = {};
+  if (field==="cycle"){
+    srbCycle = Math.min(5, Math.max(1, Number(value)||1));
+    state.rb.cycle = srbCycle;
+  } else if (field==="ahead"){
+    state.rb.ahead = Math.min(10, Math.max(1, Number(value)||3));
+  }
+  save(); render();
+}
+
+function hash(s){ let h=0; for(let i=0;i<s.length;i++) h=s.charCodeAt(i)+((h<<5)-h); return Math.abs(h); }
+const SHORT = {Basic:"DEF",Gold:"GLD",Diamond:"DIA",Rainbow:"RBW",Beskar:"BSK",Galactic:"GLC",Stellar:"STL"};
+const VNAME = {Basic:"Default",Gold:"Gold",Diamond:"Diamond",Rainbow:"Rainbow",Beskar:"Beskar",Galactic:"Galactic",Stellar:"Stellar"};
+function vName(v){ return VNAME[v] || v; }
+function vTheme(v){
+  if (v==="Basic") return "v-def";
+  if (v==="Gold") return "v-gld";
+  if (v==="Diamond") return "v-dia";
+  if (v==="Rainbow") return "v-rbw";
+  if (v==="Beskar") return "v-bsk";
+  if (v==="Galactic") return "v-gal";
+  if (v==="Stellar") return "v-stel";
+  return "";
+}
+function rarTheme(r){ return r==="Mythic" ? "theme-myth" : ""; }
+function hexFrom(n,s){ const h=hash(n+s); return "#"+((h&0xffffff)|0x202020).toString(16).padStart(6,"0"); }
+function portrait(name, typ){
+  const h = hash(name);
+  const skin = typ==="Worker"||typ==="Fusion" ? "#4ade80" : (typ==="Astromech"||typ==="Iconic" ? "#c4b5fd" : "#fb7185");
+  const body = hexFrom(name,"b");
+  const acc = hexFrom(name,"a");
+  const eye = (h%5)+8;
+  if (typ==="Astromech" || typ==="Iconic") {
+    return `<svg viewBox="0 0 80 80" class="glyph" style="display:none"><rect width="80" height="80" fill="#12081c"/><ellipse cx="40" cy="28" rx="22" ry="16" fill="${body}"/><rect x="18" y="28" width="44" height="36" rx="8" fill="${body}"/><rect x="22" y="34" width="36" height="8" rx="2" fill="${acc}"/><circle cx="40" cy="24" r="5" fill="${skin}"/><circle cx="40" cy="24" r="2" fill="#0b0818"/><rect x="${eye+10}" y="50" width="${48-eye}" height="4" rx="2" fill="#0b0818"/><rect x="34" y="62" width="12" height="8" fill="${acc}"/></svg>`;
+  }
+  if (typ==="Battle") {
+    return `<svg viewBox="0 0 80 80" class="glyph" style="display:none"><rect width="80" height="80" fill="#12081c"/><rect x="28" y="12" width="24" height="20" rx="6" fill="${body}"/><rect x="22" y="30" width="36" height="28" rx="6" fill="${body}"/><circle cx="34" cy="20" r="3" fill="${skin}"/><circle cx="46" cy="20" r="3" fill="${skin}"/><rect x="18" y="34" width="10" height="22" rx="4" fill="${acc}"/><rect x="52" y="34" width="10" height="22" rx="4" fill="${acc}"/><rect x="30" y="58" width="8" height="16" fill="${body}"/><rect x="42" y="58" width="8" height="16" fill="${body}"/></svg>`;
+  }
+  return `<svg viewBox="0 0 80 80" class="glyph" style="display:none"><rect width="80" height="80" fill="#12081c"/><rect x="16" y="22" width="48" height="40" rx="8" fill="${body}"/><circle cx="28" cy="38" r="6" fill="#0b0818"/><circle cx="52" cy="38" r="6" fill="#0b0818"/><circle cx="28" cy="38" r="2.5" fill="${skin}"/><circle cx="52" cy="38" r="2.5" fill="${skin}"/><rect x="24" y="50" width="32" height="6" rx="2" fill="${acc}"/><rect x="30" y="14" width="20" height="10" rx="3" fill="${acc}"/></svg>`;
+}
+
+function updateStats(){
+  const names = DROIDS.filter(([n]) => ownedTiers(n)>0).length + FUSIONS.filter(([n]) => fuseTiers(n)>0).length;
+  const totalNames = DROIDS.length + FUSIONS.length;
+  const vars = VARIANTS.reduce((a,v)=>a+DROIDS.filter(([n])=>has(n,v)).length,0)
+             + VARIANTS.reduce((a,v)=>a+FUSIONS.filter(([n])=>fuseHas(n,v)).length,0);
+  const fuse = FUSIONS.filter(([n]) => fuseTiers(n)>0).length;
+  const done = DROIDS.filter(([n])=>droidDone(n)).length + FUSIONS.filter(([n])=>fuseDone(n)).length + ICONICS.filter(([n])=>iconDone(n)).length;
+  document.getElementById("sNames").textContent = names + "/" + totalNames;
+  document.getElementById("sVars").textContent = vars;
+  document.getElementById("sFuse").textContent = fuse + "/17";
+  document.getElementById("sDone").textContent = done;
+  const maxVars = (DROIDS.length + FUSIONS.length) * 7;
+  const maxDone = DROIDS.length + FUSIONS.length + ICONICS.length;
+  function bar(id, n, d){ const el=document.getElementById(id); if(el) el.style.width = (d?Math.max(0,Math.min(100,n/d*100)):0)+"%"; }
+  const flaw = DROIDS.filter(([n])=>has(n,"Flawless")).length + FUSIONS.filter(([n])=>fuseHas(n,"Flawless")).length;
+  document.getElementById("sFlaw").textContent = flaw + "/" + totalNames;
+  bar("fillNames", names, totalNames);
+  bar("fillVars", vars, maxVars);
+  bar("fillFuse", fuse, 17);
+  bar("fillDone", done, maxDone);
+  bar("fillFlaw", flaw, totalNames);
+  const droidVars = VARIANTS.reduce((a,v)=>a+DROIDS.filter(([n])=>has(n,v)).length,0);
+  const fuseVars = VARIANTS.reduce((a,v)=>a+FUSIONS.filter(([n])=>fuseHas(n,v)).length,0);
+  const rbCleared = Array.from({length:35},(_,i)=>i+1).filter(rb => state.rb && state.rb["c"+srbCycle+"r"+rb]).length;
+  const icOn = ICONICS.filter(([n])=>iconOwned(n)).length;
+  const paintOn = COSMETICS.filter((_,i)=>state.c && state.c[i]).length;
+  const alarmOn = ["Galactic","Mythic","Stellar"].filter(n => alarms[n] && alarms[n].on).length;
+  const saveN = (bank.saves||[]).length;
+  bar("tabFill-droidex", droidVars, DROIDS.length*7);
+  bar("tabFill-fusion", fuseVars, FUSIONS.length*7);
+  bar("tabFill-srb", rbCleared, 35);
+  bar("tabFill-done", done, maxDone);
+  bar("tabFill-iconics", icOn, ICONICS.length);
+  bar("tabFill-cosmetics", paintOn, COSMETICS.length);
+  bar("tabFill-saves", saveN, Math.max(saveN,1));
+  bar("tabFill-alarms", alarmOn, 3);
+}
+
+function norm(s){ return String(s||"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim(); }
+function showCard(name, typ, extra){
+  const q = norm(document.getElementById("q").value);
+  const t = document.getElementById("filter").value;
+  if (q) {
+    const blob = norm([name, typ, extra||""].join(" "));
+    if (!blob.includes(q) && !norm(name).includes(q)) return false;
+  }
+  if (t!=="all" && typ!==t) return false;
+  return true;
+}
+
+function slug(name){
+  return name.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+}
+function assetName(name){
+  return name.toUpperCase().replace(/\s+/g,"_");
+}
+const IMG_ALIAS = {
+  "AXI-POD":"AXI-POD",
+  "BU-4D":"B-U4D",
+  "D-O":"D-0",
+  "DJ R-3X":"DJ_R-3X",
+  "SRV-0":"SRV-O"
+};
+function picFile(name){
+  return "img/" + (IMG_ALIAS[name] || assetName(name)) + ".png";
+}
+function picWrap(name,typ,rar){
+  return `<div class="pic"><img alt="${name}" src="${picFile(name)}" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">${portrait(name,typ)}</div>`;
+}
+
+const openD = {};
+function renderDroidCard(name,typ,rar,hideDone){
+  if (hideDone && droidDone(name)) return "";
+  if (!showCard(name,typ,rar)) return "";
+  const tiers = ownedTiers(name);
+  const opened = openD[name] ? "open" : "";
+  const fl = has(name,"Flawless");
+  const allOn = tiers===7;
+  let html = `<details class="card drop ${tiers===7?"done":""} ${rarTheme(rar)}" ${opened} ontoggle="openD['${esc(name)}']=this.open"><summary><i class="fill" style="width:${(tiers/7*100).toFixed(1)}%"></i><div class="top" style="flex:1">${picWrap(name,typ,rar)}<div class="grow"><div class="name">${name.toUpperCase()}${rarityMark(rar)}</div><div class="meta">${typ.toUpperCase()} · ${tiers}/7</div></div><div class="pills"><label class="fl-pill ${fl?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${fl?"checked":""} onchange="toggle('${esc(name)}','Flawless')">Flawless</label><label class="fl-pill ${allOn?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${allOn?"checked":""} onchange="completeAll('${esc(name)}')">Complete All</label></div></div><span class="chev">▸</span></summary><div class="drop-body"><div class="vars">`;
+  VARIANTS.forEach(v => {
+    const on = has(name,v);
+    html += `<label class="chk ${on?"on":""} ${vTheme(v)}"><input type="checkbox" ${on?"checked":""} onchange="toggle('${esc(name)}','${v}')">${SHORT[v]}</label>`;
+  });
+  html += `</div></div></details>`;
+  return html;
+}
+
+const openF = {};
+const openV = {};
+const openG = {};
+const openR = {};
+
+function fusePlan(){
+  if (!state.fusePlan) state.fusePlan = {picks:[], checks:{}};
+  if (!Array.isArray(state.fusePlan.picks)) {
+    const slots = state.fusePlan.slots || [];
+    state.fusePlan.picks = slots.filter(s => s && s.name).map(s => ({name:s.name, variant:s.variant||"Basic"}));
+  }
+  if (!state.fusePlan.checks) state.fusePlan.checks = {};
+  const kept = state.fusePlan.picks.filter(x => x && x.name && !fuseHas(x.name, x.variant||"Basic"));
+  if (kept.length !== state.fusePlan.picks.length){
+    state.fusePlan.picks = kept;
+    try { save(); } catch(e){}
+  }
+  return state.fusePlan;
+}
+function fusePickKey(n,v){ return n+"@"+v; }
+function fuseNeedKey(target,v,ing,idx){ return [target,v,ing,idx].join("|"); }
+function fusePicked(n,v){
+  return fusePlan().picks.some(p => p.name===n && p.variant===v);
+}
+function toggleFusePick(n,v){
+  const p = fusePlan();
+  const i = p.picks.findIndex(x => x.name===n && x.variant===v);
+  if (i>=0) p.picks.splice(i,1);
+  else {
+    if (p.picks.length>=10) return;
+    p.picks.push({name:n, variant:v});
+  }
+  save(); render();
+}
+function toggleFuseNeed(target,v,ing,idx){
+  const p = fusePlan();
+  const k = fuseNeedKey(target,v,ing,idx);
+  p.checks[k] = !p.checks[k];
+  save(); render();
+}
+
+const NOVA_SHOP = [
+  {id:"droidex-note", cat:"Featured", name:"Droidex Notifications", max:10, cost:20, note:"Requires Rebirth Droid Alert"},
+  {id:"variant-watch", cat:"Featured", name:"Variant Watch", max:1, cost:100, note:""},
+  {id:"crit-chance", cat:"Featured", name:"Critical Chance", max:18, cost:60, note:"First rank 60"},
+  {id:"crit-amount", cat:"Featured", name:"Critical Amount", max:18, cost:30, note:"First rank 30"},
+  {id:"multi-crits", cat:"Featured", name:"Multi Crits", max:4, cost:400, note:""},
+  {id:"companion-slot", cat:"Featured", name:"Companion Slot", max:1, cost:250, note:"2nd companion pad"},
+  {id:"chip-station", cat:"Featured", name:"Upgrade Chip Station", max:1, cost:120, note:""},
+  {id:"credit-sell", cat:"Featured", name:"Credit Sell Bonus", max:3, cost:25, note:""},
+  {id:"chip-sell", cat:"Featured", name:"Chip Sell Bonus", max:4, cost:60, note:"+50% chips when selling a droid"},
+  {id:"max-hp", cat:"Core", name:"Max Health", max:8, cost:1, note:"+25 Max HP per rank"},
+  {id:"damage", cat:"Core", name:"Damage", max:8, cost:1, note:""},
+  {id:"credits", cat:"Core", name:"Credits", max:11, cost:2, note:"L1 2 · L5 18 · L11 42"},
+  {id:"flawless-charm", cat:"Core", name:"Flawless Charm", max:1, cost:500, note:"Flawless craft chance"},
+  {id:"move-speed", cat:"Core", name:"Movement Speed", max:18, cost:1, note:""},
+  {id:"pickaxe", cat:"Core", name:"Pickaxe Mastery", max:15, cost:5, note:"Keep pickaxe levels on SRB · v1.30.2 added ranks past 11"},
+  {id:"jawa", cat:"Core", name:"Jawa Bartering", max:5, cost:5, note:"Chance to double sell rewards"},
+  {id:"super-crates", cat:"Core", name:"Super Crates", max:3, cost:10, note:"Gold / Diamond / Rainbow crates"},
+  {id:"double-daily", cat:"Core", name:"Double Daily Quests", max:1, cost:75, note:"Reset dailies once after all 3"},
+  {id:"daily-crystals", cat:"Core", name:"Daily Crystals", max:1, cost:0, note:"Nova crystals on daily quests"},
+  {id:"droid-alert", cat:"Workshop", name:"Rebirth Droid Alert", max:1, cost:10, note:"Notify when a rebirth droid spawns"},
+  {id:"scrap-value", cat:"Workshop", name:"Scrap Value", max:15, cost:25, note:"More credits from scrap table"},
+  {id:"chip-scrap", cat:"Workshop", name:"Upgrade Chip Scrap", max:10, cost:25, note:"Chips from scrap table"},
+  {id:"bp-scrap", cat:"Workshop", name:"Blueprint Scrap", max:10, cost:25, note:"Blueprints from scrap table"},
+  {id:"craft-speed", cat:"Workshop", name:"Crafting Speed", max:10, cost:25, note:"+% craft speed"},
+  {id:"lounge-slot", cat:"Workshop", name:"Lounge Slot", max:4, cost:25, note:"Extra lounge pads"},
+  {id:"fusion-tank-2", cat:"Workshop", name:"Fusion Tank II", max:1, cost:300, note:"300 Nova or 1,800 V-Bucks / Fusion Pack"},
+  {id:"fusion-tank-3", cat:"Workshop", name:"Fusion Tank III", max:1, cost:300, note:"Second purchased tank"},
+  {id:"build-slots", cat:"Workshop", name:"Build Slots", max:1, cost:0, note:"3 build pads"},
+  {id:"bp-storage", cat:"Workshop", name:"Blueprint Storage", max:3, cost:50, note:"Offline blueprint slots"},
+  {id:"collect-all", cat:"Workshop", name:"Collect All", max:3, cost:25, note:"25 / 50 / 100 · Battle then Astro then Worker"},
+  {id:"bp-vendor", cat:"Workshop", name:"Blueprint Vendor", max:1, cost:10, note:"Shipyard vendor"},
+  {id:"crawler-luck", cat:"Lobby", name:"Sandcrawler Luck Boost", max:1, cost:50, note:"Also in Cantina for V-Bucks"},
+  {id:"craft-boost", cat:"Lobby", name:"Crafting Boost", max:1, cost:50, note:"Also in Cantina for V-Bucks"},
+  {id:"surge-rainbow", cat:"Lobby", name:"Rainbow Surge", max:1, cost:75, note:"Variant surge"},
+  {id:"surge-beskar", cat:"Lobby", name:"Beskar Surge", max:1, cost:75, note:"Variant surge"},
+  {id:"surge-galactic", cat:"Lobby", name:"Galactic Surge", max:1, cost:75, note:"Variant surge"},
+  {id:"paint-nova-1", cat:"Cosmetic", name:"Nova Crystal Paint I", max:1, cost:30, note:"Base paint"},
+  {id:"paint-nova-2", cat:"Cosmetic", name:"Nova Crystal Paint II", max:1, cost:120, note:"Requires stage 1"},
+  {id:"paint-nova-3", cat:"Cosmetic", name:"Nova Crystal Paint III", max:1, cost:400, note:"Requires stage 2"},
+  {id:"icon-bb8", cat:"Iconic", name:"BB-8", max:1, cost:30, note:"If the event was missed"},
+  {id:"icon-bones", cat:"Iconic", name:"Mister Bones", max:1, cost:30, note:""},
+  {id:"icon-ig11", cat:"Iconic", name:"IG-11 Marshal", max:1, cost:30, note:""},
+  {id:"icon-dj", cat:"Iconic", name:"DJ R-3X", max:1, cost:30, note:""},
+  {id:"icon-cb23", cat:"Iconic", name:"CB-23", max:1, cost:75, note:""},
+  {id:"icon-r2", cat:"Iconic", name:"R2-D2", max:1, cost:60, note:""},
+  {id:"icon-chopper", cat:"Iconic", name:"Chopper", max:1, cost:30, note:""},
+  {id:"icon-c3po", cat:"Iconic", name:"C-3PO", max:1, cost:60, note:""},
+  {id:"icon-do", cat:"Iconic", name:"D-O", max:1, cost:30, note:""}
+];
+function novaLvl(id){
+  if (!state.nova) state.nova = {};
+  return Math.max(0, Number(state.nova[id]||0));
+}
+function setNovaLvl(id, n){
+  if (!state.nova) state.nova = {};
+  const row = NOVA_SHOP.find(x=>x.id===id);
+  const max = row ? row.max : 1;
+  state.nova[id] = Math.max(0, Math.min(max, Number(n)||0));
+  if (row && row.cat==="Iconic"){
+    if (!state.i) state.i = {};
+    const on = state.nova[id]>=1;
+    state.i[row.name] = on;
+    if (!on) stripIconicFromPads(row.name);
+  }
+  if (id==="companion-slot" || id==="chip-station" || id==="build-slots" || id==="lounge-slot" || id==="fusion-tank-2" || id==="fusion-tank-3"){
+    if (!state.decks.unlocks) state.decks.unlocks = {};
+    if (id==="companion-slot") state.decks.unlocks.companion2 = state.nova[id]>=1;
+    if (id==="chip-station") state.decks.unlocks.chip = state.nova[id]>=1;
+    if (id==="build-slots") state.decks.unlocks.build = state.nova[id]>=1;
+    if (id==="lounge-slot") state.decks.unlocks.loungeExtra = state.nova[id];
+    if (id==="fusion-tank-2") state.decks.secondLab = state.nova[id]>=1;
+    if (id==="fusion-tank-3") state.decks.thirdLab = state.nova[id]>=1;
+    applyUnlocks();
+  }
+  save(); render();
+}
+function bumpNova(id, dir){
+  setNovaLvl(id, novaLvl(id)+dir);
+}
+function renderNovaShop(){
+  const cats = ["Featured","Core","Workshop","Lobby","Cosmetic","Iconic"];
+  const labels = {Featured:"Featured",Core:"Core upgrades",Workshop:"Workshop",Lobby:"Lobby boosts",Cosmetic:"Cosmetic",Iconic:"Iconic droids"};
+  let spent = 0;
+  NOVA_SHOP.forEach(it => { if (novaLvl(it.id)>0) spent += it.cost * Math.min(novaLvl(it.id), it.max===1?1:1); });
+  let html = `<div class="rarity-h Fusion">Nova Shop</div>`;
+  html += `<div class="meta" style="margin:0 0 10px">Check ranks you have unlocked. Price shown is the shop tag from the current list (first rank where the full ladder is not published). Lobby boosts and some Featured items also exist in the Cantina for V-Bucks.</div>`;
+  cats.forEach(cat => {
+    const list = NOVA_SHOP.filter(x=>x.cat===cat);
+    const have = list.filter(x=>novaLvl(x.id)>=x.max).length;
+    html += `<details class="floor fuse" ${floorOpen("nova-"+cat,true)?"open":""} ontoggle="toggleFloor('nova-${cat}',this.open)"><summary>${labels[cat]} · ${have}/${list.length} maxed</summary>`;
+    html += `<div class="nova-grid">`;
+    list.forEach(it => {
+      const lv = novaLvl(it.id);
+      const maxed = lv>=it.max;
+      html += `<article class="nova-card ${maxed?"maxed":""}">`;
+      html += `<div class="nova-top"><b>${it.name}</b><span class="nova-cost">${it.cost?it.cost+" ✦":"—"}</span></div>`;
+      html += `<div class="meta">${it.note||""}</div>`;
+      html += `<div class="nova-row">`;
+      if (it.max===1){
+        html += `<label class="need-row" style="border:none;background:transparent;padding:0"><input type="checkbox" ${lv?"checked":""} onchange="setNovaLvl('${it.id}',this.checked?1:0)"> Unlocked</label>`;
+      } else {
+        html += `<button type="button" onclick="bumpNova('${it.id}',-1)">−</button>`;
+        html += `<span class="nova-lv">${lv} / ${it.max}</span>`;
+        html += `<button type="button" onclick="bumpNova('${it.id}',1)">+</button>`;
+      }
+      html += `</div></article>`;
+    });
+    html += `</div></details>`;
+  });
+  return html;
+}
+function renderFusionTracker(){
+  const plan = fusePlan();
+  const nPick = plan.picks.length;
+  let html = renderVariantBonuses("fusion");
+  html += `<details class="floor fuse" ${floorOpen("fuseSelect",false)?"open":""} ontoggle="toggleFloor('fuseSelect',this.open)"><summary>Fusion select · ${nPick}/10</summary>`;
+  html += `<div class="meta" style="margin:0 0 8px">Check a variant to track it. Max 10. Recipes drop in below.</div>`;
+  html += `<div class="fuse-table-wrap"><table class="fuse-table"><thead><tr><th>Droid</th><th>Rarity</th>`;
+  VARIANTS.forEach(v => { html += `<th class="${vTheme(v)}">${vName(v)}</th>`; });
+  html += `</tr></thead><tbody>`;
+  FUSIONS.forEach(([n,r,ty]) => {
+    if (fuseDone(n)) return;
+    html += `<tr><td>${picWrap(n,ty,r)}<span>${n}</span></td><td class="${r}">${r}</td>`;
+    VARIANTS.forEach(v => {
+      if (fuseHas(n,v)){
+        html += `<td class="have-var">✓</td>`;
+        return;
+      }
+      const on = fusePicked(n,v);
+      const locked = !on && nPick>=10;
+      html += `<td><input type="checkbox" ${on?"checked":""} ${locked?"disabled":""} onchange="toggleFusePick('${esc(n)}','${v}')"></td>`;
+    });
+    html += `</tr>`;
+  });
+  html += `</tbody></table></div></details>`;
+
+  if (!nPick){
+    html += `<div class="empty">Check up to 10 variants above. Each one gets a 3-part recipe card here.</div>`;
+    return html;
+  }
+  html += `<div class="fuse-boards">`;
+  plan.picks.forEach(pk => {
+    const row = FUSIONS.find(x => x[0]===pk.name);
+    if (!row) return;
+    const ings = row[3] || [];
+    const v = pk.variant;
+    html += `<section class="fuse-board ${vTheme(v)}">`;
+    html += `<h3>${pk.name.toUpperCase()} <em>[${vName(v).toUpperCase()}]</em></h3>`;
+    html += `<div class="fuse-ings">`;
+    ings.forEach((ing,idx) => {
+      const tick = !!(plan.checks && plan.checks[fuseNeedKey(pk.name,v,ing,idx)]);
+      const owned = has(ing,v) || fuseHas(ing,v);
+      const typ = classOf(ing)||"";
+      const rar = rarityOf(ing)||"";
+      html += `<label class="fuse-ing ${vTheme(v)} ${tick?"on":""}">`;
+      html += `<input type="checkbox" ${tick?"checked":""} onchange="toggleFuseNeed('${esc(pk.name)}','${v}','${esc(ing)}',${idx})">`;
+      html += `${picWrap(ing,typ,rar)}`;
+      html += `<span class="ing-name">${ing}</span></label>`;
+    });
+    html += `</div></section>`;
+  });
+  html += `</div>`;
+  return html;
+}
+function renderFusionCard(name,rar,typ,ings,hideDone){
+  if (hideDone && fuseDone(name)) return "";
+  if (!showCard(name,typ,ings.join(" ")+" fusion")) return "";
+  const tiers = fuseTiers(name);
+  const opened = openF[name] ? "open" : "";
+  const allOn = VARIANTS.every(v => fuseHas(name,v));
+  const fl = fuseHas(name,"Flawless");
+  let html = `<details class="card drop ${tiers===7?"done":""} ${rarTheme(rar)}" ${opened} ontoggle="openF['${esc(name)}']=this.open"><summary><i class="fill" style="width:${(tiers/7*100).toFixed(1)}%"></i><div class="top" style="flex:1">${picWrap(name,"Fusion",rar)}<div class="grow"><div class="name">${name}${rarityMark(rar)}</div><div class="meta">${typ} · ${tiers}/7 variants</div></div><div class="pills"><label class="fl-pill ${fl?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${fl?"checked":""} onchange="state.f['${esc(name)}|Flawless']=this.checked;save();render();">Flawless</label><label class="fl-pill ${allOn?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${allOn?"checked":""} onchange="completeFusion('${esc(name)}')">Complete All</label></div></div><span class="chev">▸</span></summary><div class="drop-body">`;
+  VARIANTS.forEach(v => {
+    const own = fuseHas(name,v);
+    const got = ings.map((_,i)=>fuseIng(name,v,i));
+    const ready = got.every(Boolean) && !own;
+    const have = got.filter(Boolean).length;
+    const vopen = openV[name+"|"+v] ? "open" : "";
+    html += `<details class="tier ${vTheme(v)}" ${vopen} ontoggle="openV['${esc(name)}|${v}']=this.open"><summary><label class="chk ${own?"on":""}" style="background:transparent;border:0;padding:0;min-height:0;flex-direction:row;text-transform:none" onclick="event.stopPropagation()"><input type="checkbox" ${own?"checked":""} onchange="toggleFusionVariant('${esc(name)}','${v}',this.checked)"></label><span>${vName(v)}</span><span style="color:var(--muted);font-weight:600;letter-spacing:0;text-transform:none">${have}/${ings.length}</span>${ready?'<span class="ready" style="margin:0">READY</span>':''}${own?'<span style="color:var(--green);font-size:10px">OWNED</span>':''}<span class="chev">▸</span></summary><div class="ings">`;
+    ings.forEach((ing,i) => {
+      const on = got[i];
+      html += `<label class="chk ${on?"on":""} ${vTheme(v)}"><input type="checkbox" ${on?"checked":""} onchange="toggleFusionIng('${esc(name)}','${v}',${i},'${esc(ing)}',this.checked)">${vName(v).toUpperCase()} ${ing.toUpperCase()}</label>`;
+    });
+    html += `</div></details>`;
+  });
+  html += `</div></details>`;
+  return html;
+}
+
+function renderIconicCard(name,typ,ev,how,hideDone){
+  if (hideDone && iconDone(name)) return "";
+  if (!showCard(name,typ,ev+" "+how+" iconic")) return "";
+  const on = iconOwned(name);
+  let html = `<details class="card drop ${on?"done":""}"><summary><i class="fill" style="width:${on?100:0}%"></i><div class="top" style="flex:1">${picWrap(name,"Iconic","Iconic")}<div class="grow"><div class="name">${name.toUpperCase()}${rarityMark("Iconic")}</div><div class="meta">${typ.toUpperCase()} · ${ev}${on?" · UNLOCKED":" · LOCKED — Nova Shop"}</div></div></div><span class="chev">▸</span></summary><div class="drop-body"><div class="meta">${how}</div><div class="meta" style="margin-top:8px">Owned only from the Nova Shop Iconic Unlocked box. Uncheck there to remove it from Base.</div></div></details>`;
+  return html;
+}
+let openPop = null;
+function openCardPop(kind,name){
+  openPop = {kind,name};
+  if (kind==="d") openD[name]=true;
+  if (kind==="f") openF[name]=true;
+  render();
+}
+function closeCardPop(){ openPop=null; render(); }
+function renderMiniTile(name,typ,rar,kind){
+  const tc = String(typ||'').toLowerCase();
+  return `<button class="mini-tile t-${tc}" onclick="openCardPop('${kind}','${esc(name)}')">${picWrap(name,typ,rar)}<span class="mini-name">${name}${rarityMark(rar)}</span><span class="mini-meta">${typ}</span></button>`;
+}
+function popInner(){
+  if (!openPop) return "";
+  const {kind,name} = openPop;
+  if (kind==="d"){
+    const d = DROIDS.find(x=>x[0]===name);
+    return d ? renderDroidCard(d[0],d[1],d[2],false) : "";
+  }
+  if (kind==="f"){
+    const d = FUSIONS.find(x=>x[0]===name);
+    return d ? renderFusionCard(d[0],d[1],d[2],d[3],false) : "";
+  }
+  if (kind==="i"){
+    const d = ICONICS.find(x=>x[0]===name);
+    return d ? renderIconicCard(d[0],d[1],d[2],d[3],false) : "";
+  }
+  return "";
+}
+function paintPop(){
+  let pop = document.getElementById("cardPop");
+  if (!pop){
+    pop = document.createElement("div");
+    pop.id = "cardPop";
+    document.body.appendChild(pop);
+  }
+  if (openPop){
+    pop.className = "card-pop";
+    pop.onclick = function(e){ if (e.target===pop) closeCardPop(); };
+    pop.innerHTML = `<div class="pop-card" onclick="event.stopPropagation()">${popInner()}</div>`;
+  } else {
+    pop.className = "card-pop hidden";
+    pop.innerHTML = "";
+  }
+}
+function render(){
+  if (TABS.indexOf(tab)<0) tab = "droidex";
+  applyAlertColors();
+  const app = document.getElementById("app");
+  if (!app) return;
+  let html = "";
+  const qEl = document.getElementById("q");
+  const qLive = (tab==="fusion") ? "" : norm(qEl ? qEl.value : "");
+  if (qLive) {
+    html += `<div class="hint">Matches for “${document.getElementById("q").value.trim()}”. Results update as you type. Tap the box again to start a new search.</div>`;
+    let shown=0;
+    const dHits = DROIDS.filter(([n,t,r]) => showCard(n,t,r));
+    const fHits = FUSIONS.filter(([n,r,t,ings]) => showCard(n,t,ings.join(" ")));
+    const iHits = ICONICS.filter(([n,t,ev,how]) => showCard(n,t,ev+" "+how));
+    if (dHits.length){
+      html += `<div class="rarity-h">Droidex</div><div class="mini-grid">`;
+      dHits.forEach(([n,t,r]) => { html += renderMiniTile(n,t,r,"d"); shown++; });
+      html += `</div>`;
+    }
+    if (fHits.length){
+      html += `<div class="rarity-h Fusion">Fusion</div><div class="mini-grid">`;
+      fHits.forEach(([n,r,t]) => { html += renderMiniTile(n,t,r,"f"); shown++; });
+      html += `</div>`;
+    }
+    if (iHits.length){
+      html += `<div class="rarity-h Iconic">Iconic</div>`;
+      iHits.forEach(([n,t,ev,how]) => {
+        html += `<article class="card"><div class="top">${picWrap(n,"Iconic","Iconic")}<div class="grow"><div class="name">${n}</div><div class="meta">${t} · ${ev}</div></div><span class="badge Iconic">Iconic</span></div></article>`;
+        shown++;
+      });
+    }
+    if (!shown) html += `<div class="empty">No droids match “${document.getElementById("q").value.trim()}”.</div>`;
+    app.innerHTML = html;
+    paintPop();
+    updateStats();
+    updateSaveLabel();
+    return;
+  }
+    if (tab==="fusion") {
+    try { html += renderFusionTracker(); }
+    catch(e){ html += `<div class="hint">Fusion planner hit an error: ${e}. Other tabs should still work.</div>`; }
+  }
+  if (tab==="droidex") {
+    html += renderVariantBonuses();
+    const order = ["Common","Rare","Epic","Legendary","Mythic"];
+    let shown=0;
+    order.forEach(r => {
+      const regs = DROIDS.filter(([n,t,rr]) => rr===r && !droidDone(n) && showCard(n,t,r));
+      const fuses = FUSIONS.filter(([n,rr,t,ings]) => rr===r && !fuseDone(n) && showCard(n,t,ings.join(" ")+" fusion"));
+      if (!regs.length && !fuses.length) return;
+      html += `<div class="rarity-h ${r}">${r}</div><div class="mini-grid">`;
+      regs.forEach(([n,t]) => { html += renderMiniTile(n,t,r,"d"); shown++; });
+      fuses.forEach(([n,rr,t]) => { html += renderMiniTile(n,t,rr,"f"); shown++; });
+      html += `</div>`;
+    });
+    const icons = ICONICS.filter(([n,t,ev,how]) => !iconDone(n) && showCard(n,t,ev+" "+how+" iconic"));
+    if (icons.length){
+      html += `<div class="rarity-h Iconic">Iconic</div><div class="mini-grid">`;
+      icons.forEach(([n,t]) => { html += renderMiniTile(n,t,"Iconic","i"); shown++; });
+      html += `</div>`;
+    }
+    if (!shown) html += `<div class="empty">Nothing left here. Check Done, or clear search.</div>`;
+  }
+  if (tab==="decks") {
+    html += renderDecks();
+  }
+  if (tab==="srb") {
+    const cyc = CYCLES[srbCycle] || CYCLES[1];
+    html += `<div class="hint">Tap a rebirth to see the droids it wants. A row only checks off if that droid is <b>parked on Decks or Lounge</b> at that variant or better — owning it in the Droidex is not enough. Super Rebirth unlocks at <b>Rebirth 12</b> plus one Rainbow Legendary. Paths loop <b>1 → 2 → 3 → 4 → 5 → 1</b>.</div>`;
+    html += `<article class="card"><div class="meta" style="margin:0 0 6px">Current cycle</div>`;
+    html += `<select class="deck-field" onchange="srbCycle=Number(this.value)||1;state.rb.cycle=srbCycle;save();render();">`;
+    [1,2,3,4,5].forEach(n => {
+      html += `<option value="${n}" ${srbCycle===n?"selected":""}>Cycle ${n}${n===5?" → loops back to 1":""}</option>`;
+    });
+    html += `</select></article>`;
+    const qq = document.getElementById("q").value.trim().toLowerCase();
+    const groups = [
+      {id:"early", title:"Rebirths 1–11", from:1, to:11},
+      {id:"srb", title:"Super Rebirth 12–35", from:12, to:35}
+    ];
+    groups.forEach(g => {
+      const slice = [];
+      for (let rb=g.from; rb<=g.to; rb++){
+        const need = cyc[rb-1];
+        if (!need) continue;
+        const blob = "rebirth "+rb+" "+need.map(x=>x.join(" ")).join(" ")+" "+(CREDITS[rb-1]||"");
+        if (qq && !blob.toLowerCase().includes(qq)) continue;
+        slice.push(rb);
+      }
+      if (!slice.length) return;
+      slice.sort((a,b) => {
+        const da = state.rb["c"+srbCycle+"r"+a] ? 1 : 0;
+        const db = state.rb["c"+srbCycle+"r"+b] ? 1 : 0;
+        return da-db || a-b;
+      });
+      const cleared = slice.filter(rb => state.rb["c"+srbCycle+"r"+rb]).length;
+      const gopen = openG[g.id+"-"+srbCycle] ? "open" : (qq ? "open" : "");
+      const allOn = slice.length && cleared===slice.length;
+      html += `<details class="card drop" ${gopen} ontoggle="openG['${g.id}-${srbCycle}']=this.open"><i class="fill" style="width:${(slice.length?cleared/slice.length*100:0).toFixed(1)}%;background:linear-gradient(90deg,#9a3412,#fb923c 70%,#fed7aa)"></i><summary><label class="fl-pill ${allOn?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${allOn?"checked":""} onchange="completeRebirthList([${slice.join(',')}],this.checked)"></label><div class="grow"><div class="name">${g.title}</div><div class="meta">${cleared}/${slice.length} cleared · Cycle ${srbCycle}</div></div><span class="chev">▸</span></summary><div class="drop-body">`;
+      slice.forEach(rb => {
+        const need = cyc[rb-1];
+        const key = "c"+srbCycle+"r"+rb;
+        const done = !!state.rb[key];
+        const have = need.filter(([n,t]) => meets(n,t)).length;
+        const ready = have===need.length;
+        const nova = NOVA[rb] ? ` · ${NOVA[rb]} Nova` : "";
+        const ropen = openR[key] ? "open" : "";
+        html += `<details class="tier ${done?"done":""}" ${ropen} ontoggle="openR['${key}']=this.open"><i class="fill" style="width:${done?100:(need.length?have/need.length*100:0)}%"></i><summary><label class="fl-pill ${done?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${done?"checked":""} onchange="toggleRebirth('${key}',this.checked)"></label><span>Rebirth ${rb}</span><span style="color:var(--muted);font-weight:600;letter-spacing:0;text-transform:none">${have}/${need.length}</span><span class="rb-cost">${CREDITS[rb-1]||""}${nova}</span>${ready&&!done?'<span class="ready" style="margin:0">READY</span>':''}${done?'<span style="color:var(--green);font-size:10px">DONE</span>':''}${rb>=12?'<span class="srb">SRB</span>':''}<span class="chev">▸</span></summary><div class="ings srb-cards">`;
+        need.forEach(([n,t]) => {
+          const ok = meets(n,t);
+          const owned = bestTier(n) >= tierOf(t);
+          const typ = classOf(n)||"";
+          const rar = rarityOf(n)||"";
+          const kind = isIconic(n) ? "i" : (FUSIONS.some(x=>x[0]===n) ? "f" : "d");
+          const note = ok ? "Parked" : owned ? "Owned, not parked" : "Need "+vName(t);
+          const ticked = !!state.rb[rbNeedKey(rb,n)];
+          html += `<div class="mini-tile t-${typ.toLowerCase()} ${ok?"need-ok":owned?"need-low":""} ${ticked?"ticked":""}"><label class="rb-tick ${ticked?"on":""}" onclick="event.preventDefault();event.stopPropagation();toggleRbNeed(${rb},'${esc(n)}',event)"><input type="checkbox" ${ticked?"checked":""}>Got it</label><button type="button" class="mini-hit" onclick="event.preventDefault();openCardPop('${kind}','${esc(n)}')">${picWrap(n,typ,rar)}<span class="mini-name">${vName(t)} ${n}</span><span class="mini-meta">${note}</span></button></div>`;
+        });
+        html += `</div></details>`;
+      });
+      html += `</div></details>`;
+    });
+  }
+  if (tab==="more") {
+    html += `<div class="hint">Iconics and workshop paint.</div><div class="rarity-h Iconic">Iconics</div>`;
+    ICONICS.forEach(([n,t,ev,how]) => {
+      if (iconDone(n) || !showCard(n,t,ev+" "+how)) return;
+      const base = !!state.i[n+"|base"];
+      html += `<article class="card"><div class="top">${picWrap(n,"Iconic","Iconic")}<div class="grow"><div class="name">${n}</div><div class="meta">${t} · ${ev}</div></div><span class="badge Iconic">Iconic</span></div><div class="meta" style="margin-top:8px">${how}</div><div class="vars">
+        <label class="chk"><input type="checkbox" onchange="state.i['${esc(n)}']=!state.i['${esc(n)}'];save();render();">Owned</label>
+        <label class="chk ${base?"on":""}"><input type="checkbox" ${base?"checked":""} onchange="state.i['${esc(n)}|base']=!state.i['${esc(n)}|base'];save();render();">In base</label>
+      </div></article>`;
+    });
+    html += `<div class="rarity-h">Paint</div>`;
+    COSMETICS.forEach(([cat,item,how,cost],idx) => {
+      if (!showCard(item,cat,how+" "+cost)) return;
+      const on = !!state.c[idx];
+      html += `<article class="card ${on?"done":""}"><div class="top"><div class="grow"><div class="name">${item}</div><div class="meta">${cat} · ${cost}</div></div></div><div class="meta" style="margin-top:8px">${how}</div><div class="vars"><label class="chk ${on?"on":""}"><input type="checkbox" ${on?"checked":""} onchange="state.c[${idx}]=!state.c[${idx}];save();render();">Have it</label></div></article>`;
+    });
+  }
+  if (tab==="iconics") {
+    html += `<div class="hint">Event-only named droids. Owned iconics move to Done.</div>`;
+    let shown=0;
+    ICONICS.forEach(([n,t,ev,how]) => {
+      if (iconDone(n) || !showCard(n,t,ev+" "+how)) return;
+      const base = !!state.i[n+"|base"];
+      html += `<article class="card"><div class="top">${picWrap(n,"Iconic","Iconic")}<div class="grow"><div class="name">${n}</div><div class="meta">${t} · ${ev}</div></div><span class="badge Iconic">Iconic</span></div><div class="meta" style="margin-top:8px">${how}</div><div class="vars">
+        <label class="chk"><input type="checkbox" onchange="state.i['${esc(n)}']=!state.i['${esc(n)}'];save();render();">Owned</label>
+        <label class="chk ${base?"on":""}"><input type="checkbox" ${base?"checked":""} onchange="state.i['${esc(n)}|base']=!state.i['${esc(n)}|base'];save();render();">In base</label>
+      </div></article>`;
+      shown++;
+    });
+    if (!shown) html += `<div class="empty">All iconics owned, or none match the filter.</div>`;
+  }
+  if (tab==="saves") {
+    html += savePanel();
+  }
+  if (tab==="done") {
+    html += `<div class="hint">Finished names only. Profiles and file load live on the <b>Profiles</b> tab. Super Rebirth is here.</div>`;
+    html += renderVariantBonuses();
+    html += `<div class="card" style="border-color:#7f1d3a"><div class="name">Super Rebirth</div><div class="meta" style="margin:6px 0 10px">Clears all droid / fusion / iconic / rebirth checks on this save. Keeps a backup so you can reload where you were. Fashion paints stay. Cycle advances ${srbCycle} → ${(srbCycle%5)+1}.</div><div class="act"><button class="danger" onclick="askSuperRebirth()">Super Rebirth</button></div></div>`;
+    let shown=0;
+    const doneD = DROIDS.filter(([n])=>droidDone(n));
+    const doneF = FUSIONS.filter(([n])=>fuseDone(n));
+    const doneI = ICONICS.filter(([n])=>iconDone(n));
+    const order = ["Common","Rare","Epic","Legendary","Mythic"];
+    order.forEach(r => {
+      const full = doneD.filter(([n,t,rr]) => rr===r && !has(n,"Flawless"));
+      const mini = doneD.filter(([n,t,rr]) => rr===r && has(n,"Flawless"));
+      const fFull = doneF.filter(([n,rr]) => rr===r && !fuseHas(n,"Flawless"));
+      const fMini = doneF.filter(([n,rr]) => rr===r && fuseHas(n,"Flawless"));
+      if (!full.length && !mini.length && !fFull.length && !fMini.length) return;
+      html += `<div class="rarity-h ${r}">${r}</div>`;
+      if (full.length || fFull.length){
+        html += `<div class="grid">`;
+        full.forEach(([n,t]) => { html += renderDroidCard(n,t,r,false); shown++; });
+        fFull.forEach(([n,rr,ty,ings]) => { html += renderFusionCard(n,rr,ty,ings,false); shown++; });
+        html += `</div>`;
+      }
+      if (mini.length || fMini.length){
+        html += `<div class="mini-grid">`;
+        mini.forEach(([n,ty]) => { html += renderMiniTile(n,ty,r,"d"); shown++; });
+        fMini.forEach(([n,rr,ty]) => { html += renderMiniTile(n,ty,rr,"f"); shown++; });
+        html += `</div>`;
+      }
+    });
+    if (doneI.length){
+      html += `<div class="rarity-h Iconic">Iconic</div><div class="mini-grid">`;
+      doneI.forEach(([n,ty]) => { html += renderMiniTile(n,ty,"Iconic","i"); shown++; });
+      html += `</div>`;
+    }
+    if (!shown) html += `<div class="empty">Nothing completed yet. Finish all 7 variants on a droid, or own an iconic.</div>`;
+  }
+  if (tab==="alarms") {
+    html += `<div class="hint">Times in Eastern. Upcoming list only includes <b>announced</b> FOAD windows. Scan pulls events.json (updated daily) and archives anything already ended into Past.</div>`;
+
+    computeFoadEvents().filter(ev => ev.status!=="ended").forEach((ev,i) => {
+      const extra = [
+        ev.rewards ? "Claim: "+ev.rewards.join(" · ") : "",
+        ev.bonuses ? "Bonuses: "+ev.bonuses.join(" · ") : "",
+        ev.how || ""
+      ].filter(Boolean).join(" · ");
+      html += `<article class="card"><div class="top"><div class="grow"><div class="name">${ev.name}</div></div><span class="badge ${ev.status}" id="evtFoadBadge${i}">${ev.status}</span></div><div class="evt-count" id="evtFoad${i}">${ev.countdownLabel}</div><div class="meta">${extra}</div></article>`;
+    });
+    html += `<article class="card theme-gal"><div class="top"><div class="grow"><div class="name">Galactic blueprints</div></div><span class="badge live">recurring</span></div><div class="evt-count" id="evtGal">Next in ${fmtLeft(nextGalactic()-Date.now())}</div><div class="meta">Every :15 and :45 Eastern-local clock</div></article>`;
+    html += `<article class="card theme-myth"><div class="top"><div class="grow"><div class="name">Mythic blueprints</div></div><span class="badge live">recurring</span></div><div class="evt-count" id="evtMyth">Next in ${fmtLeft(nextHourly(55)-Date.now())}</div><div class="meta">Hourly at :55</div></article>`;
+    html += `<article class="card theme-stel"><div class="top"><div class="grow"><div class="name">Stellar blueprints</div></div><span class="badge live">recurring</span></div><div class="evt-count" id="evtStel">Next in ${fmtLeft(nextHourly(0)-Date.now())}</div><div class="meta">Hourly at :00</div></article>`;
+    html += `<details class="card drop"><summary><div class="grow"><div class="name">Past iconic weekends</div><div class="meta">FOAD history</div></div><span class="chev">▸</span></summary><div class="drop-body"><table class="evt-table"><tr><th>Event</th><th>When</th><th>Window</th></tr>`;
+    FOAD_HISTORY.forEach(h => {
+      html += `<tr><td>${h.name}</td><td>${h.when}</td><td>${h.windows}</td></tr>`;
+    });
+    html += `</table></div></details>`;
+    html += `<div class="hint">Blueprint alarms — keep this page open. iPhone cannot vibrate from a webpage; use Sound there.</div>`;
+    [["Galactic","Every :15 and :45"],["Mythic","Hourly at :55"],["Stellar","Hourly at :00"]].forEach(([name,when]) => {
+      const a = alarms[name];
+      const at = name==="Galactic" ? nextGalactic() : nextHourly(name==="Mythic"?55:0);
+      const theme = name==="Galactic"?"theme-gal":name==="Mythic"?"theme-myth":"theme-stel";
+      html += `<article class="card ${theme}"><div class="name">${name}</div><div class="meta">${when} · next ${fmtLeft(at-Date.now())}</div>`;
+      html += `<div class="vars" style="grid-template-columns:1fr;margin-top:10px"><label class="chk ${a.on?"on":""}" style="flex-direction:row;text-transform:none;letter-spacing:0"><input type="checkbox" ${a.on?"checked":""} onchange="setAlarm('${name}','on',this.checked)">Alarm on</label></div>`;
+      html += `<div class="meta" style="margin:10px 0 6px">Warn this many minutes before</div><div class="vars">`;
+      [1,2,3,4,5].forEach(n => {
+        html += `<label class="chk ${a.lead===n?"on":""}"><input type="radio" name="lead-${name}" ${a.lead===n?"checked":""} onchange="setAlarm('${name}','lead',${n})">${n}m</label>`;
+      });
+      html += `</div><div class="meta" style="margin:10px 0 6px">Alert type</div><div class="vars">`;
+      [["vibrate","Vibrate"],["sound","Sound"],["both","Both"]].forEach(([k,lab]) => {
+        html += `<label class="chk ${a.mode===k?"on":""}" style="text-transform:none;letter-spacing:0"><input type="radio" name="mode-${name}" ${a.mode===k?"checked":""} onchange="setAlarm('${name}','mode','${k}')">${lab}</label>`;
+      });
+      html += `</div><div class="meta" style="margin:10px 0 6px">Alarm sound</div><div class="vars">`;
+      SOUNDS.forEach(s => {
+        html += `<label class="chk ${a.tone===s.id?"on":""}" style="text-transform:none;letter-spacing:0;font-size:10px"><input type="radio" name="tone-${name}" ${a.tone===s.id?"checked":""} onchange="setAlarm('${name}','tone','${s.id}')">${s.label}</label>`;
+      });
+      html += `</div><div class="act" style="margin-top:10px"><button onclick="testAlarm('${name}')">Test ${name}</button></div></article>`;
+    });
+  }
+  if (tab==="nova") {
+    html += renderNovaShop();
+  }
+  if (tab==="cosmetics") {
+    html += `<div class="hint">Workshop paints. These are not Droidex entries.</div><div class="paint-grid">`;
+    COSMETICS.forEach(([cat,item,how,cost],idx) => {
+      if (!showCard(item,cat,how+" "+cost)) return;
+      const on = !!state.c[idx];
+      html += `<article class="paint-tile ${on?"on":""}"><div class="name">${item}</div><div class="meta">${cat}</div><div class="meta">${cost}</div><div class="meta how">${how}</div><label class="chk ${on?"on":""}"><input type="checkbox" ${on?"checked":""} onchange="state.c[${idx}]=!state.c[${idx}];save();render();">Have it</label></article>`;
+    });
+    html += `</div>`;
+  }
+  app.innerHTML = html;
+  paintPop();
+  (function(){
+    const board = document.getElementById("floorBoard");
+    if (!board || typeof getFloorOrder!=="function") return;
+    const order = getFloorOrder();
+    order.forEach(id => {
+      const el = board.querySelector('[data-fid="'+id+'"]');
+      if (el) board.appendChild(el);
+    });
+  })();
+  document.body.dataset.tab = tab;
+  updateStats();
+  updateSaveLabel();
+}
+
+document.querySelectorAll(".tabs button").forEach(b => b.classList.toggle("on", b.dataset.tab===tab));
+document.querySelectorAll(".tabs button").forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll(".tabs button").forEach(b => b.classList.remove("on"));
+    btn.classList.add("on");
+    tab = btn.dataset.tab;
+    try { localStorage.setItem(KEY+"-tab", tab); } catch(e){}
+    document.body.dataset.tab = tab;
+    try { render(); } catch(err) {
+      const pane = document.getElementById("app");
+      if (pane) pane.innerHTML = '<div class="hint">Render error on '+tab+': '+err+'</div>';
+    }
+    const pane = document.getElementById("app");
+    if (pane) pane.scrollTop = 0;
+  };
+});
+document.getElementById("q").addEventListener("input", render);
+document.getElementById("q").addEventListener("focus", e => {
+  e.target.value = "";
+  render();
+});
+document.getElementById("filter").addEventListener("change", render);
+document.getElementById("loadFile").addEventListener("change", e => {
+  const file = e.target.files && e.target.files[0];
+  e.target.value = "";
+  if (file) importSave(file);
+});
+document.getElementById("modal").addEventListener("click", e => { if (e.target.id==="modal") closeModal(); });
+const ALARM_KEY = "droidex-alarms";
+const SOUNDS = [
+  {id:"r2",label:"R2 chirp"},
+  {id:"probe",label:"Probe scan"},
+  {id:"blaster",label:"Blaster"},
+  {id:"binary",label:"Droid speak"},
+  {id:"holocron",label:"Holocron"}
+];
+function defaultAlarms(){
+  return {
+    Galactic:{on:false,lead:1,mode:"both",tone:"r2"},
+    Mythic:{on:false,lead:1,mode:"both",tone:"blaster"},
+    Stellar:{on:false,lead:1,mode:"both",tone:"holocron"}
+  };
+}
+let alarms = JSON.parse(localStorage.getItem(ALARM_KEY) || "{}");
+["Galactic","Mythic","Stellar"].forEach(k => { alarms[k] = Object.assign(defaultAlarms()[k], alarms[k]||{}); });
+const lastFired = {Galactic:0,Mythic:0,Stellar:0};
+let audioCtx = null;
+function saveAlarms(){ localStorage.setItem(ALARM_KEY, JSON.stringify(alarms)); }
+function setAlarm(name, field, value){
+  unlockAudio();
+  alarms[name][field] = value;
+  saveAlarms();
+  if (field==="tone") playAlarmSound(value);
+  render();
+}
+function unlockAudio(){
+  try {
+    if (!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+    if (audioCtx.state === "suspended") audioCtx.resume();
+  } catch(e){}
+}
+function tone(type, freq, start, dur, peak){
+  const o = audioCtx.createOscillator();
+  const g = audioCtx.createGain();
+  o.type = type;
+  if (typeof freq === "number") o.frequency.setValueAtTime(freq, start);
+  else freq(o.frequency, start);
+  g.gain.setValueAtTime(0, start);
+  g.gain.linearRampToValueAtTime(peak||0.2, start+0.02);
+  g.gain.linearRampToValueAtTime(0, start+dur);
+  o.connect(g); g.connect(audioCtx.destination);
+  o.start(start); o.stop(start+dur+0.02);
+}
+function playAlarmSound(kind){
+  unlockAudio();
+  if (!audioCtx) return;
+  const t0 = Math.max(audioCtx.currentTime, 0) + 0.03;
+  let k = kind || "r2";
+  if (k==="beep"||k==="chirp") k="r2";
+  if (k==="siren") k="probe";
+  if (k==="pulse") k="blaster";
+  if (k==="chime") k="holocron";
+  if (k==="r2"){
+    const tweets = [[0,920,1480,0.09],[0.11,1600,780,0.1],[0.24,700,1900,0.12],[0.4,1200,900,0.08],[0.52,1800,2400,0.14],[0.7,640,1100,0.1]];
+    tweets.forEach(([off,a,b,dur]) => tone("sine", (f,s)=>{ f.setValueAtTime(a,s); f.linearRampToValueAtTime(b,s+dur); }, t0+off, dur, 0.2));
+  } else if (k==="probe"){
+    [0,0.42,0.84,1.26].forEach((off,i) => {
+      tone("triangle", i%2?1480:420, t0+off, 0.38, 0.16);
+      tone("sine", i%2?740:210, t0+off, 0.38, 0.08);
+    });
+  } else if (k==="blaster"){
+    [0,0.22,0.44].forEach(off => {
+      tone("sawtooth", (f,s)=>{ f.setValueAtTime(980,s); f.linearRampToValueAtTime(140,s+0.16); }, t0+off, 0.16, 0.2);
+      tone("square", (f,s)=>{ f.setValueAtTime(420,s); f.linearRampToValueAtTime(90,s+0.12); }, t0+off, 0.12, 0.08);
+    });
+  } else if (k==="binary"){
+    const bits = [0,0.07,0.14,0.28,0.35,0.42,0.56,0.63,0.78,0.85,0.92];
+    bits.forEach((off,i) => tone("square", i%3===0?310:i%2?880:1240, t0+off, 0.05, 0.16));
+  } else {
+    tone("sine", 523, t0, 0.55, 0.16);
+    tone("sine", 784, t0+0.12, 0.6, 0.14);
+    tone("sine", 1046, t0+0.28, 0.75, 0.12);
+    tone("triangle", 392, t0, 0.8, 0.06);
+  }
+}
+function buzz(){
+  try { if (navigator.vibrate) navigator.vibrate([180,70,180,70,320,90,420]); } catch(e){}
+}
+function flashAlert(name){
+  const el = document.getElementById("alarmToast");
+  if (!el) return;
+  el.className = "show " + (name==="Galactic"?"theme-gal":name==="Mythic"?"theme-myth":"theme-stel");
+  el.textContent = name.toUpperCase() + " drop warning";
+  el.style.display = "block";
+  clearTimeout(flashAlert._t);
+  flashAlert._t = setTimeout(() => { el.style.display="none"; el.className=""; }, 2500);
+  try {
+    if (window.Notification && Notification.permission==="granted") {
+      new Notification(name+" belt drop", { body:"Timer warning", silent:false });
+    }
+  } catch(e){}
+}
+function runAlarm(name, force){
+  const a = alarms[name] || {mode:"both"};
+  const mode = force ? "both" : a.mode;
+  if (mode !== "sound") buzz();
+  if (mode !== "vibrate") playAlarmSound(a.tone || "beep");
+  flashAlert(name);
+}
+function fireAlarm(name){
+  const a = alarms[name];
+  if (!a || !a.on) return;
+  runAlarm(name, false);
+}
+function testAlarm(name){
+  try {
+    unlockAudio();
+    if (window.Notification && Notification.permission==="default") Notification.requestPermission();
+    const go = () => runAlarm(name, true);
+    if (audioCtx && audioCtx.state==="suspended") audioCtx.resume().then(go).catch(go);
+    else go();
+  } catch(e) { flashAlert(name); }
+}
+function beltTarget(name){
+  if (name==="Galactic") return nextGalactic();
+  if (name==="Mythic") return nextHourly(55);
+  return nextHourly(0);
+}
+function checkAlarms(){
+  const now = Date.now();
+  ["Galactic","Mythic","Stellar"].forEach(name => {
+    const a = alarms[name];
+    if (!a || !a.on) return;
+    const at = beltTarget(name);
+    const left = at - now;
+    const leadMs = a.lead * 60 * 1000;
+    if (left <= leadMs && left > leadMs - 2500) {
+      const id = at.getTime();
+      if (lastFired[name] !== id) {
+        lastFired[name] = id;
+        fireAlarm(name);
+      }
+    }
+  });
+}
+function nextHourly(minMark){
+  const now = new Date();
+  const t = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), minMark, 0, 0);
+  if (t <= now) t.setHours(t.getHours()+1);
+  return t;
+}
+function nextGalactic(){
+  const now = new Date();
+  const t = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), 0, 0, 0);
+  const m = now.getMinutes() + now.getSeconds()/60;
+  if (m < 15) t.setMinutes(15);
+  else if (m < 45) t.setMinutes(45);
+  else { t.setHours(t.getHours()+1); t.setMinutes(15); }
+  return t;
+}
+let FOAD_HISTORY = [
+  {name:"BB-8 Weekend", when:"May 9–10, 2026", windows:"First iconic weekend"},
+  {name:"Mister Bones", when:"May 16–17, 2026", windows:"24h world window"},
+  {name:"Mandalorian / IG-11 Marshal", when:"May 23–24, 2026", windows:"Sat 10AM–4PM ET · Sun 4PM–10PM ET"},
+  {name:"Beskar Event", when:"May 30–31, 2026", windows:"Rerun Jun 3–4"},
+  {name:"DJ R-3X", when:"Jun 13–14, 2026", windows:"Rerun Jun 20–21"},
+  {name:"R2-D2", when:"Jun 27–28, 2026", windows:"Rerun Jul 4–5"},
+  {name:"C-3PO", when:"Jul 11–12, 2026", windows:"Rerun Jul 18–19"},
+  {name:"Galactic Event", when:"Jul 25–26, 2026", windows:"24h Galactic weekend"},
+  {name:"Chopper", when:"Aug 1–2, 2026", windows:"Rerun Aug 8–9"},
+  {name:"Stellar Event", when:"Aug 15–16, 2026", windows:"New Stellar variant"},
+  {name:"Droid Fusion weekend", when:"Aug 22–24, 2026", windows:"Fusion lab live"},
+  {name:"D-O first run", when:"Aug 29, 2026", windows:"24h from Sat 4PM ET"},
+  {name:"Mega Crate Mini (Thu Sep 3)", when:"Sep 3, 2026", windows:"Morning 10AM–1PM ET + Evening 8–11PM ET · FOAD updated schedule"},
+  {name:"D-O Event rerun", when:"Sep 5–6, 2026", windows:"24h from Sat 4PM ET · FOAD Sep 2"},
+  {name:"Mega Crate Mini (Thu Sep 10)", when:"Sep 10, 2026", windows:"Morning 10AM–1PM ET + Evening 8–11PM ET · FOAD Sep 3 schedule"},
+  {name:"Protocol Droid Event", when:"Sep 12–14, 2026", windows:"Sat 4PM ET–Mon 3AM ET · +11h FOAD extension (timer bug) · World Mission revamp · Protocol Droids"},
+  {name:"Mega Crate Mini (Thu Sep 17)", when:"Sep 17, 2026", windows:"Morning 10AM–1PM ET + Evening 8–11PM ET · FOAD Sep 3 schedule"},
+  {name:"Protocol / World Mission Event rerun", when:"Sep 19–20, 2026", windows:"24h from Sat 4PM ET · v1.30.2 · Variant Weekend moved to Sep 26"},
+  {name:"Mega Crate Mini (Thu Sep 24)", when:"Sep 24, 2026", windows:"Morning 10AM–1PM ET + Evening 8–11PM ET · FOAD Sep 3 schedule"}
+];
+let FOAD_EVENTS = [
+  {name:"New Variant Weekend", start:"2026-09-26T16:00:00-04:00", end:"2026-09-27T16:00:00-04:00", rewards:["New variant blueprints"], bonuses:[], how:"v1.30.2 · Saturday Sep 26 4:00 PM EST"},
+  {name:"Mega Crate Mini Event (morning)", start:"2026-10-01T10:00:00-04:00", end:"2026-10-01T13:00:00-04:00", rewards:["Chopper mega crate loot"], bonuses:["2× upgrade chips"], how:"Weekly Thursday morning · 10AM–1PM ET · FOAD Sep 3 post · Mega Crate every 15 min"},
+  {name:"Mega Crate Mini Event (evening)", start:"2026-10-01T20:00:00-04:00", end:"2026-10-01T23:00:00-04:00", rewards:["Chopper mega crate loot"], bonuses:["2× upgrade chips"], how:"Weekly Thursday evening · 8PM–11PM ET · FOAD Sep 3 post · Mega Crate every 15 min"}
+];
+const EVENTS = FOAD_EVENTS;
+const EVENTS_KEY = "droidex-events-cache";
+let FOAD_RECURRING = [
+  {name:"Mega Crate Mini Event (morning)", weekday:4, startHourET:10, durationHours:3, rewards:["Chopper mega crate loot"], bonuses:["2× upgrade chips"], how:"Weekly Thursday morning · FOAD Sep 3 · 10AM–1PM ET · crates every 15 min"},
+  {name:"Mega Crate Mini Event (evening)", weekday:4, startHourET:20, durationHours:3, rewards:["Chopper mega crate loot"], bonuses:["2× upgrade chips"], how:"Weekly Thursday evening · FOAD Sep 3 · 8PM–11PM ET · crates every 15 min"},
+  {name:"Dance Party Mini Event", weekday:2, startHourET:8, durationHours:3, rewards:[], bonuses:[], how:"Every Tuesday morning · Sandcrawler · FOAD Aug 17 · 8AM–11AM ET · still active Sep 2026"},
+  {name:"Dance Party Mini Event", weekday:2, startHourET:20, durationHours:3, rewards:[], bonuses:[], how:"Every Tuesday evening · Sandcrawler · FOAD Aug 17 · 8PM–11PM ET · still active Sep 2026"}
+];
+function pad2(n){ return String(n).padStart(2,"0"); }
+function expandRecurring(now){
+  now = now || Date.now();
+  const out = [];
+  (FOAD_RECURRING||[]).forEach(r => {
+    for (let i=0;i<16;i++){
+      const probe = new Date(now + i*86400000);
+      const parts = new Intl.DateTimeFormat("en-US",{timeZone:"America/New_York", weekday:"short", year:"numeric", month:"2-digit", day:"2-digit"}).formatToParts(probe);
+      const map = {}; parts.forEach(p => map[p.type]=p.value);
+      const dow = {Sun:0,Mon:1,Tue:2,Wed:3,Thu:4,Fri:5,Sat:6}[map.weekday];
+      if (dow !== r.weekday) continue;
+      const y=map.year, mo=map.month, da=map.day;
+      const start = Date.parse(`${y}-${mo}-${da}T${pad2(r.startHourET||16)}:00:00-04:00`);
+      const end = start + (r.durationHours||6)*3600000;
+      if (end <= now) continue;
+      out.push({name:r.name, start:new Date(start).toISOString(), end:new Date(end).toISOString(), rewards:r.rewards||[], bonuses:r.bonuses||[], how:r.how||"Recurring mini"});
+      break;
+    }
+  });
+  return out;
+}
+function eventDayKey(ev){
+  const t = Date.parse(ev.start);
+  if (!t) return ev.name||"";
+  const parts = new Intl.DateTimeFormat("en-US",{timeZone:"America/New_York", year:"numeric", month:"2-digit", day:"2-digit"}).formatToParts(new Date(t));
+  const map = {}; parts.forEach(p => map[p.type]=p.value);
+  return (ev.name||"")+"|"+map.year+"-"+map.month+"-"+map.day;
+}
+function dedupeEvents(list){
+  const seen = new Set();
+  const out = [];
+  (list||[]).forEach(ev => {
+    const k = eventDayKey(ev);
+    if (seen.has(k)) return;
+    seen.add(k);
+    out.push(ev);
+  });
+  return out;
+}
+function applyEventPack(pack){
+  if (!pack) return;
+  if (Array.isArray(pack.history) && pack.history.length) FOAD_HISTORY = pack.history;
+  if (Array.isArray(pack.recurring) && pack.recurring.length) FOAD_RECURRING = pack.recurring;
+  const rec = expandRecurring();
+  const up = Array.isArray(pack.upcoming) ? pack.upcoming.filter(ev => ev && ev.start && ev.end) : [];
+  FOAD_EVENTS = dedupeEvents(up.concat(rec));
+  if (pack.updated) state._eventsUpdated = pack.updated;
+}
+function loadCachedEvents(){
+  try {
+    const raw = localStorage.getItem(EVENTS_KEY);
+    if (raw) applyEventPack(JSON.parse(raw));
+  } catch(e){}
+}
+async function scanAnnouncedEvents(silent){
+  const urls = ["events.json?t="+Date.now()];
+  let pack = null, err = "";
+  for (const url of urls){
+    try {
+      const res = await fetch(url, {cache:"no-store"});
+      if (!res.ok) continue;
+      pack = await res.json();
+      break;
+    } catch(e){ err = String(e); }
+  }
+  if (!pack){
+    if (!silent) alert("Could not refresh events.json. Keep that file next to index.html on GitHub Pages.");
+    return false;
+  }
+  const now = Date.now();
+  if (Array.isArray(pack.upcoming)){
+    pack.upcoming = pack.upcoming.filter(ev => ev && ev.start && ev.end);
+    const still = [], past = pack.history ? pack.history.slice() : FOAD_HISTORY.slice();
+    pack.upcoming.forEach(ev => {
+      if (Date.parse(ev.end) < now){
+        past.unshift({name:ev.name, when:new Date(Date.parse(ev.start)).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"}), windows:ev.how||"Announced window"});
+      } else still.push(ev);
+    });
+    pack.upcoming = still;
+    pack.history = past;
+  }
+  pack.updated = pack.updated || new Date().toISOString();
+  try { localStorage.setItem(EVENTS_KEY, JSON.stringify(pack)); } catch(e){}
+  applyEventPack(pack);
+  if (!silent) render();
+  return true;
+}
+loadCachedEvents();
+function eventStatus(ev, now){
+  const a = Date.parse(ev.start), b = Date.parse(ev.end);
+  if (now >= a && now < b) return "live";
+  if (now < a) return "upcoming";
+  return "ended";
+}
+function fmtLeftLong(ms){
+  if (ms < 0) ms = 0;
+  const s = Math.floor(ms/1000);
+  const d = Math.floor(s/86400);
+  const h = Math.floor((s%86400)/3600);
+  const m = Math.floor((s%3600)/60);
+  const sec = s%60;
+  if (d) return d+"d "+h+"h "+m+"m";
+  if (h) return h+"h "+String(m).padStart(2,"0")+"m";
+  return m+":"+String(sec).padStart(2,"0");
+}
+function computeFoadEvents(now){
+  now = now || Date.now();
+  const live = [];
+  FOAD_EVENTS.forEach(ev => {
+    const st = eventStatus(ev, now);
+    if (st==="ended"){
+      if (!FOAD_HISTORY.some(h => h.name===ev.name)){
+        FOAD_HISTORY.unshift({name:ev.name, when:new Date(Date.parse(ev.start)).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"}), windows:ev.how||"Ended window"});
+      }
+      return;
+    }
+    live.push(ev);
+  });
+  FOAD_EVENTS = dedupeEvents(live);
+  return FOAD_EVENTS.map(ev => {
+    const st = eventStatus(ev, now);
+    const a = Date.parse(ev.start), b = Date.parse(ev.end);
+    let countdownLabel = "";
+    if (st==="live") countdownLabel = "Ends in "+fmtLeftLong(b-now);
+    else if (st==="upcoming") countdownLabel = "Starts in "+fmtLeftLong(a-now);
+    else countdownLabel = "Ended";
+    return Object.assign({}, ev, {status:st, countdownLabel});
+  }).sort((x,y) => { const o={live:0,upcoming:1,ended:2}; return (o[x.status]-o[y.status]) || (Date.parse(x.start)-Date.parse(y.start)); });
+}
+function tickEvents(){
+  const now = Date.now();
+  const g = document.getElementById("evtGal");
+  const m = document.getElementById("evtMyth");
+  const s = document.getElementById("evtStel");
+  if (g) g.textContent = "Next in "+fmtLeft(nextGalactic()-now);
+  if (m) m.textContent = "Next in "+fmtLeft(nextHourly(55)-now);
+  if (s) s.textContent = "Next in "+fmtLeft(nextHourly(0)-now);
+  computeFoadEvents(now).forEach((ev,i) => {
+    const el = document.getElementById("evtFoad"+i);
+    if (el) el.textContent = ev.countdownLabel;
+    const b = document.getElementById("evtFoadBadge"+i);
+    if (b){ b.className = "badge "+ev.status; b.textContent = ev.status; }
+  });
+}
+function fmtLeft(ms){
+  if (ms < 0) ms = 0;
+  const s = Math.floor(ms/1000);
+  const mm = Math.floor(s/60);
+  const ss = String(s%60).padStart(2,"0");
+  return mm+":"+ss;
+}
+function tickBelts(){
+  const now = Date.now();
+  const rows = [
+    ["beltGal", nextGalactic()],
+    ["beltMyth", nextHourly(55)],
+    ["beltStel", nextHourly(0)]
+  ];
+  rows.forEach(([id, at]) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const left = at - now;
+    el.classList.toggle("soon", left <= 60000);
+    el.querySelector("b").textContent = fmtLeft(left);
+  });
+  const evBelt = document.getElementById("beltEvt");
+  const wrap = document.querySelector(".belts");
+  let hit = null;
+  computeFoadEvents(now).forEach(ev => {
+    if (ev.status==="ended") return;
+    const t = ev.status==="live" ? Date.parse(ev.end) : Date.parse(ev.start);
+    const ms = t - now;
+    if (ms < 0) return;
+    if (!hit || ms < hit.ms) hit = {ev, ms, live: ev.status==="live"};
+  });
+  const show = !!(hit && hit.ms <= 2*3600*1000);
+  if (evBelt){
+    evBelt.classList.toggle("hidden", !show);
+    if (show){
+      evBelt.querySelector("b").textContent = fmtLeft(hit.ms);
+      const lab = document.getElementById("beltEvtName");
+      if (lab) lab.textContent = hit.live ? (hit.ev.name+" ends") : hit.ev.name;
+      evBelt.classList.toggle("soon", hit.ms <= 60000);
+    }
+  }
+  if (wrap) wrap.classList.toggle("has-evt", show);
+  checkAlarms();
+  tickEvents();
+}
+tickBelts();
+setInterval(tickBelts, 1000);
+scanAnnouncedEvents(true).then(ok => { if (ok) { tickBelts(); if (tab==="alarms") render(); } });
+scanRegistry(true);
+scanPatches(true);
+setInterval(() => { scanAnnouncedEvents(true); scanRegistry(true); scanPatches(true); }, 30*60*1000);
+refreshEpicStatus();
+setInterval(refreshEpicStatus, 120000);
+async function refreshEpicStatus(){
+  const el = document.getElementById("epicStatus");
+  if (!el) return;
+  try {
+    const res = await fetch("https://status.epicgames.com/api/v2/summary.json", {cache:"no-store"});
+    const data = await res.json();
+    const fn = (data.components||[]).find(c => c.name==="Fortnite" && c.group) || (data.components||[]).find(c => c.name==="Fortnite");
+    const raw = (fn && fn.status) || (data.status && data.status.indicator) || "unknown";
+    const map = {none:"operational", operational:"operational", minor:"degraded_performance", major:"major_outage", critical:"major_outage"};
+    const st = map[raw] || raw;
+    const label = st==="operational" ? "Epic · Up" : st==="degraded_performance"||st==="partial_outage" ? "Epic · Issues" : st==="under_maintenance" ? "Epic · Maint" : st==="major_outage" ? "Epic · Down" : "Epic · …";
+    el.className = "epic-pill "+st;
+    el.textContent = label;
+    el.title = (data.status && data.status.description) || "Epic Games Public Status";
+  } catch(e){
+    el.className = "epic-pill unknown";
+    el.textContent = "Epic · ?";
+  }
+}
+(function spaceBG(){
+  const c = document.getElementById("space");
+  if (!c || !c.getContext) return;
+  const ctx = c.getContext("2d");
+  let stars = [];
+  function fit(){
+    c.width = innerWidth;
+    c.height = innerHeight;
+    const n = Math.min(220, Math.floor(c.width*c.height/9000));
+    stars = Array.from({length:n}, () => ({
+      x: Math.random()*c.width,
+      y: Math.random()*c.height,
+      z: 0.3 + Math.random()*1.7,
+      p: Math.random()*Math.PI*2,
+      s: 0.4 + Math.random()*1.4
+    }));
+  }
+  function draw(t){
+    ctx.clearRect(0,0,c.width,c.height);
+    stars.forEach(st => {
+      const tw = 0.45 + 0.55*Math.abs(Math.sin(t*0.001*st.z + st.p));
+      ctx.fillStyle = `rgba(230,240,255,${0.25+0.55*tw})`;
+      ctx.beginPath();
+      ctx.arc(st.x, st.y, st.s*tw, 0, Math.PI*2);
+      ctx.fill();
+      st.y += 0.015*st.z;
+      if (st.y > c.height+2) { st.y = -2; st.x = Math.random()*c.width; }
+    });
+    requestAnimationFrame(draw);
+  }
+  addEventListener("resize", fit, {passive:true});
+  fit();
+  requestAnimationFrame(draw);
+})();
+render();
+</script>
+</body>
+</html>

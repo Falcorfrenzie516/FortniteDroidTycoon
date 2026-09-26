@@ -1,5 +1,5 @@
 {
-  "updated": "2026-09-24T08:22:00-04:00",
+  "updated": "2026-09-25T08:28:00-04:00",
   "source": "FOAD patch notes",
   "slots": {
     "worker": 11,
@@ -14,15 +14,105 @@
     "chamber2": 1
   },
   "notes": [
-    {"ver": "1.31.1", "date": "2026-09-20", "items": ["Bug fix: crashes during World Missions on lower-end devices"]},
-    {"ver": "1.31", "date": "2026-09-17", "items": ["World missions now activate Surges or Crafting Boosts based on star rating (Lobby Boost Rewards)", "Fusion Droids now generate more Credits", "Nova Shop: adjusted prices of consumables and Iconic droids after Nova Crystal earn rate increase", "Bug fixes: Switch/Xbox UI display, player shields regenerate, Worker Bay edge collision, Protocol Crates multi-reward display, Mini Event Timer overlap", "New Droid Tracker Bundle"]},
-    {"ver": "1.30.2", "date": "2026-09-15", "items": ["Protocol / World Mission event rerun this weekend; New Variant Weekend moved to Sat Sep 26 4pm EST", "World Mission stars easier; higher-star crates guaranteed better rewards", "Nova Shop: more Pickaxe Mastery levels", "Fixed Companion + Protocol crafting speed; player health regenerates again", "6 Protocol stations in base (unlock through rebirths)"]},
-    {"ver": "1.30.1", "date": "2026-09-12", "items": ["World Missions fixed (no longer stuck at 00:00)", "Fixed issue preventing 4-star mission ratings; requirements rebalanced for achievability", "Protocol Event extended +11 hours (now ends 3 AM ET Monday / runs through Sunday night)"]},
-    {"ver": "1.30", "date": "2026-09-12", "items": ["Protocol Event: Protocol Droids at Droidsmith Outpost (24h from 9/12 4pm ET); Protocol Crates with blueprints from World Mission", "World Mission revamp: dedicated map locations, one active mission on cycling timer (shoot Stormtroopers/Droids, mine rocks, fish Sarlacc Pit)", "Nova Crystals now awarded on Rebirth past 20+ (larger amounts at higher benchmarks)", "Mobile: unique HUD for phones/tablets, Backpack button for Quickslot Management, larger menus, fixed menus repeatedly opening/closing"]},
-    {"ver": "1.29.1", "date": "2026-09-04", "items": ["Reworked Droid Crafting UI from player feedback", "Companion Droids move behind you while crafting", "Droidex Notification perk: alerts for higher variants of tracked Droid", "Sound effect when tracking a Droid in Droidex; tracked Droids persist across sessions", "Fusion recipes awarding random Droids never repeat the same Droid twice in a row", "Up to 20 blueprints on the ground at once", "Super Rebirth button in Rebirth menu shows correct Nova Crystal amount", "Fixed camera stuck after viewing Droidex"]},
-    {"ver": "1.29", "date": "2026-09-04", "items": ["Crafting UI: cooldown reflects speed % + pickaxe; seconds/total under meter", "Nova Shop UI: larger buttons, scrolling, crystal costs on buttons", "New Nova perk: Droidex Notification (track a droid for conveyor alerts)", "Cantina Quests give 5× rewards when the requested droid is Fusion", "D-O event stability fixes; Mega Crate Mini-Event bug fixes", "New V-Bucks hats at Wandering Merchant; SRB crystal preview on rebirth screen"]},
-    {"ver": "1.28", "date": "2026-08-29", "items": ["D-O iconic event", "Mega Crate mini event every Thursday", "Droid menu supports 2 companions"]},
-    {"ver": "1.27", "date": "2026-08-22", "items": ["Droid Fusion lab: 3 pads + chamber", "Second fusion tank behind Nova / V-Bucks"]},
-    {"ver": "1.26", "date": "2026-08-15", "items": ["Stellar variant", "Rebirth 31–35", "5th Super Rebirth cycle"]}
+    {
+      "ver": "1.31.1",
+      "date": "2026-09-20",
+      "items": [
+        "Bug fix: crashes during World Missions on lower-end devices"
+      ]
+    },
+    {
+      "ver": "1.31",
+      "date": "2026-09-17",
+      "items": [
+        "World missions now activate Surges or Crafting Boosts based on star rating (Lobby Boost Rewards)",
+        "Fusion Droids now generate more Credits",
+        "Nova Shop: adjusted prices of consumables and Iconic droids after Nova Crystal earn rate increase",
+        "Bug fixes: Switch/Xbox UI display, player shields regenerate, Worker Bay edge collision, Protocol Crates multi-reward display, Mini Event Timer overlap",
+        "New Droid Tracker Bundle"
+      ]
+    },
+    {
+      "ver": "1.30.2",
+      "date": "2026-09-15",
+      "items": [
+        "Protocol / World Mission event rerun this weekend; New Variant Weekend moved to Sat Sep 26 4pm EST",
+        "World Mission stars easier; higher-star crates guaranteed better rewards",
+        "Nova Shop: more Pickaxe Mastery levels",
+        "Fixed Companion + Protocol crafting speed; player health regenerates again",
+        "6 Protocol stations in base (unlock through rebirths)"
+      ]
+    },
+    {
+      "ver": "1.30.1",
+      "date": "2026-09-12",
+      "items": [
+        "World Missions fixed (no longer stuck at 00:00)",
+        "Fixed issue preventing 4-star mission ratings; requirements rebalanced for achievability",
+        "Protocol Event extended +11 hours (now ends 3 AM ET Monday / runs through Sunday night)"
+      ]
+    },
+    {
+      "ver": "1.30",
+      "date": "2026-09-12",
+      "items": [
+        "Protocol Event: Protocol Droids at Droidsmith Outpost (24h from 9/12 4pm ET); Protocol Crates with blueprints from World Mission",
+        "World Mission revamp: dedicated map locations, one active mission on cycling timer (shoot Stormtroopers/Droids, mine rocks, fish Sarlacc Pit)",
+        "Nova Crystals now awarded on Rebirth past 20+ (larger amounts at higher benchmarks)",
+        "Mobile: unique HUD for phones/tablets, Backpack button for Quickslot Management, larger menus, fixed menus repeatedly opening/closing"
+      ]
+    },
+    {
+      "ver": "1.29.1",
+      "date": "2026-09-04",
+      "items": [
+        "Reworked Droid Crafting UI from player feedback",
+        "Companion Droids move behind you while crafting",
+        "Droidex Notification perk: alerts for higher variants of tracked Droid",
+        "Sound effect when tracking a Droid in Droidex; tracked Droids persist across sessions",
+        "Fusion recipes awarding random Droids never repeat the same Droid twice in a row",
+        "Up to 20 blueprints on the ground at once",
+        "Super Rebirth button in Rebirth menu shows correct Nova Crystal amount",
+        "Fixed camera stuck after viewing Droidex"
+      ]
+    },
+    {
+      "ver": "1.29",
+      "date": "2026-09-04",
+      "items": [
+        "Crafting UI: cooldown reflects speed % + pickaxe; seconds/total under meter",
+        "Nova Shop UI: larger buttons, scrolling, crystal costs on buttons",
+        "New Nova perk: Droidex Notification (track a droid for conveyor alerts)",
+        "Cantina Quests give 5× rewards when the requested droid is Fusion",
+        "D-O event stability fixes; Mega Crate Mini-Event bug fixes",
+        "New V-Bucks hats at Wandering Merchant; SRB crystal preview on rebirth screen"
+      ]
+    },
+    {
+      "ver": "1.28",
+      "date": "2026-08-29",
+      "items": [
+        "D-O iconic event",
+        "Mega Crate mini event every Thursday",
+        "Droid menu supports 2 companions"
+      ]
+    },
+    {
+      "ver": "1.27",
+      "date": "2026-08-22",
+      "items": [
+        "Droid Fusion lab: 3 pads + chamber",
+        "Second fusion tank behind Nova / V-Bucks"
+      ]
+    },
+    {
+      "ver": "1.26",
+      "date": "2026-08-15",
+      "items": [
+        "Stellar variant",
+        "Rebirth 31–35",
+        "5th Super Rebirth cycle"
+      ]
+    }
   ]
 }
