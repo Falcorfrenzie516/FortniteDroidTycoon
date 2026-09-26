@@ -74,9 +74,9 @@
   .belt b { display:block; font-size:16px; font-variant-numeric:tabular-nums; color:var(--gold2); font-family:Orbitron,sans-serif; letter-spacing:.08em; }
   .belt span { font-size:9px; color:var(--muted); letter-spacing:.18em; text-transform:uppercase; font-family:Orbitron,sans-serif; }
   .belt.soon { box-shadow:0 0 14px rgba(255,255,255,.12); }
-  .belt.gal { background:radial-gradient(circle at 50% 0%, #4a0a63, #120218 70%); border-color:#d946ef; }
-  .belt.gal b { color:#f5d0fe; text-shadow:0 0 10px #e879f9; }
-  .belt.gal span { color:#e879f9; }
+  .belt.miss { background:radial-gradient(circle at 50% 0%, #083344, #041018 70%); border-color:#22d3ee; }
+  .belt.miss b { color:#a5f3fc; text-shadow:0 0 10px #22d3ee; }
+  .belt.miss span { color:#67e8f9; }
   .belt.myth { background:var(--myth-bg); border-color:var(--myth-line); }
   .belt.myth b { color:var(--myth-hi); }
   .belt.myth span { color:#f87171; }
@@ -653,14 +653,14 @@
 <header>
   <h1>Pocket Droid Tycoon Companion</h1>
   <details class="dash">
-    <summary>Title · belts · stats · <span id="saveLabel">Main</span> · v0906g · <a id="epicStatus" class="epic-pill unknown" href="https://status.epicgames.com" target="_blank" rel="noopener" onclick="event.stopPropagation()">Epic · …</a></summary>
+    <summary>Title · belts · stats · <span id="saveLabel">Main</span> · v0926c · <a id="epicStatus" class="epic-pill unknown" href="https://status.epicgames.com" target="_blank" rel="noopener" onclick="event.stopPropagation()">Epic · …</a></summary>
     <div class="dash-body">
   <img class="brand" src="img/pocket-droidex.jpg" alt="Pocket Droid Tycoon Companion" onerror="this.style.display='none';document.querySelector('h1').classList.add('show')" />
   <div class="sub">Profile: <span id="saveLabel2">Main</span></div>
   <div class="belts">
-    <div class="belt gal" id="beltGal"><b>--</b><span>Galactic</span></div>
     <div class="belt myth" id="beltMyth"><b>--</b><span>Mythic</span></div>
     <div class="belt stel" id="beltStel"><b>--</b><span>Stellar</span></div>
+    <div class="belt miss" id="beltMiss"><b>--</b><span>Mission</span></div>
     <div class="belt evt hidden" id="beltEvt"><b>--</b><span id="beltEvtName">Event</span></div>
   </div>
   <div class="stats">
@@ -1881,13 +1881,30 @@ function ensureDecks(st){
   st.decks.list.forEach(normalizeDeck);
   return st;
 }
-let state = JSON.parse(localStorage.getItem(KEY) || localStorage.getItem("droidex-v1") || '{"d":{},"f":{},"i":{},"c":{}}');
-if (!state.rb) state.rb = {};
-if (!state.rb.ahead) state.rb.ahead = 3;
-if (!state.rb.cycle) state.rb.cycle = 1;
-if (!state.alerts) state.alerts = {};
-if (!state.fusePlan) state.fusePlan = {pick:[], rarity:"all"};
-ensureDecks(state);
+function hydrateState(st){
+  if (!st || typeof st !== "object") st = {};
+  if (!st.d || typeof st.d !== "object") st.d = {};
+  if (!st.f || typeof st.f !== "object") st.f = {};
+  if (!st.i || typeof st.i !== "object") st.i = {};
+  if (!st.c || typeof st.c !== "object") st.c = {};
+  if (!st.nova || typeof st.nova !== "object") st.nova = {};
+  if (!st.rb || typeof st.rb !== "object") st.rb = {};
+  if (!st.rb.ahead) st.rb.ahead = 3;
+  if (!st.rb.cycle) st.rb.cycle = 1;
+  if (!st.alerts || typeof st.alerts !== "object") st.alerts = {};
+  if (!st.fusePlan || typeof st.fusePlan !== "object") st.fusePlan = {picks:[], checks:{}};
+  try { ensureDecks(st); } catch(e){}
+  return st;
+}
+function readSavedState(){
+  try {
+    const raw = localStorage.getItem(KEY) || localStorage.getItem("droidex-v1") || '{"d":{},"f":{},"i":{},"c":{}}';
+    return hydrateState(JSON.parse(raw));
+  } catch(e){
+    return hydrateState({});
+  }
+}
+let state = readSavedState();
 const TABS = ["droidex","fusion","decks","srb","done","cosmetics","nova","saves","alarms"];
 let tab = localStorage.getItem(KEY+"-tab") || "droidex";
 if (TABS.indexOf(tab)<0) tab = "droidex";
@@ -1901,9 +1918,7 @@ function loadBank(){
 }
 let bank = loadBank();
 if (bank.slots[bank.current] && bank.slots[bank.current].state) {
-  state = bank.slots[bank.current].state;
-  if (!state.rb) state.rb = {};
-  ensureDecks(state);
+  state = hydrateState(bank.slots[bank.current].state);
   srbCycle = Number(state.rb.cycle || 1);
 }
 function writeBank(){
@@ -1915,7 +1930,7 @@ function writeBank(){
 }
 function save(){ writeBank(); updateStats(); updateSaveLabel(); }
 function applyState(st){
-  state = JSON.parse(JSON.stringify(st));
+  state = hydrateState(JSON.parse(JSON.stringify(st || {})));
   if (!state.d) state.d = {};
   if (!state.f) state.f = {};
   if (!state.i) state.i = {};
@@ -2092,7 +2107,7 @@ function doSuperRebirth(){
   render();
 }
 function dKey(n,v){ return n+"|"+v; }
-function has(n,v){ return !!state.d[dKey(n,v)]; }
+function has(n,v){ return !!(state.d && state.d[dKey(n,v)]); }
 function toggle(n,v){ state.d[dKey(n,v)] = !state.d[dKey(n,v)]; save(); render(); }
 function completeAll(n){
   const allOn = VARIANTS.every(v => has(n,v));
@@ -2154,7 +2169,7 @@ function completeRebirthList(list,on){
   save(); render();
 }
 function ownedTiers(n){ return VARIANTS.filter(v => has(n,v)).length; }
-function fuseHas(n,v){ return !!state.f[n+"|"+v]; }
+function fuseHas(n,v){ return !!(state.f && state.f[n+"|"+v]); }
 function fuseIng(n,v,i){ return !!state.f[n+"|"+v+"|i"+i]; }
 function fuseTiers(n){ return VARIANTS.filter(v => fuseHas(n,v)).length; }
 function iconNovaId(n){
@@ -2738,10 +2753,12 @@ function paintPop(){
   }
 }
 function render(){
+  const app = document.getElementById("app");
+  try {
   if (TABS.indexOf(tab)<0) tab = "droidex";
   applyAlertColors();
-  const app = document.getElementById("app");
   if (!app) return;
+  if (!state || !state.d) state = hydrateState(state);
   let html = "";
   const qEl = document.getElementById("q");
   const qLive = (tab==="fusion") ? "" : norm(qEl ? qEl.value : "");
@@ -2997,6 +3014,11 @@ function render(){
   document.body.dataset.tab = tab;
   updateStats();
   updateSaveLabel();
+  } catch (err) {
+    console.error("render failed", err);
+    if (app) app.innerHTML = '<div class="hint">Render error on '+tab+': '+String(err)+'. Other tabs may still work. Profiles → Load file if you have a backup.</div>';
+    try { updateSaveLabel(); } catch(e){}
+  }
 }
 
 document.querySelectorAll(".tabs button").forEach(b => b.classList.toggle("on", b.dataset.tab===tab));
@@ -3177,6 +3199,13 @@ function nextGalactic(){
   if (m < 15) t.setMinutes(15);
   else if (m < 45) t.setMinutes(45);
   else { t.setHours(t.getHours()+1); t.setMinutes(15); }
+  return t;
+}
+function nextEvery(stepMin){
+  const now = new Date();
+  const t = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), 0, 0, 0);
+  const m = now.getMinutes() + now.getSeconds()/60 + now.getMilliseconds()/60000;
+  t.setMinutes((Math.floor(m / stepMin) + 1) * stepMin);
   return t;
 }
 let FOAD_HISTORY = [
@@ -3367,9 +3396,9 @@ function fmtLeft(ms){
 function tickBelts(){
   const now = Date.now();
   const rows = [
-    ["beltGal", nextGalactic()],
     ["beltMyth", nextHourly(55)],
-    ["beltStel", nextHourly(0)]
+    ["beltStel", nextHourly(0)],
+    ["beltMiss", nextEvery(30)]
   ];
   rows.forEach(([id, at]) => {
     const el = document.getElementById(id);
