@@ -123,6 +123,16 @@
   .chk.v-gal.on { color:#fce7ff; background:radial-gradient(circle at 30% 0%, #6b21a8, #1a0424 75%); border-color:#e879f9; box-shadow:0 0 10px rgba(232,121,249,.35); }
   .chk.v-stel { color:#fde047; background:radial-gradient(circle at 30% 0%, #7c4a08, #0a0804 72%); border-color:#d97706; }
   .chk.v-stel.on { color:#fffbeb; background:radial-gradient(circle at 30% 0%, #b45309, #120a04 75%); border-color:#fbbf24; box-shadow:0 0 10px rgba(251,191,36,.4); }
+  .chk.v-kyb { color:#a5f3fc; background:radial-gradient(circle at 50% 0%, rgba(34,211,238,.25), #041016 70%); border-color:#22d3ee; }
+  .chk.v-kyb.on { color:#ecfeff; border-color:#67e8f9; box-shadow:0 0 12px rgba(34,211,238,.45); }
+  .chk.v-kyg { color:#86efac; background:#052e16; border-color:#22c55e; }
+  .chk.v-kyg.on { color:#dcfce7; border-color:#4ade80; box-shadow:0 0 10px rgba(74,222,128,.35); }
+  .chk.v-kyu { color:#93c5fd; background:#0a1e3a; border-color:#3b82f6; }
+  .chk.v-kyu.on { color:#dbeafe; border-color:#60a5fa; box-shadow:0 0 10px rgba(96,165,250,.4); }
+  .chk.v-kyp { color:#d8b4fe; background:#2e1065; border-color:#a855f7; }
+  .chk.v-kyp.on { color:#f3e8ff; border-color:#c084fc; box-shadow:0 0 10px rgba(192,132,252,.4); }
+  .kyber-colors { display:flex; gap:6px; flex-wrap:wrap; margin-top:6px; }
+
   .chk.v-myth { color:#f87171; background:var(--myth-bg); border-color:var(--myth-line); }
   .chk.v-myth.on { color:var(--myth-hi); background:rgba(239,68,68,.18); border-color:#ef4444; }
   details.tier.v-def { border-color:#4b5563; background:#141416; }
@@ -653,7 +663,7 @@
 <header>
   <h1>Pocket Droid Tycoon Companion</h1>
   <details class="dash">
-    <summary>Title · belts · stats · <span id="saveLabel">Main</span> · v0926c · <a id="epicStatus" class="epic-pill unknown" href="https://status.epicgames.com" target="_blank" rel="noopener" onclick="event.stopPropagation()">Epic · …</a></summary>
+    <summary>Title · belts · stats · <span id="saveLabel">Main</span> · v0926e · <a id="epicStatus" class="epic-pill unknown" href="https://status.epicgames.com" target="_blank" rel="noopener" onclick="event.stopPropagation()">Epic · …</a></summary>
     <div class="dash-body">
   <img class="brand" src="img/pocket-droidex.jpg" alt="Pocket Droid Tycoon Companion" onerror="this.style.display='none';document.querySelector('h1').classList.add('show')" />
   <div class="sub">Profile: <span id="saveLabel2">Main</span></div>
@@ -704,7 +714,8 @@
 <div id="modal" class="modal hidden"></div>
 <div id="alarmToast"></div>
 <script>
-const VARIANTS = ["Basic","Gold","Diamond","Rainbow","Beskar","Galactic","Stellar"];
+const VARIANTS = ["Basic","Gold","Diamond","Rainbow","Beskar","Galactic","Stellar","Kyber"];
+const KYBER_COLORS = ["Kyber Green","Kyber Blue","Kyber Purple"];
 let DROIDS = [
   ["Mouse","Worker","Common"],["Pit","Worker","Common"],["Gonk","Worker","Common"],
   ["CB","Astromech","Common"],["R3","Astromech","Common"],["R5","Astromech","Common"],["R8","Astromech","Common"],
@@ -839,6 +850,32 @@ let ICONICS = [
   ["Mister Bones","Battle","Mister Bones Event","Defeat Stormtroopers during the event"],
   ["D-O","Worker","D-O Event","Log in during the 24-hour D-O window"]
 ];
+
+const DROIDEX_ORDER = [
+  "Mouse","Pit","Gonk","CB","R3","R5","R8","Imperial Probe","B1 Battle","ID10","DRK-1 Probe",
+  "A-LT","ARG","Senate Hovercam","BDX Explorer","Bal-Core","ROLL-R","BU-4D","2BB","R9",
+  "R4","B1 Security","ZRO-TEC","SA-5","HOV-R","VECT-Arm","NAV-EX","WHL-EX","BTL-R",
+  "Util-Tec","Strike-Orb","Groundmech","AMP Walker","LO","SEN-TRI","R6","BB","R2","TRAK-R","Gunrunner",
+  "ORB-Walker","Haul-R","B1 Heavy","B2 Super","LNG-Shot","B2 Heavy","Opti-Pod","LOM","SCRP-R",
+  "N-UL","ARM-CORE","OPT-AR",
+  "Proto-Roller","Mecha-Droid","Mono-WLKR","RO-TOR","FUS-3","BB9","R7","QIK-BIT",
+  "B2-RP","Cyclo-Grav","Opti-STRK","ORB-XL","PZ",
+  "Snow Mouse","RIC","RIC-1200","LEP","Loadlifter","RIV-3T","LUG-G","LOW-MO","DRFT-R","MO-TRAK",
+  "TRI-TEK","CYCLENS","AXI-POD","KX","IG","SRV-0","X-ONK","TDA",
+  "BB-8","Mister Bones","IG-11 Marshal","DJ R-3X","CB-23","R2-D2","C-3PO","Chopper","D-O"
+];
+function catalogOf(n){
+  const f = FUSIONS.find(x => x[0]===n);
+  if (f) return {name:n, rarity:f[1], type:f[2], kind:"f", ings:f[3]};
+  const d = DROIDS.find(x => x[0]===n);
+  if (d) return {name:n, type:d[1], rarity:d[2], kind:"d"};
+  const i = ICONICS.find(x => x[0]===n);
+  if (i) return {name:n, type:i[1], rarity:"Iconic", kind:"i", ev:i[2], how:i[3]};
+  return null;
+}
+function orderedByRarity(rarity){
+  return DROIDEX_ORDER.map(catalogOf).filter(x => x && x.rarity===rarity);
+}
 const COSMETICS = [
   ["Base paint","Red / Yellow","Starter paints","Free"],
   ["Base paint","Blue","Reach Rebirth 1","Rebirth 1"],
@@ -869,7 +906,7 @@ const COSMETICS = [
 
 const CREDITS = ["10K","150K","975K","2.95M","5.35M","9.85M","14.5M","36M","89M","220M","550M","1.36B","3.40B","8.45B","21B","52B","130B","325B","810B","2T","3T","4.5T","6T","9T","13.5T","21T","32T","45T","68T","100T","150T","230T","345T","520T","778T"];
 const NOVA = {12:11,13:16,14:22,15:29,16:37,17:46,18:56,19:67,20:79,21:92,22:106,23:121,24:137,25:154,26:172,27:191,28:211,29:232,30:254,31:277,32:301,33:326,34:352,35:379};
-const TIER_I = {Basic:0,Gold:1,Diamond:2,Rainbow:3,Beskar:4,Galactic:5,Stellar:6};
+const TIER_I = {Basic:0,Gold:1,Diamond:2,Rainbow:3,Beskar:4,Galactic:5,Stellar:6,Kyber:7};
 const CYCLES = {
   1:[
     [["CB","Basic"],["Pit","Basic"],["DRK-1 Probe","Basic"]],
@@ -1109,7 +1146,8 @@ const VARIANT_BONUS = [
   {tier:"Rainbow", label:"Rainbow", bonus:40, color:"#e879f9", bar:"#c026d3"},
   {tier:"Beskar", label:"Beskar", bonus:60, color:"#cbd5e1", bar:"#94a3b8"},
   {tier:"Galactic", label:"Galactic", bonus:100, color:"#c084fc", bar:"#7c3aed"},
-  {tier:"Stellar", label:"Stellar", bonus:200, color:"#fbbf24", bar:"#d97706"}
+  {tier:"Stellar", label:"Stellar", bonus:200, color:"#fbbf24", bar:"#d97706"},
+  {tier:"Kyber", label:"Kyber", bonus:300, color:"#67e8f9", bar:"#06b6d4"}
 ];
 function craftNames(){ return DROIDS.map(d=>d[0]).concat(FUSIONS.map(f=>f[0])); }
 function ownedAtLeast(name, tier){
@@ -2190,8 +2228,8 @@ function stripIconicFromPads(n){
     });
   });
 }
-function droidDone(n){ return ownedTiers(n)===7; }
-function fuseDone(n){ return fuseTiers(n)===7; }
+function droidDone(n){ return ownedTiers(n)===VARIANTS.length; }
+function fuseDone(n){ return fuseTiers(n)===VARIANTS.length; }
 function iconDone(n){ return iconOwned(n); }
 function esc(s){ return String(s).replace(/\\/g,"\\\\").replace(/'/g,"\\'"); }
 function bestTier(n){
@@ -2352,8 +2390,8 @@ function setRbSetting(field, value){
 }
 
 function hash(s){ let h=0; for(let i=0;i<s.length;i++) h=s.charCodeAt(i)+((h<<5)-h); return Math.abs(h); }
-const SHORT = {Basic:"DEF",Gold:"GLD",Diamond:"DIA",Rainbow:"RBW",Beskar:"BSK",Galactic:"GLC",Stellar:"STL"};
-const VNAME = {Basic:"Default",Gold:"Gold",Diamond:"Diamond",Rainbow:"Rainbow",Beskar:"Beskar",Galactic:"Galactic",Stellar:"Stellar"};
+const SHORT = {Basic:"DEF",Gold:"GLD",Diamond:"DIA",Rainbow:"RBW",Beskar:"BSK",Galactic:"GLC",Stellar:"STL",Kyber:"KYB","Kyber Green":"GRN","Kyber Blue":"BLU","Kyber Purple":"PRP"};
+const VNAME = {Basic:"Default",Gold:"Gold",Diamond:"Diamond",Rainbow:"Rainbow",Beskar:"Beskar",Galactic:"Galactic",Stellar:"Stellar",Kyber:"Kyber","Kyber Green":"Green","Kyber Blue":"Blue","Kyber Purple":"Purple"};
 function vName(v){ return VNAME[v] || v; }
 function vTheme(v){
   if (v==="Basic") return "v-def";
@@ -2363,6 +2401,10 @@ function vTheme(v){
   if (v==="Beskar") return "v-bsk";
   if (v==="Galactic") return "v-gal";
   if (v==="Stellar") return "v-stel";
+  if (v==="Kyber") return "v-kyb";
+  if (v==="Kyber Green") return "v-kyg";
+  if (v==="Kyber Blue") return "v-kyu";
+  if (v==="Kyber Purple") return "v-kyp";
   return "";
 }
 function rarTheme(r){ return r==="Mythic" ? "theme-myth" : ""; }
@@ -2459,9 +2501,14 @@ function renderDroidCard(name,typ,rar,hideDone){
   const tiers = ownedTiers(name);
   const opened = openD[name] ? "open" : "";
   const fl = has(name,"Flawless");
-  const allOn = tiers===7;
-  let html = `<details class="card drop ${tiers===7?"done":""} ${rarTheme(rar)}" ${opened} ontoggle="openD['${esc(name)}']=this.open"><summary><i class="fill" style="width:${(tiers/7*100).toFixed(1)}%"></i><div class="top" style="flex:1">${picWrap(name,typ,rar)}<div class="grow"><div class="name">${name.toUpperCase()}${rarityMark(rar)}</div><div class="meta">${typ.toUpperCase()} · ${tiers}/7</div></div><div class="pills"><label class="fl-pill ${fl?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${fl?"checked":""} onchange="toggle('${esc(name)}','Flawless')">Flawless</label><label class="fl-pill ${allOn?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${allOn?"checked":""} onchange="completeAll('${esc(name)}')">Complete All</label></div></div><span class="chev">▸</span></summary><div class="drop-body"><div class="vars">`;
+  const allOn = tiers===VARIANTS.length;
+  let html = `<details class="card drop ${tiers===VARIANTS.length?"done":""} ${rarTheme(rar)}" ${opened} ontoggle="openD['${esc(name)}']=this.open"><summary><i class="fill" style="width:${(tiers/VARIANTS.length*100).toFixed(1)}%"></i><div class="top" style="flex:1">${picWrap(name,typ,rar)}<div class="grow"><div class="name">${name.toUpperCase()}${rarityMark(rar)}</div><div class="meta">${typ.toUpperCase()} · ${tiers}/${VARIANTS.length}</div></div><div class="pills"><label class="fl-pill ${fl?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${fl?"checked":""} onchange="toggle('${esc(name)}','Flawless')">Flawless</label><label class="fl-pill ${allOn?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${allOn?"checked":""} onchange="completeAll('${esc(name)}')">Complete All</label></div></div><span class="chev">▸</span></summary><div class="drop-body"><div class="vars">`;
   VARIANTS.forEach(v => {
+    const on = has(name,v);
+    html += `<label class="chk ${on?"on":""} ${vTheme(v)}"><input type="checkbox" ${on?"checked":""} onchange="toggle('${esc(name)}','${v}')">${SHORT[v]}</label>`;
+  });
+  html += `</div><div class="kyber-colors">`;
+  KYBER_COLORS.forEach(v => {
     const on = has(name,v);
     html += `<label class="chk ${on?"on":""} ${vTheme(v)}"><input type="checkbox" ${on?"checked":""} onchange="toggle('${esc(name)}','${v}')">${SHORT[v]}</label>`;
   });
@@ -2682,7 +2729,7 @@ function renderFusionCard(name,rar,typ,ings,hideDone){
   const opened = openF[name] ? "open" : "";
   const allOn = VARIANTS.every(v => fuseHas(name,v));
   const fl = fuseHas(name,"Flawless");
-  let html = `<details class="card drop ${tiers===7?"done":""} ${rarTheme(rar)}" ${opened} ontoggle="openF['${esc(name)}']=this.open"><summary><i class="fill" style="width:${(tiers/7*100).toFixed(1)}%"></i><div class="top" style="flex:1">${picWrap(name,"Fusion",rar)}<div class="grow"><div class="name">${name}${rarityMark(rar)}</div><div class="meta">${typ} · ${tiers}/7 variants</div></div><div class="pills"><label class="fl-pill ${fl?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${fl?"checked":""} onchange="state.f['${esc(name)}|Flawless']=this.checked;save();render();">Flawless</label><label class="fl-pill ${allOn?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${allOn?"checked":""} onchange="completeFusion('${esc(name)}')">Complete All</label></div></div><span class="chev">▸</span></summary><div class="drop-body">`;
+  let html = `<details class="card drop ${tiers===VARIANTS.length?"done":""} ${rarTheme(rar)}" ${opened} ontoggle="openF['${esc(name)}']=this.open"><summary><i class="fill" style="width:${(tiers/VARIANTS.length*100).toFixed(1)}%"></i><div class="top" style="flex:1">${picWrap(name,"Fusion",rar)}<div class="grow"><div class="name">${name}${rarityMark(rar)}</div><div class="meta">${typ} · ${tiers}/${VARIANTS.length} variants</div></div><div class="pills"><label class="fl-pill ${fl?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${fl?"checked":""} onchange="state.f['${esc(name)}|Flawless']=this.checked;save();render();">Flawless</label><label class="fl-pill ${allOn?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${allOn?"checked":""} onchange="completeFusion('${esc(name)}')">Complete All</label></div></div><span class="chev">▸</span></summary><div class="drop-body">`;
   VARIANTS.forEach(v => {
     const own = fuseHas(name,v);
     const got = ings.map((_,i)=>fuseIng(name,v,i));
@@ -2696,7 +2743,12 @@ function renderFusionCard(name,rar,typ,ings,hideDone){
     });
     html += `</div></details>`;
   });
-  html += `</div></details>`;
+  html += `<div class="kyber-colors">`;
+  KYBER_COLORS.forEach(v => {
+    const on = fuseHas(name,v);
+    html += `<label class="chk ${on?"on":""} ${vTheme(v)}"><input type="checkbox" ${on?"checked":""} onchange="state.f['${esc(name)}|${v}']=this.checked;save();render();">${SHORT[v]}</label>`;
+  });
+  html += `</div></div></details>`;
   return html;
 }
 
@@ -2801,18 +2853,20 @@ function render(){
     const order = ["Common","Rare","Epic","Legendary","Mythic"];
     let shown=0;
     order.forEach(r => {
-      const regs = DROIDS.filter(([n,t,rr]) => rr===r && !droidDone(n) && showCard(n,t,r));
-      const fuses = FUSIONS.filter(([n,rr,t,ings]) => rr===r && !fuseDone(n) && showCard(n,t,ings.join(" ")+" fusion"));
-      if (!regs.length && !fuses.length) return;
+      const rows = orderedByRarity(r).filter(x => {
+        if (x.kind==="d") return !droidDone(x.name) && showCard(x.name,x.type,r);
+        if (x.kind==="f") return !fuseDone(x.name) && showCard(x.name,x.type,(x.ings||[]).join(" ")+" fusion");
+        return false;
+      });
+      if (!rows.length) return;
       html += `<div class="rarity-h ${r}">${r}</div><div class="mini-grid">`;
-      regs.forEach(([n,t]) => { html += renderMiniTile(n,t,r,"d"); shown++; });
-      fuses.forEach(([n,rr,t]) => { html += renderMiniTile(n,t,rr,"f"); shown++; });
+      rows.forEach(x => { html += renderMiniTile(x.name,x.type,r,x.kind); shown++; });
       html += `</div>`;
     });
-    const icons = ICONICS.filter(([n,t,ev,how]) => !iconDone(n) && showCard(n,t,ev+" "+how+" iconic"));
+    const icons = orderedByRarity("Iconic").filter(x => !iconDone(x.name) && showCard(x.name,x.type,(x.ev||"")+" "+(x.how||"")+" iconic"));
     if (icons.length){
       html += `<div class="rarity-h Iconic">Iconic</div><div class="mini-grid">`;
-      icons.forEach(([n,t]) => { html += renderMiniTile(n,t,"Iconic","i"); shown++; });
+      icons.forEach(x => { html += renderMiniTile(x.name,x.type,"Iconic","i"); shown++; });
       html += `</div>`;
     }
     if (!shown) html += `<div class="empty">Nothing left here. Check Done, or clear search.</div>`;
@@ -2916,36 +2970,36 @@ function render(){
     html += renderVariantBonuses();
     html += `<div class="card" style="border-color:#7f1d3a"><div class="name">Super Rebirth</div><div class="meta" style="margin:6px 0 10px">Clears all droid / fusion / iconic / rebirth checks on this save. Keeps a backup so you can reload where you were. Fashion paints stay. Cycle advances ${srbCycle} → ${(srbCycle%5)+1}.</div><div class="act"><button class="danger" onclick="askSuperRebirth()">Super Rebirth</button></div></div>`;
     let shown=0;
-    const doneD = DROIDS.filter(([n])=>droidDone(n));
-    const doneF = FUSIONS.filter(([n])=>fuseDone(n));
-    const doneI = ICONICS.filter(([n])=>iconDone(n));
     const order = ["Common","Rare","Epic","Legendary","Mythic"];
     order.forEach(r => {
-      const full = doneD.filter(([n,t,rr]) => rr===r && !has(n,"Flawless"));
-      const mini = doneD.filter(([n,t,rr]) => rr===r && has(n,"Flawless"));
-      const fFull = doneF.filter(([n,rr]) => rr===r && !fuseHas(n,"Flawless"));
-      const fMini = doneF.filter(([n,rr]) => rr===r && fuseHas(n,"Flawless"));
-      if (!full.length && !mini.length && !fFull.length && !fMini.length) return;
+      const rows = orderedByRarity(r).filter(x => x.kind==="d" ? droidDone(x.name) : x.kind==="f" ? fuseDone(x.name) : false);
+      const isFl = x => x.kind==="f" ? fuseHas(x.name,"Flawless") : has(x.name,"Flawless");
+      const full = rows.filter(x => !isFl(x));
+      const mini = rows.filter(x => isFl(x));
+      if (!full.length && !mini.length) return;
       html += `<div class="rarity-h ${r}">${r}</div>`;
-      if (full.length || fFull.length){
+      if (full.length){
         html += `<div class="grid">`;
-        full.forEach(([n,t]) => { html += renderDroidCard(n,t,r,false); shown++; });
-        fFull.forEach(([n,rr,ty,ings]) => { html += renderFusionCard(n,rr,ty,ings,false); shown++; });
+        full.forEach(x => {
+          if (x.kind==="f") html += renderFusionCard(x.name,x.rarity,x.type,x.ings,false);
+          else html += renderDroidCard(x.name,x.type,r,false);
+          shown++;
+        });
         html += `</div>`;
       }
-      if (mini.length || fMini.length){
+      if (mini.length){
         html += `<div class="mini-grid">`;
-        mini.forEach(([n,ty]) => { html += renderMiniTile(n,ty,r,"d"); shown++; });
-        fMini.forEach(([n,rr,ty]) => { html += renderMiniTile(n,ty,rr,"f"); shown++; });
+        mini.forEach(x => { html += renderMiniTile(x.name,x.type,r,x.kind); shown++; });
         html += `</div>`;
       }
     });
+    const doneI = orderedByRarity("Iconic").filter(x => iconDone(x.name));
     if (doneI.length){
       html += `<div class="rarity-h Iconic">Iconic</div><div class="mini-grid">`;
-      doneI.forEach(([n,ty]) => { html += renderMiniTile(n,ty,"Iconic","i"); shown++; });
+      doneI.forEach(x => { html += renderMiniTile(x.name,x.type,"Iconic","i"); shown++; });
       html += `</div>`;
     }
-    if (!shown) html += `<div class="empty">Nothing completed yet. Finish all 7 variants on a droid, or own an iconic.</div>`;
+    if (!shown) html += `<div class="empty">Nothing completed yet. Finish all 8 variants on a droid, or own an iconic.</div>`;
   }
   if (tab==="alarms") {
     html += `<div class="hint">Times in Eastern. Upcoming list only includes <b>announced</b> FOAD windows. Scan pulls events.json (updated daily) and archives anything already ended into Past.</div>`;
@@ -3230,7 +3284,7 @@ let FOAD_HISTORY = [
   {name:"Mega Crate Mini (Thu Sep 24)", when:"Sep 24, 2026", windows:"Morning 10AM–1PM ET + Evening 8–11PM ET · FOAD Sep 3 schedule"}
 ];
 let FOAD_EVENTS = [
-  {name:"New Variant Weekend", start:"2026-09-26T16:00:00-04:00", end:"2026-09-27T16:00:00-04:00", rewards:["New variant blueprints"], bonuses:[], how:"v1.30.2 · Saturday Sep 26 4:00 PM EST"},
+  {name:"Kyber Droids", start:"2026-09-26T16:00:00-04:00", end:"2026-09-27T16:00:00-04:00", rewards:["Kyber variant blueprints","Nova Crystals from crafting Kyber droids"], bonuses:["2× Pickaxe Level","2× Crafting Speed","2× Credits"], how:"v1.32.0 · Saturday Sep 26 4:00 PM ET · 24h"},
   {name:"Mega Crate Mini Event (morning)", start:"2026-10-01T10:00:00-04:00", end:"2026-10-01T13:00:00-04:00", rewards:["Chopper mega crate loot"], bonuses:["2× upgrade chips"], how:"Weekly Thursday morning · 10AM–1PM ET · FOAD Sep 3 post · Mega Crate every 15 min"},
   {name:"Mega Crate Mini Event (evening)", start:"2026-10-01T20:00:00-04:00", end:"2026-10-01T23:00:00-04:00", rewards:["Chopper mega crate loot"], bonuses:["2× upgrade chips"], how:"Weekly Thursday evening · 8PM–11PM ET · FOAD Sep 3 post · Mega Crate every 15 min"}
 ];
