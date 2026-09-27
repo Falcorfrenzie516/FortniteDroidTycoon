@@ -133,7 +133,8 @@
   .chk.v-kyp.on { color:#f3e8ff; border-color:#c084fc; box-shadow:0 0 10px rgba(192,132,252,.4); }
   .kyber-colors { display:grid; grid-template-columns:repeat(4,minmax(52px,1fr)); gap:5px; margin-top:6px; }
   .mini-tile.open-tile {
-    width:min(100%, calc(118px * 4 + 24px));
+    grid-column: span 4;
+    width:auto; max-width:100%;
     flex-direction:column; align-items:stretch; text-align:left;
     padding:10px; gap:8px; z-index:2;
   }
@@ -459,11 +460,12 @@
   .pick-item.on { border-color:#c4b5fd; background:rgba(196,181,253,.16); color:#f5d0fe; }
   .grid { display:grid; grid-template-columns:1fr; gap:8px; }
   @media (min-width:720px){ .grid { grid-template-columns:1fr 1fr; } }
-  .mini-grid { display:flex; flex-wrap:wrap; justify-content:center; align-items:flex-start; gap:8px; margin-top:8px; }
+  .mini-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(122px, 1fr)); justify-content:center; align-items:start; gap:8px; margin-top:8px; }
   .mini-tile {
-    display:flex; flex-direction:column; align-items:center; gap:6px;
-    width:118px; background:rgba(12,10,24,.92); border:1px solid var(--line); border-radius:14px;
-    padding:8px; text-align:center; color:var(--ink); cursor:pointer;
+    display:flex; flex-direction:column; align-items:center; gap:4px;
+    width:auto; min-width:0; box-sizing:border-box;
+    background:rgba(12,10,24,.92); border:1px solid var(--line); border-radius:14px;
+    padding:8px 6px; text-align:center; color:var(--ink); cursor:pointer;
   }
   .mini-tile .pic { width:48px; height:48px; margin:0 auto; }
   .mini-tile.t-worker { border-color:#2dd4bf; }
@@ -676,7 +678,7 @@
 <header>
   <h1>Pocket Droid Tycoon Companion</h1>
   <details class="dash">
-    <summary>Title · belts · stats · <span id="saveLabel">Main</span> · v0926h · <a id="epicStatus" class="epic-pill unknown" href="https://status.epicgames.com" target="_blank" rel="noopener" onclick="event.stopPropagation()">Epic · …</a></summary>
+    <summary>Title · belts · stats · <span id="saveLabel">Main</span> · v0926i · <a id="epicStatus" class="epic-pill unknown" href="https://status.epicgames.com" target="_blank" rel="noopener" onclick="event.stopPropagation()">Epic · …</a></summary>
     <div class="dash-body">
   <img class="brand" src="img/pocket-droidex.jpg" alt="Pocket Droid Tycoon Companion" onerror="this.style.display='none';document.querySelector('h1').classList.add('show')" />
   <div class="sub">Profile: <span id="saveLabel2">Main</span></div>
@@ -2828,7 +2830,7 @@ function renderMiniTile(name,typ,rar,kind){
   const tc = String(typ||'').toLowerCase();
   const open = openPop && openPop.kind===kind && openPop.name===name;
   if (!open){
-    return `<button class="mini-tile t-${tc}" onclick="openCardPop('${kind}','${esc(name)}')">${picWrap(name,typ,rar)}<span class="mini-name">${name}${rarityMark(rar)}</span><span class="mini-meta">${typ}</span></button>`;
+    return `<button class="mini-tile t-${tc}" onclick="openCardPop('${kind}','${esc(name)}')">${picWrap(name,typ,rar)}<span class="mini-name">${name}</span>${rar?`<span class="mini-rar ${rar}">(${rar})</span>`:""}<span class="mini-meta">${typ}</span></button>`;
   }
   const fl = kind==="f" ? fuseHas(name,"Flawless") : has(name,"Flawless");
   const keys = VARIANTS.concat(KYBER_COLORS);
