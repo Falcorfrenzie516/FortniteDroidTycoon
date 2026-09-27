@@ -663,7 +663,7 @@
 <header>
   <h1>Pocket Droid Tycoon Companion</h1>
   <details class="dash">
-    <summary>Title · belts · stats · <span id="saveLabel">Main</span> · v0926e · <a id="epicStatus" class="epic-pill unknown" href="https://status.epicgames.com" target="_blank" rel="noopener" onclick="event.stopPropagation()">Epic · …</a></summary>
+    <summary>Title · belts · stats · <span id="saveLabel">Main</span> · v0926f · <a id="epicStatus" class="epic-pill unknown" href="https://status.epicgames.com" target="_blank" rel="noopener" onclick="event.stopPropagation()">Epic · …</a></summary>
     <div class="dash-body">
   <img class="brand" src="img/pocket-droidex.jpg" alt="Pocket Droid Tycoon Companion" onerror="this.style.display='none';document.querySelector('h1').classList.add('show')" />
   <div class="sub">Profile: <span id="saveLabel2">Main</span></div>
@@ -715,6 +715,7 @@
 <div id="alarmToast"></div>
 <script>
 const VARIANTS = ["Basic","Gold","Diamond","Rainbow","Beskar","Galactic","Stellar","Kyber"];
+const UPGRADE_VARIANTS = VARIANTS.filter(v => v!=="Basic");
 const KYBER_COLORS = ["Kyber Green","Kyber Blue","Kyber Purple"];
 let DROIDS = [
   ["Mouse","Worker","Common"],["Pit","Worker","Common"],["Gonk","Worker","Common"],
@@ -2148,8 +2149,8 @@ function dKey(n,v){ return n+"|"+v; }
 function has(n,v){ return !!(state.d && state.d[dKey(n,v)]); }
 function toggle(n,v){ state.d[dKey(n,v)] = !state.d[dKey(n,v)]; save(); render(); }
 function completeAll(n){
-  const allOn = VARIANTS.every(v => has(n,v));
-  VARIANTS.forEach(v => { state.d[dKey(n,v)] = !allOn; });
+  const allOn = UPGRADE_VARIANTS.every(v => has(n,v));
+  UPGRADE_VARIANTS.forEach(v => { state.d[dKey(n,v)] = !allOn; });
   save(); render();
 }
 function markTier(n,v,on){
@@ -2179,8 +2180,8 @@ function toggleFusionIng(name,v,i,ing,on){
 }
 function completeFusion(name){
   const ings = fusionIngs(name);
-  const allOn = VARIANTS.every(v => fuseHas(name,v) && ings.every((_,i)=>fuseIng(name,v,i)));
-  VARIANTS.forEach(v => setFusionVariant(name,v,!allOn));
+  const allOn = UPGRADE_VARIANTS.every(v => fuseHas(name,v) && ings.every((_,i)=>fuseIng(name,v,i)));
+  UPGRADE_VARIANTS.forEach(v => setFusionVariant(name,v,!allOn));
   save(); render();
 }
 function rebirthNeeds(key){
@@ -2207,9 +2208,11 @@ function completeRebirthList(list,on){
   save(); render();
 }
 function ownedTiers(n){ return VARIANTS.filter(v => has(n,v)).length; }
+function ownedUpgrades(n){ return UPGRADE_VARIANTS.filter(v => has(n,v)).length; }
 function fuseHas(n,v){ return !!(state.f && state.f[n+"|"+v]); }
 function fuseIng(n,v,i){ return !!state.f[n+"|"+v+"|i"+i]; }
 function fuseTiers(n){ return VARIANTS.filter(v => fuseHas(n,v)).length; }
+function fuseUpgrades(n){ return UPGRADE_VARIANTS.filter(v => fuseHas(n,v)).length; }
 function iconNovaId(n){
   const row = NOVA_SHOP.find(x => x.cat==="Iconic" && x.name===n);
   return row ? row.id : "";
@@ -2228,8 +2231,8 @@ function stripIconicFromPads(n){
     });
   });
 }
-function droidDone(n){ return ownedTiers(n)===VARIANTS.length; }
-function fuseDone(n){ return fuseTiers(n)===VARIANTS.length; }
+function droidDone(n){ return ownedUpgrades(n)===UPGRADE_VARIANTS.length; }
+function fuseDone(n){ return fuseUpgrades(n)===UPGRADE_VARIANTS.length; }
 function iconDone(n){ return iconOwned(n); }
 function esc(s){ return String(s).replace(/\\/g,"\\\\").replace(/'/g,"\\'"); }
 function bestTier(n){
@@ -2498,11 +2501,11 @@ const openD = {};
 function renderDroidCard(name,typ,rar,hideDone){
   if (hideDone && droidDone(name)) return "";
   if (!showCard(name,typ,rar)) return "";
-  const tiers = ownedTiers(name);
+  const tiers = ownedUpgrades(name);
   const opened = openD[name] ? "open" : "";
   const fl = has(name,"Flawless");
-  const allOn = tiers===VARIANTS.length;
-  let html = `<details class="card drop ${tiers===VARIANTS.length?"done":""} ${rarTheme(rar)}" ${opened} ontoggle="openD['${esc(name)}']=this.open"><summary><i class="fill" style="width:${(tiers/VARIANTS.length*100).toFixed(1)}%"></i><div class="top" style="flex:1">${picWrap(name,typ,rar)}<div class="grow"><div class="name">${name.toUpperCase()}${rarityMark(rar)}</div><div class="meta">${typ.toUpperCase()} · ${tiers}/${VARIANTS.length}</div></div><div class="pills"><label class="fl-pill ${fl?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${fl?"checked":""} onchange="toggle('${esc(name)}','Flawless')">Flawless</label><label class="fl-pill ${allOn?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${allOn?"checked":""} onchange="completeAll('${esc(name)}')">Complete All</label></div></div><span class="chev">▸</span></summary><div class="drop-body"><div class="vars">`;
+  const allOn = tiers===UPGRADE_VARIANTS.length;
+  let html = `<details class="card drop ${tiers===VARIANTS.length?"done":""} ${rarTheme(rar)}" ${opened} ontoggle="openD['${esc(name)}']=this.open"><summary><i class="fill" style="width:${(tiers/UPGRADE_VARIANTS.length*100).toFixed(1)}%"></i><div class="top" style="flex:1">${picWrap(name,typ,rar)}<div class="grow"><div class="name">${name.toUpperCase()}${rarityMark(rar)}</div><div class="meta">${typ.toUpperCase()} · ${tiers}/${UPGRADE_VARIANTS.length}</div></div><div class="pills"><label class="fl-pill ${fl?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${fl?"checked":""} onchange="toggle('${esc(name)}','Flawless')">Flawless</label><label class="fl-pill ${allOn?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${allOn?"checked":""} onchange="completeAll('${esc(name)}')">Complete All</label></div></div><span class="chev">▸</span></summary><div class="drop-body"><div class="vars">`;
   VARIANTS.forEach(v => {
     const on = has(name,v);
     html += `<label class="chk ${on?"on":""} ${vTheme(v)}"><input type="checkbox" ${on?"checked":""} onchange="toggle('${esc(name)}','${v}')">${SHORT[v]}</label>`;
@@ -2725,11 +2728,11 @@ function renderFusionTracker(){
 function renderFusionCard(name,rar,typ,ings,hideDone){
   if (hideDone && fuseDone(name)) return "";
   if (!showCard(name,typ,ings.join(" ")+" fusion")) return "";
-  const tiers = fuseTiers(name);
+  const tiers = fuseUpgrades(name);
   const opened = openF[name] ? "open" : "";
-  const allOn = VARIANTS.every(v => fuseHas(name,v));
+  const allOn = UPGRADE_VARIANTS.every(v => fuseHas(name,v));
   const fl = fuseHas(name,"Flawless");
-  let html = `<details class="card drop ${tiers===VARIANTS.length?"done":""} ${rarTheme(rar)}" ${opened} ontoggle="openF['${esc(name)}']=this.open"><summary><i class="fill" style="width:${(tiers/VARIANTS.length*100).toFixed(1)}%"></i><div class="top" style="flex:1">${picWrap(name,"Fusion",rar)}<div class="grow"><div class="name">${name}${rarityMark(rar)}</div><div class="meta">${typ} · ${tiers}/${VARIANTS.length} variants</div></div><div class="pills"><label class="fl-pill ${fl?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${fl?"checked":""} onchange="state.f['${esc(name)}|Flawless']=this.checked;save();render();">Flawless</label><label class="fl-pill ${allOn?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${allOn?"checked":""} onchange="completeFusion('${esc(name)}')">Complete All</label></div></div><span class="chev">▸</span></summary><div class="drop-body">`;
+  let html = `<details class="card drop ${tiers===VARIANTS.length?"done":""} ${rarTheme(rar)}" ${opened} ontoggle="openF['${esc(name)}']=this.open"><summary><i class="fill" style="width:${(tiers/UPGRADE_VARIANTS.length*100).toFixed(1)}%"></i><div class="top" style="flex:1">${picWrap(name,"Fusion",rar)}<div class="grow"><div class="name">${name}${rarityMark(rar)}</div><div class="meta">${typ} · ${tiers}/${UPGRADE_VARIANTS.length} variants</div></div><div class="pills"><label class="fl-pill ${fl?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${fl?"checked":""} onchange="state.f['${esc(name)}|Flawless']=this.checked;save();render();">Flawless</label><label class="fl-pill ${allOn?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${allOn?"checked":""} onchange="completeFusion('${esc(name)}')">Complete All</label></div></div><span class="chev">▸</span></summary><div class="drop-body">`;
   VARIANTS.forEach(v => {
     const own = fuseHas(name,v);
     const got = ings.map((_,i)=>fuseIng(name,v,i));
