@@ -131,7 +131,20 @@
   .chk.v-kyu.on { color:#dbeafe; border-color:#60a5fa; box-shadow:0 0 10px rgba(96,165,250,.4); }
   .chk.v-kyp { color:#d8b4fe; background:#2e1065; border-color:#a855f7; }
   .chk.v-kyp.on { color:#f3e8ff; border-color:#c084fc; box-shadow:0 0 10px rgba(192,132,252,.4); }
-  .kyber-colors { display:flex; gap:6px; flex-wrap:wrap; margin-top:6px; }
+  .kyber-colors { display:grid; grid-template-columns:repeat(4,minmax(52px,1fr)); gap:5px; margin-top:6px; }
+  .mini-tile.open-tile {
+    width:min(100%, calc(118px * 4 + 24px));
+    flex-direction:column; align-items:stretch; text-align:left;
+    padding:10px; gap:8px; z-index:2;
+  }
+  .mini-tile.open-tile .mini-head { display:flex; align-items:center; gap:8px; cursor:pointer; }
+  .mini-tile.open-tile .mini-head .pic { width:48px; height:48px; margin:0; flex:none; }
+  .mini-tile.open-tile .grow { flex:1; min-width:0; }
+  .mini-tile.open-tile .mini-name { font-size:12px; letter-spacing:.04em; }
+  .mini-tile.open-tile .vars { grid-template-columns:repeat(7,minmax(36px,1fr)); margin-top:0; }
+  .mini-tile.open-tile .chk { min-height:44px; padding:4px 2px; }
+  .mini-tile.open-tile .pills { display:flex; flex-wrap:wrap; gap:4px; }
+
 
   .chk.v-myth { color:#f87171; background:var(--myth-bg); border-color:var(--myth-line); }
   .chk.v-myth.on { color:var(--myth-hi); background:rgba(239,68,68,.18); border-color:#ef4444; }
@@ -446,7 +459,7 @@
   .pick-item.on { border-color:#c4b5fd; background:rgba(196,181,253,.16); color:#f5d0fe; }
   .grid { display:grid; grid-template-columns:1fr; gap:8px; }
   @media (min-width:720px){ .grid { grid-template-columns:1fr 1fr; } }
-  .mini-grid { display:flex; flex-wrap:wrap; justify-content:center; gap:8px; margin-top:8px; }
+  .mini-grid { display:flex; flex-wrap:wrap; justify-content:center; align-items:flex-start; gap:8px; margin-top:8px; }
   .mini-tile {
     display:flex; flex-direction:column; align-items:center; gap:6px;
     width:118px; background:rgba(12,10,24,.92); border:1px solid var(--line); border-radius:14px;
@@ -663,7 +676,7 @@
 <header>
   <h1>Pocket Droid Tycoon Companion</h1>
   <details class="dash">
-    <summary>Title · belts · stats · <span id="saveLabel">Main</span> · v0926g · <a id="epicStatus" class="epic-pill unknown" href="https://status.epicgames.com" target="_blank" rel="noopener" onclick="event.stopPropagation()">Epic · …</a></summary>
+    <summary>Title · belts · stats · <span id="saveLabel">Main</span> · v0926h · <a id="epicStatus" class="epic-pill unknown" href="https://status.epicgames.com" target="_blank" rel="noopener" onclick="event.stopPropagation()">Epic · …</a></summary>
     <div class="dash-body">
   <img class="brand" src="img/pocket-droidex.jpg" alt="Pocket Droid Tycoon Companion" onerror="this.style.display='none';document.querySelector('h1').classList.add('show')" />
   <div class="sub">Profile: <span id="saveLabel2">Main</span></div>
@@ -2782,15 +2795,52 @@ function renderIconicCard(name,typ,ev,how,hideDone){
 }
 let openPop = null;
 function openCardPop(kind,name){
-  openPop = {kind,name};
-  if (kind==="d") openD[name]=true;
-  if (kind==="f") openF[name]=true;
+  if (openPop && openPop.kind===kind && openPop.name===name) openPop = null;
+  else {
+    openPop = {kind,name};
+    if (kind==="d") openD[name]=true;
+    if (kind==="f") openF[name]=true;
+  }
   render();
 }
 function closeCardPop(){ openPop=null; render(); }
+function miniVarChecks(name,kind){
+  let html = `<div class="vars">`;
+  VARIANTS.forEach(v => {
+    const on = kind==="f" ? fuseHas(name,v) : has(name,v);
+    const fn = kind==="f"
+      ? `toggleFusionVariant('${esc(name)}','${v}',this.checked)`
+      : `toggle('${esc(name)}','${v}')`;
+    html += `<label class="chk ${on?"on":""} ${vTheme(v)}" onclick="event.stopPropagation()"><input type="checkbox" ${on?"checked":""} onchange="${fn}">${SHORT[v]}</label>`;
+  });
+  html += `</div><div class="kyber-colors">`;
+  KYBER_COLORS.forEach(v => {
+    const on = kind==="f" ? fuseHas(name,v) : has(name,v);
+    const fn = kind==="f"
+      ? `toggleFuseKyber('${esc(name)}','${v}',this.checked)`
+      : `toggle('${esc(name)}','${v}')`;
+    html += `<label class="chk ${on?"on":""} ${vTheme(v)}" onclick="event.stopPropagation()"><input type="checkbox" ${on?"checked":""} onchange="${fn}">${SHORT[v]}</label>`;
+  });
+  html += `</div>`;
+  return html;
+}
 function renderMiniTile(name,typ,rar,kind){
   const tc = String(typ||'').toLowerCase();
-  return `<button class="mini-tile t-${tc}" onclick="openCardPop('${kind}','${esc(name)}')">${picWrap(name,typ,rar)}<span class="mini-name">${name}${rarityMark(rar)}</span><span class="mini-meta">${typ}</span></button>`;
+  const open = openPop && openPop.kind===kind && openPop.name===name;
+  if (!open){
+    return `<button class="mini-tile t-${tc}" onclick="openCardPop('${kind}','${esc(name)}')">${picWrap(name,typ,rar)}<span class="mini-name">${name}${rarityMark(rar)}</span><span class="mini-meta">${typ}</span></button>`;
+  }
+  const fl = kind==="f" ? fuseHas(name,"Flawless") : has(name,"Flawless");
+  const keys = VARIANTS.concat(KYBER_COLORS);
+  const allOn = kind==="i" ? iconDone(name) : keys.every(v => kind==="f" ? fuseHas(name,v) : has(name,v));
+  const flFn = kind==="f"
+    ? `state.f['${esc(name)}|Flawless']=this.checked;save();render();`
+    : `toggle('${esc(name)}','Flawless')`;
+  const allFn = kind==="f" ? `completeFusion('${esc(name)}')` : `completeAll('${esc(name)}')`;
+  let extra = "";
+  if (kind!=="i") extra = miniVarChecks(name,kind);
+  else extra = `<div class="kyber-colors"><label class="chk ${iconOwned(name)?"on":""}" onclick="event.stopPropagation()"><input type="checkbox" ${iconOwned(name)?"checked":""} onchange="state.nova=state.nova||{}; /* keep nova as source */">OWNED</label></div>`;
+  return `<div class="mini-tile open-tile t-${tc}" id="openTile"><div class="mini-head" onclick="closeCardPop()">${picWrap(name,typ,rar)}<div class="grow"><div class="mini-name">${name}${rarityMark(rar)}</div><div class="mini-meta">${typ}</div></div><div class="pills" onclick="event.stopPropagation()">${kind==="i"?"":`<label class="fl-pill ${fl?"on":""}"><input type="checkbox" ${fl?"checked":""} onchange="${flFn}">FL</label><label class="fl-pill ${allOn?"on":""}"><input type="checkbox" ${allOn?"checked":""} onchange="${allFn}">ALL</label>`}</div></div>${extra}</div>`;
 }
 function popInner(){
   if (!openPop) return "";
@@ -2810,23 +2860,12 @@ function popInner(){
   return "";
 }
 function paintPop(){
-  let pop = document.getElementById("cardPop");
-  if (!pop){
-    pop = document.createElement("div");
-    pop.id = "cardPop";
-    document.body.appendChild(pop);
-  }
-  if (openPop){
-    pop.className = "card-pop";
-    pop.onclick = function(e){ if (e.target===pop) closeCardPop(); };
-    pop.innerHTML = `<div class="pop-card" onclick="event.stopPropagation()">${popInner()}</div>`;
-  } else {
-    pop.className = "card-pop hidden";
-    pop.innerHTML = "";
-  }
+  const pop = document.getElementById("cardPop");
+  if (pop){ pop.className = "card-pop hidden"; pop.innerHTML = ""; }
 }
 function render(){
   const app = document.getElementById("app");
+  const keepY = window.scrollY || 0;
   try {
   if (TABS.indexOf(tab)<0) tab = "droidex";
   applyAlertColors();
@@ -2863,6 +2902,7 @@ function render(){
     paintPop();
     updateStats();
     updateSaveLabel();
+    window.scrollTo(0, keepY);
     return;
   }
     if (tab==="fusion") {
@@ -3077,6 +3117,7 @@ function render(){
   }
   app.innerHTML = html;
   paintPop();
+  window.scrollTo(0, keepY);
   (function(){
     const board = document.getElementById("floorBoard");
     if (!board || typeof getFloorOrder!=="function") return;
