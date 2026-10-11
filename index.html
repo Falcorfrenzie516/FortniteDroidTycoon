@@ -65,15 +65,19 @@
   .epic-pill.operational { color:#4ade80; border-color:#4ade80; }
   .epic-pill.degraded_performance,.epic-pill.partial_outage,.epic-pill.minor { color:#fbbf24; border-color:#fbbf24; }
   .epic-pill.major_outage,.epic-pill.under_maintenance,.epic-pill.critical { color:#f87171; border-color:#f87171; }
-  .belts { display:grid; grid-template-columns:repeat(3,1fr); gap:7px; margin-top:10px; }
+  .belts { display:grid; grid-template-columns:repeat(2,1fr); gap:7px; margin-top:10px; }
+  @media (min-width:720px){ .belts { grid-template-columns:repeat(4,1fr); } }
   .belts.has-evt { grid-template-columns:repeat(2,1fr); }
-  @media (min-width:720px){ .belts.has-evt { grid-template-columns:repeat(4,1fr); } }
+  @media (min-width:720px){ .belts.has-evt { grid-template-columns:repeat(5,1fr); } }
   .belt.evt { border-color:rgba(226,195,109,.45); background:radial-gradient(circle at 50% 0%, rgba(226,195,109,.18), transparent 70%); }
   .belt.hidden { display:none; }
   .belt { background:var(--card); border:1px solid var(--line); border-radius:16px; padding:10px 6px; text-align:center; }
   .belt b { display:block; font-size:16px; font-variant-numeric:tabular-nums; color:var(--gold2); font-family:Orbitron,sans-serif; letter-spacing:.08em; }
   .belt span { font-size:9px; color:var(--muted); letter-spacing:.18em; text-transform:uppercase; font-family:Orbitron,sans-serif; }
   .belt.soon { box-shadow:0 0 14px rgba(255,255,255,.12); }
+  .belt.kyb { background:radial-gradient(circle at 50% 0%, rgba(52,211,153,.22), #04140e 70%); border-color:#34d399; }
+  .belt.kyb b { color:#d1fae5; text-shadow:0 0 10px #34d399; }
+  .belt.kyb span { color:#6ee7b7; }
   .belt.miss { background:radial-gradient(circle at 50% 0%, #083344, #041018 70%); border-color:#22d3ee; }
   .belt.miss b { color:#a5f3fc; text-shadow:0 0 10px #22d3ee; }
   .belt.miss span { color:#67e8f9; }
@@ -678,11 +682,12 @@
 <header>
   <h1>Pocket Droid Tycoon Companion</h1>
   <details class="dash">
-    <summary>Title · belts · stats · <span id="saveLabel">Main</span> · v0926i · <a id="epicStatus" class="epic-pill unknown" href="https://status.epicgames.com" target="_blank" rel="noopener" onclick="event.stopPropagation()">Epic · …</a></summary>
+    <summary>Title · belts · stats · <span id="saveLabel">Main</span> · v0926j · <a id="epicStatus" class="epic-pill unknown" href="https://status.epicgames.com" target="_blank" rel="noopener" onclick="event.stopPropagation()">Epic · …</a></summary>
     <div class="dash-body">
   <img class="brand" src="img/pocket-droidex.jpg" alt="Pocket Droid Tycoon Companion" onerror="this.style.display='none';document.querySelector('h1').classList.add('show')" />
   <div class="sub">Profile: <span id="saveLabel2">Main</span></div>
   <div class="belts">
+    <div class="belt kyb" id="beltKyb"><b>--</b><span>Kyber</span></div>
     <div class="belt myth" id="beltMyth"><b>--</b><span>Mythic</span></div>
     <div class="belt stel" id="beltStel"><b>--</b><span>Stellar</span></div>
     <div class="belt miss" id="beltMiss"><b>--</b><span>Mission</span></div>
@@ -734,6 +739,8 @@ const UPGRADE_VARIANTS = VARIANTS.filter(v => v!=="Basic");
 const KYBER_COLORS = ["Kyber Green","Kyber Blue","Kyber Purple"];
 let DROIDS = [
   ["Mouse","Worker","Common"],["Pit","Worker","Common"],["Gonk","Worker","Common"],
+  ["KT","Worker","Common"],["MPH","Worker","Common"],["JO9-4MN","Worker","Rare"],["ECG","Worker","Rare"],
+  ["EG-58","Worker","Epic"],["EGL","Worker","Epic"],["PLNK","Worker","Legendary"],
   ["CB","Astromech","Common"],["R3","Astromech","Common"],["R5","Astromech","Common"],["R8","Astromech","Common"],
   ["Imperial Probe","Battle","Common"],["B1 Battle","Battle","Common"],["DRK-1 Probe","Battle","Common"],["ID10","Battle","Common"],
   ["BDX Explorer","Worker","Rare"],["ARG","Worker","Rare"],["Senate Hovercam","Worker","Rare"],["BU-4D","Worker","Rare"],
@@ -864,21 +871,22 @@ let ICONICS = [
   ["Chopper","Astromech","Chopper Event","Collect Junk Points during the event"],
   ["IG-11 Marshal","Battle","Mandalorian Event","Complete the Mandalorian event track"],
   ["Mister Bones","Battle","Mister Bones Event","Defeat Stormtroopers during the event"],
-  ["D-O","Worker","D-O Event","Log in during the 24-hour D-O window"]
+  ["D-O","Worker","D-O Event","Log in during the 24-hour D-O window"],
+  ["WG-22","Battle","Iconic Gonk Event","Unlock via Gonk Army deliveries during Iconic Gonk Weekend (Oct 10-11 4PM ET). Perk: 2x Flawless Chance. Confirmed Battle type."] 
 ];
 
 const DROIDEX_ORDER = [
-  "Mouse","Pit","Gonk","CB","R3","R5","R8","Imperial Probe","B1 Battle","ID10","DRK-1 Probe",
-  "A-LT","ARG","Senate Hovercam","BDX Explorer","Bal-Core","ROLL-R","BU-4D","2BB","R9",
+  "Mouse","Pit","Gonk","KT","MPH","CB","R3","R5","R8","Imperial Probe","B1 Battle","ID10","DRK-1 Probe",
+  "A-LT","ARG","Senate Hovercam","BDX Explorer","Bal-Core","ROLL-R","BU-4D","JO9-4MN","ECG","2BB","R9",
   "R4","B1 Security","ZRO-TEC","SA-5","HOV-R","VECT-Arm","NAV-EX","WHL-EX","BTL-R",
   "Util-Tec","Strike-Orb","Groundmech","AMP Walker","LO","SEN-TRI","R6","BB","R2","TRAK-R","Gunrunner",
   "ORB-Walker","Haul-R","B1 Heavy","B2 Super","LNG-Shot","B2 Heavy","Opti-Pod","LOM","SCRP-R",
-  "N-UL","ARM-CORE","OPT-AR",
-  "Proto-Roller","Mecha-Droid","Mono-WLKR","RO-TOR","FUS-3","BB9","R7","QIK-BIT",
+  "N-UL","ARM-CORE","OPT-AR","EG-58","EGL",
+  "Proto-Roller","Mecha-Droid","Mono-WLKR","RO-TOR","FUS-3","BB9","R7","QIK-BIT","PLNK",
   "B2-RP","Cyclo-Grav","Opti-STRK","ORB-XL","PZ",
   "Snow Mouse","RIC","RIC-1200","LEP","Loadlifter","RIV-3T","LUG-G","LOW-MO","DRFT-R","MO-TRAK",
   "TRI-TEK","CYCLENS","AXI-POD","KX","IG","SRV-0","X-ONK","TDA",
-  "BB-8","Mister Bones","IG-11 Marshal","DJ R-3X","CB-23","R2-D2","C-3PO","Chopper","D-O"
+  "BB-8","Mister Bones","IG-11 Marshal","DJ R-3X","CB-23","R2-D2","C-3PO","Chopper","D-O","WG-22"
 ];
 function catalogOf(n){
   const f = FUSIONS.find(x => x[0]===n);
@@ -3310,6 +3318,17 @@ function nextHourly(minMark){
   if (t <= now) t.setHours(t.getHours()+1);
   return t;
 }
+function nextMarks(marks){
+  const now = new Date();
+  let best = null;
+  for (let h = 0; h <= 1; h++){
+    marks.forEach(minMark => {
+      const t = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours()+h, minMark, 0, 0);
+      if (t > now && (!best || t < best)) best = t;
+    });
+  }
+  return best || nextHourly(marks[0]);
+}
 function nextGalactic(){
   const now = new Date();
   const t = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), 0, 0, 0);
@@ -3345,20 +3364,25 @@ let FOAD_HISTORY = [
   {name:"Protocol Droid Event", when:"Sep 12–14, 2026", windows:"Sat 4PM ET–Mon 3AM ET · +11h FOAD extension (timer bug) · World Mission revamp · Protocol Droids"},
   {name:"Mega Crate Mini (Thu Sep 17)", when:"Sep 17, 2026", windows:"Morning 10AM–1PM ET + Evening 8–11PM ET · FOAD Sep 3 schedule"},
   {name:"Protocol / World Mission Event rerun", when:"Sep 19–20, 2026", windows:"24h from Sat 4PM ET · v1.30.2 · Variant Weekend moved to Sep 26"},
-  {name:"Mega Crate Mini (Thu Sep 24)", when:"Sep 24, 2026", windows:"Morning 10AM–1PM ET + Evening 8–11PM ET · FOAD Sep 3 schedule"}
+  {name:"Mega Crate Mini (Thu Sep 24)", when:"Sep 24, 2026", windows:"Morning 10AM–1PM ET + Evening 8–11PM ET · FOAD Sep 3 schedule"},
+  {name:"Kyber Droids", when:"Sep 26–27, 2026", windows:"Sat 4PM ET – Sun 4PM ET · 24h · v1.32.0 · Kyber variant + boosts"},
+  {name:"Mega Crate Mini (Thu Oct 1)", when:"Oct 1, 2026", windows:"Morning 10AM–1PM ET + Evening 8–11PM ET · FOAD Sep 30 · Kyber BPs, Stellar replaced Galactic"},
+  {name:"Pumpkin Smash (GONK-O-WEEN weekend 1)", when:"Oct 3–4, 2026", windows:"Sat 4:00 PM ET – Sun 4:00 PM ET · Chopper + costume · Phill: surges +1/+2/+3, costume at 75 · Treats continue through the month"},
+  {name:"Mega Crate Mini (Thu Oct 8)", when:"Oct 8, 2026", windows:"Morning 10AM–1PM ET + Evening 8–11PM ET · FOAD Sep 30 schedule · Phill Oct 7: extra candy"}
 ];
 let FOAD_EVENTS = [
-  {name:"Kyber Droids", start:"2026-09-26T16:00:00-04:00", end:"2026-09-27T16:00:00-04:00", rewards:["Kyber variant blueprints","Nova Crystals from crafting Kyber droids"], bonuses:["2× Pickaxe Level","2× Crafting Speed","2× Credits"], how:"v1.32.0 · Saturday Sep 26 4:00 PM ET · 24h"},
-  {name:"Mega Crate Mini Event (morning)", start:"2026-10-01T10:00:00-04:00", end:"2026-10-01T13:00:00-04:00", rewards:["Chopper mega crate loot"], bonuses:["2× upgrade chips"], how:"Weekly Thursday morning · 10AM–1PM ET · FOAD Sep 3 post · Mega Crate every 15 min"},
-  {name:"Mega Crate Mini Event (evening)", start:"2026-10-01T20:00:00-04:00", end:"2026-10-01T23:00:00-04:00", rewards:["Chopper mega crate loot"], bonuses:["2× upgrade chips"], how:"Weekly Thursday evening · 8PM–11PM ET · FOAD Sep 3 post · Mega Crate every 15 min"}
+  {name:"GONK-O-WEEN", start:"2026-10-03T16:00:00-04:00", end:"2026-11-01T16:00:00-04:00", rewards:["Treats (trick-or-treat at bases and Jawa homes, plus weekend events)","Costumes: C-3PO, R2-D2, BB-8, CB-23, IG-11 Marshal, Mr. Bones","Ghoulish Gonk base paint (includes a DJ R-3X costume)","Bat, Witch, and Candy Corn hats","Ghostly and Bat Droid VFX"], bonuses:[], how:"FOAD Oct 3 (post + v1.33.0) · Oct 3 4:00 PM ET – Nov 1 4:00 PM ET · 4 weekend events · leftover Treats spendable until Nov 7 · FOAD Oct 4: weekend 2 is the Iconic Gonk Event · FOAD v1.34.0 (Oct 9) confirmed weekend 2 Sat Oct 10 4:00 PM ET – Sun Oct 11 4:00 PM ET (WG-22) · weekends 3–4 still undated (fandom placeholders Oct 17–18 / Oct 24–25 only)"},
+  {name:"Iconic Gonk Event (WG-22, GONK-O-WEEN weekend 2)", start:"2026-10-10T16:00:00-04:00", end:"2026-10-11T16:00:00-04:00", rewards:["WG-22 (2× Flawless Chance perk, Phill Oct 8)","Treats","Crafting Boost Token","Nova Crystals","New droids listed by Phill: KT, MPH, JO9-4MN, ECG, EG-58, EGL, PLNK"], bonuses:["2× Credits","2× Pickaxe","2× Crafting Speed"], how:"FOAD v1.34.0 patch notes (Oct 9): WG-22 ICONIC GONK EVENT 10/10 4:00 ET – 10/11 4:00 ET. Confirmed. Phill Oct 8: Gonk Army — build droids and turn them in to unlock WG-22 (2× Flawless Chance) and Sandcrawler Variant Boosts; teased new rebirth path (rank cap unconfirmed). New droids listed by Phill: KT, MPH, JO9-4MN, ECG, EG-58, EGL, PLNK. Weekends 3–4 still undated (fandom placeholders only)."},
+  {name:"Mega Crate Mini Event (morning)", start:"2026-10-15T10:00:00-04:00", end:"2026-10-15T13:00:00-04:00", rewards:["Kyber blueprints","Nova Crystals","Chopper mega crate loot","Treats / extra candy while GONK-O-WEEN is live (Phill Oct 7–8)"], bonuses:["2× upgrade chips"], how:"Next weekly Thursday morning · 10AM–1PM ET · FOAD Sep 30, confirmed Oct 2 · Kyber BPs spawn, Stellar replaced Galactic · Phill: extra candy during GONK-O-WEEN Mega Crates"},
+  {name:"Mega Crate Mini Event (evening)", start:"2026-10-15T20:00:00-04:00", end:"2026-10-15T23:00:00-04:00", rewards:["Kyber blueprints","Nova Crystals","Chopper mega crate loot","Treats / extra candy while GONK-O-WEEN is live (Phill Oct 7–8)"], bonuses:["2× upgrade chips"], how:"Next weekly Thursday evening · 8PM–11PM ET · FOAD Sep 30, confirmed Oct 2 · Kyber BPs spawn, Stellar replaced Galactic · Phill: extra candy during GONK-O-WEEN Mega Crates"}
 ];
 const EVENTS = FOAD_EVENTS;
 const EVENTS_KEY = "droidex-events-cache";
 let FOAD_RECURRING = [
-  {name:"Mega Crate Mini Event (morning)", weekday:4, startHourET:10, durationHours:3, rewards:["Chopper mega crate loot"], bonuses:["2× upgrade chips"], how:"Weekly Thursday morning · FOAD Sep 3 · 10AM–1PM ET · crates every 15 min"},
-  {name:"Mega Crate Mini Event (evening)", weekday:4, startHourET:20, durationHours:3, rewards:["Chopper mega crate loot"], bonuses:["2× upgrade chips"], how:"Weekly Thursday evening · FOAD Sep 3 · 8PM–11PM ET · crates every 15 min"},
-  {name:"Dance Party Mini Event", weekday:2, startHourET:8, durationHours:3, rewards:[], bonuses:[], how:"Every Tuesday morning · Sandcrawler · FOAD Aug 17 · 8AM–11AM ET · still active Sep 2026"},
-  {name:"Dance Party Mini Event", weekday:2, startHourET:20, durationHours:3, rewards:[], bonuses:[], how:"Every Tuesday evening · Sandcrawler · FOAD Aug 17 · 8PM–11PM ET · still active Sep 2026"}
+  {name:"Mega Crate Mini Event (morning)", weekday:4, startHourET:10, durationHours:3, rewards:["Kyber blueprints","Nova Crystals","Chopper mega crate loot","Treats / extra candy while GONK-O-WEEN is live (Phill Oct 7)"], bonuses:["2× upgrade chips"], how:"Weekly Thursday morning · FOAD Sep 30, confirmed Oct 2 · 10AM–1PM ET · Kyber BPs, Stellar replaced Galactic · Phill Oct 7: extra candy during GONK-O-WEEN"},
+  {name:"Mega Crate Mini Event (evening)", weekday:4, startHourET:20, durationHours:3, rewards:["Kyber blueprints","Nova Crystals","Chopper mega crate loot","Treats / extra candy while GONK-O-WEEN is live (Phill Oct 7)"], bonuses:["2× upgrade chips"], how:"Weekly Thursday evening · FOAD Sep 30, confirmed Oct 2 · 8PM–11PM ET · Kyber BPs, Stellar replaced Galactic · Phill Oct 7: extra candy during GONK-O-WEEN"},
+  {name:"Dance Party Mini Event", weekday:2, startHourET:10, durationHours:3, rewards:["Kyber / Stellar / Galactic / Beskar blueprints (wheel)"], bonuses:[], how:"Every Tuesday morning · Sandcrawler · FOAD Sep 28 · 10AM–1PM ET · Kyber track added"},
+  {name:"Dance Party Mini Event", weekday:2, startHourET:20, durationHours:3, rewards:["Kyber / Stellar / Galactic / Beskar blueprints (wheel)"], bonuses:[], how:"Every Tuesday evening · Sandcrawler · FOAD Sep 28 · 8PM–11PM ET · Kyber track added"}
 ];
 function pad2(n){ return String(n).padStart(2,"0"); }
 function expandRecurring(now){
@@ -3514,8 +3538,9 @@ function fmtLeft(ms){
 function tickBelts(){
   const now = Date.now();
   const rows = [
-    ["beltMyth", nextHourly(55)],
-    ["beltStel", nextHourly(0)],
+    ["beltKyb", nextMarks([15,45])],
+    ["beltMyth", nextMarks([25,55])],
+    ["beltStel", nextMarks([5,35])],
     ["beltMiss", nextEvery(30)]
   ];
   rows.forEach(([id, at]) => {
