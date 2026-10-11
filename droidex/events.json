@@ -1,1 +1,40 @@
-PLACEHOLDER
+{
+  "updated": "2026-10-11T08:11:54.357306-04:00",
+  "source": "FOAD / Phill Snerds / fandom Events (no invented clock times)",
+  "upcoming": [
+    {
+      "name": "GONK-O-WEEN",
+      "start": "2026-10-03T16:00:00-04:00",
+      "end": "2026-11-01T16:00:00-04:00",
+      "rewards": [
+        "Treats (spendable until Nov 7)",
+        "Weekend event rewards"
+      ],
+      "how": "FOAD Oct 3 (post + v1.33.0) \u00b7 Oct 3 4:00 PM ET \u2013 Nov 1 4:00 PM ET \u00b7 4 weekend events \u00b7 leftover Treats spendable until Nov 7 \u00b7 FOAD Oct 4: weekend 2 is the Iconic Gonk Event \u00b7 FOAD v1.34.0 (Oct 9) confirmed weekend 2 Sat Oct 10 4:00 PM ET \u2013 Sun Oct 11 4:00 PM ET (WG-22) \u00b7 weekends 3\u20134 still undated (fandom placeholders Oct 17\u201318 / Oct 24\u201325 only)"
+    },
+    {
+      "name": "Iconic Gonk Event (WG-22, GONK-O-WEEN weekend 2)",
+      "start": "2026-10-10T16:00:00-04:00",
+      "end": "2026-10-11T16:00:00-04:00",
+      "rewards": [
+        "WG-22 (2\u00d7 Flawless Chance perk, Phill Oct 8)",
+        "Treats",
+        "Crafting Boost Token",
+        "Nova Crystals"
+      ],
+      "how": "FOAD v1.34.0 patch notes (Oct 9): WG-22 ICONIC GONK EVENT 10/10 4:00 ET \u2013 10/11 4:00 ET. Confirmed. Phill Oct 8: Gonk Army \u2014 build droids and turn them in to unlock WG-22 (2\u00d7 Flawless Chance) and Sandcrawler Variant Boosts; teased new rebirth path (rank cap unconfirmed). New droids listed by Phill: KT, MPH, JO9-4MN, ECG, EG-58, EGL, PLNK. Weekends 3\u20134 still undated (fandom placeholders only)."
+    }
+  ],
+  "recurring": [
+    {
+      "name": "Dance Party (DJ R-3X)",
+      "when": "Tuesdays",
+      "how": "Recurring Tuesday mini-event (morning + evening windows). Strong for high-tier blueprints including Kyber."
+    },
+    {
+      "name": "Mega Crate",
+      "when": "Thursdays 10AM\u20131PM and 8\u201311PM ET",
+      "how": "Kyber blueprints spawn from Mega Crate. Stellar replaced Galactic."
+    }
+  ]
+}
