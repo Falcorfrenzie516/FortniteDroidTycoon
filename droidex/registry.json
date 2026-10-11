@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-11T08:30:00-04:00",
+  "updated": "2026-10-11T11:00:00-04:00",
   "source": "Companion registry \u00b7 FOAD / wiki / X scans",
   "droids": [
     {
@@ -335,27 +335,27 @@
     {
       "name": "KT",
       "type": "Worker",
-      "rarity": "Common"
+      "rarity": "Epic"
     },
     {
       "name": "MPH",
       "type": "Worker",
-      "rarity": "Common"
+      "rarity": "Epic"
     },
     {
       "name": "JO9-4MN",
       "type": "Worker",
-      "rarity": "Rare"
+      "rarity": "Legendary"
     },
     {
       "name": "ECG",
       "type": "Worker",
-      "rarity": "Rare"
+      "rarity": "Mythic"
     },
     {
       "name": "EG-58",
       "type": "Worker",
-      "rarity": "Epic"
+      "rarity": "Rare"
     },
     {
       "name": "EGL",
