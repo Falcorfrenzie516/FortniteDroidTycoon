@@ -1,40 +1,67 @@
 {
-  "updated": "2026-09-25T08:00:00-04:00",
-  "source": "FOAD / community announcements",
+  "updated": "2026-10-27",
+  "source": "FOAD (@FoadZone Oct 23\u201327 posts + v1.36.x) / Phill Snerds (Oct 25 finale teaser) / fandom Events / droidtycoonhelper.com (community game-file extract for possible Oct 31 Scourge Boss Fight window; no official FOAD times) \u00b7 daily check Oct 27 AM ET",
   "upcoming": [
     {
-      "name": "New Variant Weekend",
-      "start": "2026-09-26T16:00:00-04:00",
-      "end": "2026-09-27T16:00:00-04:00",
+      "name": "Scourge Event",
+      "status": "live",
+      "start": "2026-10-24T16:00:00-04:00",
+      "end": "2026-11-01T16:00:00-04:00",
+      "note": "Hive Mind active. Scourge spawns every 5 min during weekend. After Nov 1 returns every Friday at Droidsmith Outpost. Scourgedex: surrender Scourge droids (90 = Scourge Prime paint). World Missions give Scourge Crate + Protocol Crate through end of Gonk-O-Ween.",
       "rewards": [
-        "New variant blueprints"
+        "Scourge Crate",
+        "Protocol Crate",
+        "Scourge Prime paint (90 entries)"
+      ],
+      "bonuses": [
+        "Hive Mind credit bonus",
+        "Scourge counts as any variant for rebirths"
+      ]
+    },
+    {
+      "name": "GONK-O-WEEN",
+      "start": "2026-10-03T16:00:00-04:00",
+      "end": "2026-11-01T16:00:00-04:00",
+      "rewards": [
+        "Treats (trick-or-treat at bases and Jawa homes, plus weekend events)",
+        "Costumes: C-3PO, R2-D2, BB-8, CB-23, IG-11 Marshal, Mr. Bones",
+        "Ghoulish Gonk base paint (includes a DJ R-3X costume)",
+        "Bat, Witch, and Candy Corn hats",
+        "Ghostly and Bat Droid VFX",
+        "Chopper's Costume + Pumpkin base paint now in event shop (v1.36.0)"
       ],
       "bonuses": [],
-      "how": "v1.30.2 · Saturday Sep 26 4:00 PM EST"
+      "how": "FOAD Oct 3 (post + v1.33.0) \u00b7 Oct 3 4:00 PM ET \u2013 Nov 1 4:00 PM ET \u00b7 4 weekend events \u00b7 leftover Treats until Nov 7 \u00b7 Weekend 1 Pumpkin Smash done \u00b7 Weekend 2 Iconic Gonk (WG-22) done \u00b7 Weekend 3 Gonk Army rerun done (Sat 10/17 + Sun 10/18 10AM\u201310PM ET) \u00b7 Weekend 4 Dawn of the Scourge done (Sat Oct 24 4PM\u2013Sun Oct 25 4PM ET) \u00b7 FOAD Oct 23 + v1.36.0 \u00b7 Scourge missions live since Oct 19 \u00b7 After Nov 1 Scourge returns every Friday \u00b7 Chopper costume + Pumpkin paint in shop \u00b7 Phill Oct 25 teaser: epic finale next weekend (Oct 31\u2013Nov 1) to end Gonk-O-Ween (no FOAD timed windows/named units yet) \u00b7 Community guide (droidtycoonhelper.com, game files) lists possible Scourge Boss Fight Sat Oct 31 4PM\u2013Sun Nov 1 4PM ET \u00b7 Daily check Oct 27: no new FOAD posts or official times"
     },
     {
       "name": "Mega Crate Mini Event (morning)",
-      "start": "2026-10-01T10:00:00-04:00",
-      "end": "2026-10-01T13:00:00-04:00",
+      "start": "2026-10-29T10:00:00-04:00",
+      "end": "2026-10-29T13:00:00-04:00",
       "rewards": [
-        "Chopper mega crate loot"
+        "Kyber blueprints",
+        "Nova Crystals",
+        "Chopper mega crate loot",
+        "Treats / extra candy while GONK-O-WEEN is live (Phill Oct 7\u20138)"
       ],
       "bonuses": [
-        "2× upgrade chips"
+        "2\u00d7 upgrade chips"
       ],
-      "how": "Weekly Thursday morning · 10AM–1PM ET · FOAD Sep 3 post · Mega Crate every 15 min"
+      "how": "Next weekly Thursday morning \u00b7 10AM\u20131PM ET \u00b7 FOAD Sep 30, confirmed Oct 2 \u00b7 Kyber BPs spawn, Stellar replaced Galactic \u00b7 Phill: extra candy during GONK-O-WEEN Mega Crates"
     },
     {
       "name": "Mega Crate Mini Event (evening)",
-      "start": "2026-10-01T20:00:00-04:00",
-      "end": "2026-10-01T23:00:00-04:00",
+      "start": "2026-10-29T20:00:00-04:00",
+      "end": "2026-10-29T23:00:00-04:00",
       "rewards": [
-        "Chopper mega crate loot"
+        "Kyber blueprints",
+        "Nova Crystals",
+        "Chopper mega crate loot",
+        "Treats / extra candy while GONK-O-WEEN is live (Phill Oct 7\u20138)"
       ],
       "bonuses": [
-        "2× upgrade chips"
+        "2\u00d7 upgrade chips"
       ],
-      "how": "Weekly Thursday evening · 8PM–11PM ET · FOAD Sep 3 post · Mega Crate every 15 min"
+      "how": "Next weekly Thursday evening \u00b7 8PM\u201311PM ET \u00b7 FOAD Sep 30, confirmed Oct 2 \u00b7 Kyber BPs spawn, Stellar replaced Galactic \u00b7 Phill: extra candy during GONK-O-WEEN Mega Crates"
     }
   ],
   "recurring": [
@@ -44,12 +71,15 @@
       "startHourET": 10,
       "durationHours": 3,
       "rewards": [
-        "Chopper mega crate loot"
+        "Kyber blueprints",
+        "Nova Crystals",
+        "Chopper mega crate loot",
+        "Treats / extra candy while GONK-O-WEEN is live (Phill Oct 7)"
       ],
       "bonuses": [
-        "2× upgrade chips"
+        "2\u00d7 upgrade chips"
       ],
-      "how": "Weekly Thursday morning · FOAD Sep 3 · 10AM–1PM ET · crates every 15 min"
+      "how": "Weekly Thursday morning \u00b7 FOAD Sep 30, confirmed Oct 2 \u00b7 10AM\u20131PM ET \u00b7 Kyber BPs, Stellar replaced Galactic \u00b7 Phill Oct 7: extra candy during GONK-O-WEEN"
     },
     {
       "name": "Mega Crate Mini Event (evening)",
@@ -57,86 +87,93 @@
       "startHourET": 20,
       "durationHours": 3,
       "rewards": [
-        "Chopper mega crate loot"
+        "Kyber blueprints",
+        "Nova Crystals",
+        "Chopper mega crate loot",
+        "Treats / extra candy while GONK-O-WEEN is live (Phill Oct 7)"
       ],
       "bonuses": [
-        "2× upgrade chips"
+        "2\u00d7 upgrade chips"
       ],
-      "how": "Weekly Thursday evening · FOAD Sep 3 · 8PM–11PM ET · crates every 15 min"
+      "how": "Weekly Thursday evening \u00b7 FOAD Sep 30, confirmed Oct 2 \u00b7 8PM\u201311PM ET \u00b7 Kyber BPs, Stellar replaced Galactic \u00b7 Phill Oct 7: extra candy during GONK-O-WEEN"
     },
     {
       "name": "Dance Party Mini Event",
       "weekday": 2,
-      "startHourET": 8,
+      "startHourET": 10,
       "durationHours": 3,
-      "rewards": [],
+      "rewards": [
+        "Kyber / Stellar / Galactic / Beskar blueprints (wheel)"
+      ],
       "bonuses": [],
-      "how": "Every Tuesday morning · Sandcrawler · FOAD Aug 17 · 8AM–11AM ET · still active Sep 2026"
+      "how": "Every Tuesday morning \u00b7 Sandcrawler \u00b7 FOAD Sep 28 \u00b7 10AM\u20131PM ET \u00b7 Kyber track added"
     },
     {
       "name": "Dance Party Mini Event",
       "weekday": 2,
       "startHourET": 20,
       "durationHours": 3,
-      "rewards": [],
+      "rewards": [
+        "Kyber / Stellar / Galactic / Beskar blueprints (wheel)"
+      ],
       "bonuses": [],
-      "how": "Every Tuesday evening · Sandcrawler · FOAD Aug 17 · 8PM–11PM ET · still active Sep 2026"
+      "how": "Every Tuesday evening \u00b7 Sandcrawler \u00b7 FOAD Sep 28 \u00b7 8PM\u201311PM ET \u00b7 Kyber track added"
     }
   ],
   "history": [
     {
       "name": "BB-8 Weekend",
-      "when": "May 9–10, 2026",
+      "when": "May 9\u201310, 2026",
       "windows": "First iconic weekend"
     },
     {
       "name": "Mister Bones",
-      "when": "May 16–17, 2026",
+      "when": "May 16\u201317, 2026",
       "windows": "24h world window"
     },
     {
       "name": "Mandalorian / IG-11 Marshal",
-      "when": "May 23–24, 2026",
-      "windows": "Sat 10AM–4PM ET · Sun 4PM–10PM ET"
+      "when": "May 23\u201324, 2026",
+      "windows": "Sat 10AM\u20134PM ET \u00b7 Sun 4PM\u201310PM ET"
     },
     {
       "name": "Beskar Event",
-      "when": "May 30–31, 2026",
-      "windows": "Rerun Jun 3–4"
+      "when": "May 30\u201331, 2026",
+      "windows": "Rerun Jun 3\u20134"
     },
     {
       "name": "DJ R-3X",
-      "when": "Jun 13–14, 2026",
-      "windows": "Rerun Jun 20–21"
+      "when": "Jun 13\u201314, 2026",
+      "windows": "Rerun Jun 20\u201321"
     },
     {
       "name": "R2-D2",
-      "when": "Jun 27–28, 2026",
-      "windows": "Rerun Jul 4–5"
+      "when": "Jun 27\u201328, 2026",
+      "windows": "Rerun Jul 4\u20135"
     },
     {
       "name": "C-3PO",
-      "when": "Jul 11–12, 2026",
-      "windows": "Rerun Jul 18–19"
+      "when": "Jul 11\u201312, 2026",
+      "windows": "Rerun Jul 18\u201319"
     },
     {
       "name": "Galactic Event",
-      "when": "Jul 25–26, 2026",
+      "when": "Jul 25\u201326, 2026",
       "windows": "24h Galactic weekend"
     },
     {
       "name": "Chopper",
-      "when": "Aug 1–2, 2026",
-      "windows": "Rerun Aug 8–9"
+      "when": "Aug 1\u20132, 2026",
+      "windows": "Rerun Aug 8\u20139"
     },
     {
       "name": "Stellar Event",
-      "when": "Aug 15–16, 2026",
+      "when": "Aug 15\u201316, 2026",
       "windows": "New Stellar variant"
     },
     {
       "name": "Droid Fusion weekend",
-      "when": "Aug 22–24, 2026",
+      "when": "Aug 22\u201324, 2026",
       "windows": "Fusion lab live"
     },
     {
@@ -147,37 +184,87 @@
     {
       "name": "Mega Crate Mini (Thu Sep 3)",
       "when": "Sep 3, 2026",
-      "windows": "Morning 10AM–1PM ET + Evening 8–11PM ET · FOAD updated schedule"
+      "windows": "Morning 10AM\u20131PM ET + Evening 8\u201311PM ET \u00b7 FOAD updated schedule"
     },
     {
       "name": "D-O Event rerun",
-      "when": "Sep 5–6, 2026",
-      "windows": "24h from Sat 4PM ET · FOAD Sep 2"
+      "when": "Sep 5\u20136, 2026",
+      "windows": "24h from Sat 4PM ET \u00b7 FOAD Sep 2"
     },
     {
       "name": "Mega Crate Mini (Thu Sep 10)",
       "when": "Sep 10, 2026",
-      "windows": "Morning 10AM–1PM ET + Evening 8–11PM ET · FOAD Sep 3 schedule"
+      "windows": "Morning 10AM\u20131PM ET + Evening 8\u201311PM ET \u00b7 FOAD Sep 3 schedule"
     },
     {
       "name": "Protocol Droid Event",
-      "when": "Sep 12–14, 2026",
-      "windows": "Sat 4PM ET–Mon 3AM ET · +11h FOAD extension (timer bug) · World Mission revamp · Protocol Droids"
+      "when": "Sep 12\u201314, 2026",
+      "windows": "Sat 4PM ET\u2013Mon 3AM ET \u00b7 +11h FOAD extension (timer bug) \u00b7 World Mission revamp \u00b7 Protocol Droids"
     },
     {
       "name": "Mega Crate Mini (Thu Sep 17)",
       "when": "Sep 17, 2026",
-      "windows": "Morning 10AM–1PM ET + Evening 8–11PM ET · FOAD Sep 3 schedule"
+      "windows": "Morning 10AM\u20131PM ET + Evening 8\u201311PM ET \u00b7 FOAD Sep 3 schedule"
     },
     {
       "name": "Protocol / World Mission Event rerun",
-      "when": "Sep 19–20, 2026",
-      "windows": "24h from Sat 4PM ET · v1.30.2 · Variant Weekend moved to Sep 26"
+      "when": "Sep 19\u201320, 2026",
+      "windows": "24h from Sat 4PM ET \u00b7 v1.30.2 \u00b7 Variant Weekend moved to Sep 26"
     },
     {
       "name": "Mega Crate Mini (Thu Sep 24)",
       "when": "Sep 24, 2026",
-      "windows": "Morning 10AM–1PM ET + Evening 8–11PM ET · FOAD Sep 3 schedule"
+      "windows": "Morning 10AM\u20131PM ET + Evening 8\u201311PM ET \u00b7 FOAD Sep 3 schedule"
+    },
+    {
+      "name": "Kyber Droids",
+      "when": "Sep 26\u201327, 2026",
+      "windows": "Sat 4PM ET \u2013 Sun 4PM ET \u00b7 24h \u00b7 v1.32.0 \u00b7 Kyber variant + boosts"
+    },
+    {
+      "name": "Mega Crate Mini (Thu Oct 1)",
+      "when": "Oct 1, 2026",
+      "windows": "Morning 10AM\u20131PM ET + Evening 8\u201311PM ET \u00b7 FOAD Sep 30 \u00b7 Kyber BPs, Stellar replaced Galactic"
+    },
+    {
+      "name": "Pumpkin Smash (GONK-O-WEEN weekend 1)",
+      "when": "Oct 3\u20134, 2026",
+      "windows": "Sat 4:00 PM ET \u2013 Sun 4:00 PM ET \u00b7 Chopper + costume \u00b7 Phill: surges +1/+2/+3, costume at 75 \u00b7 Treats continue through the month"
+    },
+    {
+      "name": "Mega Crate Mini (Thu Oct 8)",
+      "when": "Oct 8, 2026",
+      "windows": "Morning 10AM\u20131PM ET + Evening 8\u201311PM ET \u00b7 FOAD Sep 30 schedule \u00b7 Phill Oct 7: extra candy"
+    },
+    {
+      "name": "Iconic Gonk Event (WG-22, GONK-O-WEEN weekend 2)",
+      "when": "Oct 10\u201311, 2026",
+      "windows": "Sat 4:00 PM ET \u2013 Sun 4:00 PM ET \u00b7 FOAD v1.34.0 \u00b7 WG-22 (2\u00d7 Flawless) + new Gonks \u00b7 Phill Oct 10\u201311"
+    },
+    {
+      "name": "Mega Crate Mini (Thu Oct 15)",
+      "when": "Oct 15, 2026",
+      "windows": "Morning 10AM\u20131PM ET + Evening 8\u201311PM ET \u00b7 FOAD Sep 30 schedule \u00b7 FOAD Oct 16 confirmed both windows ran (bug fixed before evening) \u00b7 Phill: extra candy"
+    },
+    {
+      "name": "Iconic Gonk / Gonk Army Rerun (Sat, GONK-O-WEEN weekend 3)",
+      "when": "Oct 17, 2026",
+      "windows": "Sat 10:00 AM ET \u2013 10:00 PM ET \u00b7 FOAD Oct 12 EVENT TIME CHANGE + v1.35.0 \u00b7 WG-22 (2\u00d7 Flawless) + Treats/Crafting Boost/Nova \u00b7 2\u00d7 Credits/Pickaxe/Crafting Speed \u00b7 FOAD Oct 18 teaser for next weekend"
+    },
+    {
+      "name": "Iconic Gonk / Gonk Army Rerun (Sun, GONK-O-WEEN weekend 3)",
+      "when": "Oct 18, 2026",
+      "windows": "Sun 10:00 AM ET \u2013 10:00 PM ET \u00b7 FOAD Oct 12 EVENT TIME CHANGE + v1.35.0 + Oct 18 last-chance \u00b7 Same rewards/boosts as Sat \u00b7 FOAD Oct 18 + Phill Oct 18\u201319 + FOAD Oct 21: Dawn of the Scourge teaser for Sat 10/24 (still no named units/exact times)"
+    },
+    {
+      "name": "Mega Crate Mini (Thu Oct 22)",
+      "when": "Oct 22, 2026",
+      "windows": "Morning 10AM\u20131PM ET + Evening 8\u201311PM ET \u00b7 FOAD Sep 30 schedule \u00b7 Phill: extra candy during GONK-O-WEEN"
+    },
+    {
+      "name": "Dawn of the Scourge / Scourge Event (GONK-O-WEEN weekend 4)",
+      "when": "Oct 24\u201325, 2026",
+      "windows": "Sat 4:00 PM ET \u2013 Sun 4:00 PM ET \u00b7 FOAD Oct 23 post + v1.36.0 \u00b7 24h event \u00b7 Scourge variant + Scourgedex (90 = Scourge Prime paint) + Hive Mind \u00b7 2\u00d7 Credits/Pickaxe/Crafting Speed \u00b7 v1.36.1 hotfix \u00b7 After Nov 1 Scourge every Friday \u00b7 Phill Oct 25: epic finale teaser for next weekend"
     }
   ]
 }

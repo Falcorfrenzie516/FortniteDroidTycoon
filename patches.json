@@ -1,12 +1,12 @@
 {
-  "updated": "2026-09-25T08:28:00-04:00",
-  "source": "FOAD patch notes",
+  "updated": "2026-10-27",
+  "source": "Updated 2026-10-27 AM ET: updated v1.36.2 to official FOAD X post (Oct 26: Hive Mind bonus fixed + Storage & Lounge Pack fix with compensation reapplication). Wiki still lists related shop/sell bugfixes under v1.36.1/2. No newer versions. No pad/slot changes. Slots unchanged.",
   "slots": {
     "worker": 11,
     "astromech": 9,
     "battle": 5,
     "firing": 6,
-    "lounge": 13,
+    "lounge": 21,
     "companion": 2,
     "fuse1": 3,
     "chamber1": 1,
@@ -14,6 +14,130 @@
     "chamber2": 1
   },
   "notes": [
+    {
+      "ver": "1.36.2",
+      "date": "2026-10-26",
+      "items": [
+        "Scourge Variant \"Hive Mind\" Bonus has been fixed",
+        "\"Storage & Lounge Pack\" has been fixed; players who already owned the bundle are having it reapplied as compensation"
+      ]
+    },
+    {
+      "ver": "1.36.1",
+      "date": "2026-10-24",
+      "items": [
+        "Hotfix: Fixed Scourge Droid submit menu on some consoles"
+      ]
+    },
+    {
+      "ver": "1.36.0",
+      "date": "2026-10-24",
+      "items": [
+        "THE SCOURGE ARRIVES: Sat Oct 24 4:00 PM ET",
+        "HIVE MIND: The more Scourge Droids inside your base, the more Credits they all generate",
+        "Scourge Droids count for all variant types for rebirth requirements",
+        "Track your Scourge Droids and unlock new rewards through the Scourgedex",
+        "Scourge Droids available on the conveyor and through reward crates; boosted Scourge spawns every 5 minutes this weekend",
+        "World Missions reward a Scourge Crate + Protocol Crate through the end of Gonk-O-Ween",
+        "Scourge Droids only available while Scourge Prime is on the map. After November 1, Scourge returns to the Droidsmith Outpost every Friday",
+        "Iconic Trait now guaranteed after 60 Rolls",
+        "Iconic Traits now ask for confirmation before you roll over them",
+        "New consumables tab in the Gonk-O-Ween shop (unlocks at the start of the Scourge event)",
+        "Chopper's Costume + Pumpkin base paint now in the event shop",
+        "CB-23 Astromech Mission fixed on split screen"
+      ]
+    },
+    {
+      "ver": "1.35.1",
+      "date": "2026-10-20",
+      "items": [
+        "Event Timer set back to default 24-hour window (4pm ET for 24 hours) instead of two 12-hour windows",
+        "Non-Iconic Droid Traits now cost Credits instead of Nova Crystals",
+        "Fishing for Scrap World Mission: quicktime minigame timer increased for all stages",
+        "Fishing for Scrap World Mission: points buffed so 4 stars are easier to reach",
+        "Fishing for Scrap World Mission: Scourge Scrap is now worth the most points",
+        "Fixed hotkeys breaking in the cosmetic menu after playing the Fishing for Scrap World Mission"
+      ]
+    },
+    {
+      "ver": "1.35.0",
+      "date": "2026-10-17",
+      "items": [
+        "TRAITS HAVE ARRIVED: Visit the Trait Scanner Terminals to reveal your droid's trait for Nova Crystals!",
+        "WG-22 (RERUN) ICONIC GONK EVENT: Sat Oct 17 10:00 AM ET \u2013 10:00 PM ET and Sun Oct 18 10:00 AM ET \u2013 10:00 PM ET",
+        "EVENT UPDATES: Conveyor now has normal spawn rates during the Gonk Army Conveyor Boost. You can now turn in Gonks and Power Droids that are in Lounge slots.",
+        "+8 new lounge slots have been added (13 \u2192 21)",
+        "Workshop Paint menu has been updated to show your collection in a list for easier selection",
+        "Mission leaderboard now shows the top contributors",
+        "Sarlacc Fishing gameplay updated",
+        "Rebirth Path 6 has been reworked to fit the structure of all other Rebirth Paths",
+        "CB-23 has had its Nova Crystal and Upgrade Chip amounts significantly increased",
+        "World mission rewards have been updated to include Kyber Surges"
+      ]
+    },
+    {
+      "ver": "1.34.0",
+      "date": "2026-10-09",
+      "items": [
+        "WG-22 ICONIC GONK EVENT: Sat Oct 10 4:00 PM ET \u2013 Sun Oct 11 4:00 PM ET",
+        "+6 Blueprint Storage Slots, available now at the Nova Shop",
+        "Music can be toggled, including Event Music",
+        "Added distinct icons for Player and World Trick or Treat stations",
+        "Event cutscene will no longer replay for players who have already seen it",
+        "Epic R2 Droid CPS increased from 360 to 480",
+        "Epic B2 Heavy Droid CPS decreased from 480 to 360",
+        "Fixed bug with blueprints not being thrown correctly after pick up from storage"
+      ]
+    },
+    {
+      "ver": "1.33.0",
+      "date": "2026-10-03",
+      "items": [
+        "GONK-O-WEEN: month-long Halloween event Oct 3 4:00 PM ET \u2013 Nov 1 4:00 PM ET",
+        "Protocol Droids removed from the Cantina Quest Pool",
+        "Kyber Droid Sell perk: sell activated Kyber Droids for Kyber Crystals. Official graphic labels it an SRB perk; the tweet text calls it a Nova Shop perk. Phill: also unlocked by the Huyang Bundle",
+        "Huyang Hologram perk: activate Kyber Droids inside your base. Official graphic labels it an SRB perk; the tweet text calls it a Nova Shop perk",
+        "Party bonuses: +20% upgrade chips per other party member (max 100%), +50% bonus credits hitting a party member's Scrap Station, +20% pickaxe bonus per other party member on the same Droid Depot",
+        "Huyang Bundle added to the Cantina Shop (Phill / wiki): unlocks Kyber Droid Sell, Huyang Hologram, and Huyang base paint. Perks can also be bought with Nova Crystals",
+        "Wiki event log (same v1.33, not a new version): iconic droid costumes, event base paints, VFX, and hats; Halloween decorations including green mist; trick-or-treat vendors in the world and player bases"
+      ]
+    },
+    {
+      "ver": "1.32.3",
+      "date": "2026-09-27",
+      "items": [
+        "Increased the event reward limit significantly"
+      ]
+    },
+    {
+      "ver": "1.32.2",
+      "date": "2026-09-26",
+      "items": [
+        "Droidex: Fixed the Droidex count to 673",
+        "Rebirth: Fixed an issue with Rebirth requirements for Kyber Droids"
+      ]
+    },
+    {
+      "ver": "1.32.1",
+      "date": "2026-09-26",
+      "items": [
+        "Minor bug fixes"
+      ]
+    },
+    {
+      "ver": "1.32.0",
+      "date": "2026-09-26",
+      "items": [
+        "Kyber Droids: brand new Variant arrives at the Droidsmith Outpost this weekend (launches Sat Sep 26 4:00 PM ET)",
+        "Droidex: layout refreshed for different screen resolutions; each Variant shows its own tracking progress",
+        "Mobile: tracking a Droid now requires double-tap (was single-tap)",
+        "Fixed localized text display issues in Droidex",
+        "Daily Quests can now award Stellar Legendary Rebirth requirements",
+        "Blueprint Scrap SRB Perk: new level that provides Beskar Blueprints",
+        "Fixed Mobile UI multiplier display; LOW-MO CPS amount; Workshop Paint removal when far from base",
+        "Improved performance when cycling Workshop Paints"
+      ]
+    },
     {
       "ver": "1.31.1",
       "date": "2026-09-20",
@@ -83,7 +207,7 @@
         "Crafting UI: cooldown reflects speed % + pickaxe; seconds/total under meter",
         "Nova Shop UI: larger buttons, scrolling, crystal costs on buttons",
         "New Nova perk: Droidex Notification (track a droid for conveyor alerts)",
-        "Cantina Quests give 5× rewards when the requested droid is Fusion",
+        "Cantina Quests give 5\u00d7 rewards when the requested droid is Fusion",
         "D-O event stability fixes; Mega Crate Mini-Event bug fixes",
         "New V-Bucks hats at Wandering Merchant; SRB crystal preview on rebirth screen"
       ]
@@ -110,8 +234,109 @@
       "date": "2026-08-15",
       "items": [
         "Stellar variant",
-        "Rebirth 31–35",
+        "Rebirth 31\u201335",
         "5th Super Rebirth cycle"
+      ]
+    }
+  ],
+  "patches": [
+    {
+      "ver": "1.36.2",
+      "date": "2026-10-26",
+      "notes": [
+        "Scourge Variant Hive Mind Bonus fixed",
+        "Storage & Lounge Pack fixed (reapplied as compensation for owners)"
+      ]
+    },
+    {
+      "ver": "1.36.1",
+      "date": "2026-10-24",
+      "notes": [
+        "Fixed Scourge Droid submit menu on some consoles"
+      ]
+    },
+    {
+      "ver": "1.36.0",
+      "date": "2026-10-24",
+      "notes": [
+        "Scourge Event (Sat Oct 24 4PM ET)",
+        "Hive Mind: more Scourge Droids in base = more Credits for all of them",
+        "Scourge Droids count for all variant types for rebirth requirements",
+        "Scourgedex tracking (90 entries = all non-Iconic; 90 = Scourge Prime paint)",
+        "Boosted Scourge spawns every 5 min this weekend",
+        "World Missions reward Scourge Crate + Protocol Crate through end of Gonk-O-Ween",
+        "After Nov 1: Scourge returns to Droidsmith Outpost every Friday",
+        "Iconic Trait guaranteed after 60 rolls",
+        "Confirmation before rolling over Iconic Trait",
+        "New Consumables tab in Gonk-O-Ween shop",
+        "Chopper's Costume + Pumpkin base paint in event shop"
+      ]
+    },
+    {
+      "ver": "1.35.1",
+      "date": "2026-10-19",
+      "notes": [
+        "Non-Iconic Droid Traits now cost Credits instead of Nova Crystals",
+        "Fixed Hotkeys breaking in cosmetic menu after Fishing Event",
+        "Event time back to default 4PM ET",
+        "Fishing World Mission points buffed",
+        "Fishing Scourge Scrap worth most points",
+        "Fishing QTE timer longer"
+      ]
+    },
+    {
+      "ver": "1.35.0",
+      "date": "2026-10-17",
+      "notes": [
+        "Traits arrived (Trait Scanner Terminals)",
+        "WG-22 Iconic Gonk Event rerun Oct 17-18 10AM-10PM ET",
+        "+8 lounge slots (now 21 total)",
+        "Rebirth Path 6 reworked",
+        "Can turn in lounge Gonks/Power Droids",
+        "CB-23 Nova Crystal and Upgrade Chip amounts increased",
+        "World mission rewards include Kyber Surges",
+        "Workshop Paint menu list view",
+        "Mission leaderboard shows top contributors",
+        "Sarlacc Fishing gameplay updated"
+      ]
+    },
+    {
+      "ver": "1.34.0",
+      "date": "2026-10-09",
+      "notes": [
+        "WG-22 ICONIC GONK EVENT: Sat Oct 10 4:00 PM ET \u2013 Sun Oct 11 4:00 PM ET",
+        "+6 Blueprint Storage Slots, available now at the Nova Shop",
+        "Music can be toggled, including Event Music",
+        "Added distinct icons for Player and World Trick or Treat stations",
+        "Event cutscene will no longer replay for players who have already seen it",
+        "Epic R2 Droid CPS increased from 360 to 480",
+        "Epic B2 Heavy Droid CPS decreased from 480 to 360",
+        "Fixed bug with blueprints not being thrown correctly after pick up from storage"
+      ]
+    },
+    {
+      "ver": "1.33.0",
+      "date": "2026-10-03",
+      "notes": [
+        "GONK-O-WEEN: month-long Halloween event Oct 3 4:00 PM ET \u2013 Nov 1 4:00 PM ET",
+        "Protocol Droids removed from the Cantina Quest Pool",
+        "Kyber Droid Sell perk: sell activated Kyber Droids for Kyber Crystals. Official graphic labels it an SRB perk; the tweet text calls it a Nova Shop perk. Phill: also unlocked by the Huyang Bundle",
+        "Huyang Hologram perk: activate Kyber Droids inside your base. Official graphic labels it an SRB perk; the tweet text calls it a Nova Shop perk",
+        "Party bonuses: +20% upgrade chips per other party member (max 100%), +50% bonus credits hitting a party member's Scrap Station, +20% pickaxe bonus per other party member on the same Droid Depot",
+        "Huyang Bundle added to the Cantina Shop (Phill / wiki): unlocks Kyber Droid Sell, Huyang Hologram, and Huyang base paint. Perks can also be bought with Nova Crystals",
+        "Wiki event log (same v1.33, not a new version): iconic droid costumes, event base paints, VFX, and hats; Halloween decorations including green mist; trick-or-treat vendors in the world and player bases"
+      ]
+    },
+    {
+      "ver": "1.32.2",
+      "date": "2026-09-26",
+      "notes": [
+        "Kyber variant added above Stellar. Droidex total 673 (83 droids \u00d7 8 variants + 9 iconics).",
+        "Kyber blueprints start inactive. Activate at Huyang with Kyber Crystals (not Nova).",
+        "Activation color: Green 50%, Blue 30%, Purple 20%.",
+        "Fuse 3 Stellar of the same droid to upgrade it to Kyber.",
+        "Kyber crystals from World Missions and Cantina Quests.",
+        "v1.32.2 fixed Droidex count to 673 and Kyber rebirth requirements."
       ]
     }
   ]
