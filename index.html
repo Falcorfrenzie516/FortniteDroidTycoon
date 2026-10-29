@@ -929,8 +929,8 @@ const COSMETICS = [
   ["Hat","Event hats","Finish the matching event grind","Event window"]
 ];
 
-const CREDITS = ["10K","150K","975K","2.95M","5.35M","9.85M","14.5M","36M","89M","220M","550M","1.36B","3.40B","8.45B","21B","52B","130B","325B","810B","2T","3T","4.5T","6T","9T","13.5T","21T","32T","45T","68T","100T","150T","230T","345T","520T","778T"];
-const NOVA = {12:11,13:16,14:22,15:29,16:37,17:46,18:56,19:67,20:79,21:92,22:106,23:121,24:137,25:154,26:172,27:191,28:211,29:232,30:254,31:277,32:301,33:326,34:352,35:379};
+const CREDITS = ["10K","150K","975K","2.95M","5.35M","9.85M","14.5M","36M","89M","220M","550M","1.36B","3.40B","8.45B","21B","52B","130B","325B","810B","2T","3T","4.5T","6T","9T","13.5T","21T","32T","45T","68T","100T","150T","230T","345T","520T","778T","1.19Qa","2.5Qa","4.5Qa","8Qa","15Qa"];
+const NOVA = {12:11,13:16,14:22,15:29,16:37,17:46,18:56,19:67,20:79,21:92,22:106,23:121,24:137,25:154,26:172,27:191,28:211,29:232,30:254,31:277,32:301,33:326,34:352,35:379,36:407,37:436,38:466,39:497,40:529};
 const TIER_I = {Basic:0,Gold:1,Diamond:2,Rainbow:3,Beskar:4,Galactic:5,Stellar:6,Kyber:7};
 const CYCLES = {
   1:[
@@ -1117,6 +1117,48 @@ const CYCLES = {
     [["Util-Tec","Stellar"],["R7","Galactic"],["TRI-TEK","Galactic"]],
     [["Haul-R","Stellar"],["LNG-Shot","Stellar"],["IG","Galactic"]],
     [["Mecha-Droid","Stellar"],["RIC-1200","Stellar"],["MO-TRAK","Stellar"]]
+  ],
+  6:[
+    [["Gonk","Basic"],["Mouse","Basic"],["ID10","Basic"]],
+    [["Pit","Basic"],["EG-58","Basic"],["2BB","Basic"]],
+    [["R3","Basic"],["R4","Basic"],["ROLL-R","Basic"]],
+    [["EG-58","Gold"],["R9","Gold"],["B1 Security","Gold"]],
+    [["Gonk","Gold"],["R5","Gold"],["VECT-Arm","Gold"]],
+    [["EGL","Basic"],["EG-58","Diamond"],["2BB","Diamond"]],
+    [["KT","Basic"],["R4","Diamond"],["R9","Diamond"]],
+    [["MPH","Basic"],["B1 Security","Diamond"],["NAV-EX","Diamond"]],
+    [["Gonk","Diamond"],["EGL","Gold"],["Strike-Orb","Gold"]],
+    [["Groundmech","Basic"],["TRAK-R","Basic"],["AMP Walker","Basic"]],
+    [["B2 Super","Basic"],["Haul-R","Basic"],["R2","Basic"]],
+    [["Gonk","Rainbow"],["Groundmech","Gold"],["TRAK-R","Gold"]],
+    [["KT","Gold"],["MPH","Gold"],["Proto-Roller","Basic"]],
+    [["EGL","Diamond"],["B2 Super","Gold"],["B2-RP","Basic"]],
+    [["JO9-4MN","Basic"],["KT","Diamond"],["MPH","Diamond"]],
+    [["PLNK","Basic"],["BB9","Basic"],["R7","Gold"]],
+    [["EGL","Rainbow"],["JO9-4MN","Gold"],["Mecha-Droid","Basic"]],
+    [["KT","Rainbow"],["MPH","Rainbow"],["PLNK","Gold"]],
+    [["JO9-4MN","Diamond"],["Proto-Roller","Gold"],["R7","Diamond"]],
+    [["PLNK","Rainbow"],["Mecha-Droid","Rainbow"],["B2-RP","Rainbow"]],
+    [["Gonk","Beskar"],["EGL","Beskar"],["Haul-R","Beskar"]],
+    [["KT","Beskar"],["Groundmech","Beskar"],["R2","Beskar"]],
+    [["MPH","Beskar"],["JO9-4MN","Beskar"],["BB9","Beskar"]],
+    [["PLNK","Beskar"],["Proto-Roller","Beskar"],["ECG","Basic"]],
+    [["R7","Beskar"],["IG","Basic"],["Loadlifter","Basic"]],
+    [["MO-TRAK","Gold"],["ECG","Gold"],["DRFT-R","Diamond"]],
+    [["CYCLENS","Rainbow"],["Snow Mouse","Rainbow"],["TRI-TEK","Beskar"]],
+    [["EGL","Galactic"],["JO9-4MN","Galactic"],["BB9","Galactic"]],
+    [["KT","Galactic"],["PLNK","Galactic"],["IG","Beskar"]],
+    [["MPH","Galactic"],["B2-RP","Galactic"],["DRFT-R","Galactic"]],
+    [["EGL","Stellar"],["EG-58","Beskar"],["Snow Mouse","Beskar"]],
+    [["TRAK-R","Galactic"],["CYCLENS","Beskar"],["ECG","Galactic"]],
+    [["KT","Stellar"],["Cyclo-Grav","Galactic"],["TRI-TEK","Galactic"]],
+    [["MPH","Stellar"],["Haul-R","Stellar"],["IG","Galactic"]],
+    [["JO9-4MN","Stellar"],["PLNK","Stellar"],["ECG","Stellar"]],
+    [["Gonk","Kyber"],["EG-58","Kyber"],["ROLL-R","Kyber"]],
+    [["EGL","Kyber"],["R2","Kyber"],["B2 Super","Kyber"]],
+    [["KT","Kyber"],["MPH","Kyber"],["Snow Mouse","Kyber"]],
+    [["JO9-4MN","Kyber"],["Cyclo-Grav","Kyber"],["TRI-TEK","Kyber"]],
+    [["PLNK","Kyber"],["ECG","Kyber"],["DRFT-R","Kyber"]]
   ]
 };
 
@@ -2030,7 +2072,7 @@ function savePanel(){
   let html = `<div class="hint">Each profile is a separate checklist. Download a file to keep a copy. Load a file to come back to that point. Sections start closed.</div>`;
   let rebirth = `<div class="meta" style="margin:6px 0 8px">Cycle plus how many unfinished rebirths ahead to mark on Base. Neon blue = parked at the needed variant. Orange = parked but too low.</div>`;
   rebirth += `<div class="meta" style="margin:8px 0 6px">Current cycle</div><select class="deck-field" onchange="setRbSetting('cycle',this.value)">`;
-  [1,2,3,4,5].forEach(n => { rebirth += `<option value="${n}" ${srbCycle===n?"selected":""}>Cycle ${n}</option>`; });
+  [1,2,3,4,5,6].forEach(n => { rebirth += `<option value="${n}" ${srbCycle===n?"selected":""}>Cycle ${n}</option>`; });
   rebirth += `</select><div class="meta" style="margin:10px 0 6px">Highlight next rebirths (1–10)</div><select class="deck-field" onchange="setRbSetting('ahead',this.value)">`;
   for (let n=1;n<=10;n++) rebirth += `<option value="${n}" ${highlightAhead()===n?"selected":""}>${n} rebirth${n>1?"s":""} ahead</option>`;
   rebirth += `</select>`;
@@ -2424,7 +2466,7 @@ function setAlertColor(key, hex){ setAlertField(key,"color",hex); }
 function setRbSetting(field, value){
   if (!state.rb) state.rb = {};
   if (field==="cycle"){
-    srbCycle = Math.min(5, Math.max(1, Number(value)||1));
+    srbCycle = Math.min(6, Math.max(1, Number(value)||1));
     state.rb.cycle = srbCycle;
   } else if (field==="ahead"){
     state.rb.ahead = Math.min(10, Math.max(1, Number(value)||3));
@@ -2490,7 +2532,7 @@ function updateStats(){
   bar("fillFlaw", flaw, totalNames);
   const droidVars = VARIANTS.reduce((a,v)=>a+DROIDS.filter(([n])=>has(n,v)).length,0);
   const fuseVars = VARIANTS.reduce((a,v)=>a+FUSIONS.filter(([n])=>fuseHas(n,v)).length,0);
-  const rbCleared = Array.from({length:35},(_,i)=>i+1).filter(rb => state.rb && state.rb["c"+srbCycle+"r"+rb]).length;
+  const rbCleared = Array.from({length:40},(_,i)=>i+1).filter(rb => state.rb && state.rb["c"+srbCycle+"r"+rb]).length;
   const icOn = ICONICS.filter(([n])=>iconOwned(n)).length;
   const paintOn = COSMETICS.filter((_,i)=>state.c && state.c[i]).length;
   const alarmOn = ["Galactic","Mythic","Stellar"].filter(n => alarms[n] && alarms[n].on).length;
@@ -2960,17 +3002,17 @@ function render(){
   }
   if (tab==="srb") {
     const cyc = CYCLES[srbCycle] || CYCLES[1];
-    html += `<div class="hint">Tap a rebirth to see the droids it wants. A row only checks off if that droid is <b>parked on Decks or Lounge</b> at that variant or better — owning it in the Droidex is not enough. Super Rebirth unlocks at <b>Rebirth 12</b> plus one Rainbow Legendary. Paths loop <b>1 → 2 → 3 → 4 → 5 → 1</b>.</div>`;
+    html += `<div class="hint">Tap a rebirth to see the droids it wants. A row only checks off if that droid is <b>parked on Decks or Lounge</b> at that variant or better — owning it in the Droidex is not enough. Super Rebirth unlocks at <b>Rebirth 12</b> plus one Rainbow Legendary. Paths loop <b>1 → 2 → 3 → 4 → 5 → 6 → 1</b>.</div>`;
     html += `<article class="card"><div class="meta" style="margin:0 0 6px">Current cycle</div>`;
     html += `<select class="deck-field" onchange="srbCycle=Number(this.value)||1;state.rb.cycle=srbCycle;save();render();">`;
-    [1,2,3,4,5].forEach(n => {
-      html += `<option value="${n}" ${srbCycle===n?"selected":""}>Cycle ${n}${n===5?" → loops back to 1":""}</option>`;
+    [1,2,3,4,5,6].forEach(n => {
+      html += `<option value="${n}" ${srbCycle===n?"selected":""}>Cycle ${n}${n===6?" → loops back to 1":""}</option>`;
     });
     html += `</select></article>`;
     const qq = document.getElementById("q").value.trim().toLowerCase();
     const groups = [
-      {id:"early", title:"Rebirths 1–11", from:1, to:11},
-      {id:"srb", title:"Super Rebirth 12–35", from:12, to:35}
+      {id:"early", title:"Rebirths 1–20", from:1, to:20},
+      {id:"srb", title:"Rebirths 21–40", from:21, to:40}
     ];
     groups.forEach(g => {
       const slice = [];
@@ -3363,48 +3405,49 @@ function nextEvery(stepMin){
   return t;
 }
 let FOAD_HISTORY = [
-  {name:"BB-8 Weekend", when:"May 9–10, 2026", windows:"First iconic weekend"},
-  {name:"Mister Bones", when:"May 16–17, 2026", windows:"24h world window"},
-  {name:"Mandalorian / IG-11 Marshal", when:"May 23–24, 2026", windows:"Sat 10AM–4PM ET · Sun 4PM–10PM ET"},
-  {name:"Beskar Event", when:"May 30–31, 2026", windows:"Rerun Jun 3–4"},
-  {name:"DJ R-3X", when:"Jun 13–14, 2026", windows:"Rerun Jun 20–21"},
-  {name:"R2-D2", when:"Jun 27–28, 2026", windows:"Rerun Jul 4–5"},
-  {name:"C-3PO", when:"Jul 11–12, 2026", windows:"Rerun Jul 18–19"},
-  {name:"Galactic Event", when:"Jul 25–26, 2026", windows:"24h Galactic weekend"},
-  {name:"Chopper", when:"Aug 1–2, 2026", windows:"Rerun Aug 8–9"},
-  {name:"Stellar Event", when:"Aug 15–16, 2026", windows:"New Stellar variant"},
-  {name:"Droid Fusion weekend", when:"Aug 22–24, 2026", windows:"Fusion lab live"},
+  {name:"BB-8 Weekend", when:"May 9\u201310, 2026", windows:"First iconic weekend"},
+  {name:"Mister Bones", when:"May 16\u201317, 2026", windows:"24h world window"},
+  {name:"Mandalorian / IG-11 Marshal", when:"May 23\u201324, 2026", windows:"Sat 10AM\u20134PM ET \u00b7 Sun 4PM\u201310PM ET"},
+  {name:"Beskar Event", when:"May 30\u201331, 2026", windows:"Rerun Jun 3\u20134"},
+  {name:"DJ R-3X", when:"Jun 13\u201314, 2026", windows:"Rerun Jun 20\u201321"},
+  {name:"R2-D2", when:"Jun 27\u201328, 2026", windows:"Rerun Jul 4\u20135"},
+  {name:"C-3PO", when:"Jul 11\u201312, 2026", windows:"Rerun Jul 18\u201319"},
+  {name:"Galactic Event", when:"Jul 25\u201326, 2026", windows:"24h Galactic weekend"},
+  {name:"Chopper", when:"Aug 1\u20132, 2026", windows:"Rerun Aug 8\u20139"},
+  {name:"Stellar Event", when:"Aug 15\u201316, 2026", windows:"New Stellar variant"},
+  {name:"Droid Fusion weekend", when:"Aug 22\u201324, 2026", windows:"Fusion lab live"},
   {name:"D-O first run", when:"Aug 29, 2026", windows:"24h from Sat 4PM ET"},
-  {name:"Mega Crate Mini (Thu Sep 3)", when:"Sep 3, 2026", windows:"Morning 10AM–1PM ET + Evening 8–11PM ET · FOAD updated schedule"},
-  {name:"D-O Event rerun", when:"Sep 5–6, 2026", windows:"24h from Sat 4PM ET · FOAD Sep 2"},
-  {name:"Mega Crate Mini (Thu Sep 10)", when:"Sep 10, 2026", windows:"Morning 10AM–1PM ET + Evening 8–11PM ET · FOAD Sep 3 schedule"},
-  {name:"Protocol Droid Event", when:"Sep 12–14, 2026", windows:"Sat 4PM ET–Mon 3AM ET · +11h FOAD extension (timer bug) · World Mission revamp · Protocol Droids"},
-  {name:"Mega Crate Mini (Thu Sep 17)", when:"Sep 17, 2026", windows:"Morning 10AM–1PM ET + Evening 8–11PM ET · FOAD Sep 3 schedule"},
-  {name:"Protocol / World Mission Event rerun", when:"Sep 19–20, 2026", windows:"24h from Sat 4PM ET · v1.30.2 · Variant Weekend moved to Sep 26"},
-  {name:"Mega Crate Mini (Thu Sep 24)", when:"Sep 24, 2026", windows:"Morning 10AM–1PM ET + Evening 8–11PM ET · FOAD Sep 3 schedule"},
-  {name:"Kyber Droids", when:"Sep 26–27, 2026", windows:"Sat 4PM ET – Sun 4PM ET · 24h · v1.32.0 · Kyber variant + boosts"},
-  {name:"Mega Crate Mini (Thu Oct 1)", when:"Oct 1, 2026", windows:"Morning 10AM–1PM ET + Evening 8–11PM ET · FOAD Sep 30 · Kyber BPs, Stellar replaced Galactic"},
-  {name:"Pumpkin Smash (GONK-O-WEEN weekend 1)", when:"Oct 3–4, 2026", windows:"Sat 4:00 PM ET – Sun 4:00 PM ET · Chopper + costume · Phill: surges +1/+2/+3, costume at 75 · Treats continue through the month"},
-  {name:"Mega Crate Mini (Thu Oct 8)", when:"Oct 8, 2026", windows:"Morning 10AM–1PM ET + Evening 8–11PM ET · FOAD Sep 30 schedule · Phill Oct 7: extra candy"},
-  {name:"Iconic Gonk Event (WG-22, GONK-O-WEEN weekend 2)", when:"Oct 10–11, 2026", windows:"Sat 4:00 PM ET – Sun 4:00 PM ET · FOAD v1.34.0 · WG-22 (2× Flawless) + new Gonks · Phill Oct 10–11"},
-  {name:"Mega Crate Mini (Thu Oct 15)", when:"Oct 15, 2026", windows:"Morning 10AM–1PM ET + Evening 8–11PM ET · FOAD Sep 30 schedule · FOAD Oct 16 confirmed both windows ran (bug fixed before evening) · Phill: extra candy"},
-  {name:"Iconic Gonk / Gonk Army Rerun (Sat, GONK-O-WEEN weekend 3)", when:"Oct 17, 2026", windows:"Sat 10:00 AM ET – 10:00 PM ET · FOAD Oct 12 EVENT TIME CHANGE + v1.35.0 · WG-22 (2× Flawless) + Treats/Crafting Boost/Nova · 2× Credits/Pickaxe/Crafting Speed · FOAD Oct 18 teaser for next weekend"},
-  {name:"Iconic Gonk / Gonk Army Rerun (Sun, GONK-O-WEEN weekend 3)", when:"Oct 18, 2026", windows:"Sun 10:00 AM ET – 10:00 PM ET · FOAD Oct 12 EVENT TIME CHANGE + v1.35.0 + Oct 18 last-chance · Same rewards/boosts as Sat · FOAD Oct 18 + Phill Oct 18–19 + FOAD Oct 21: Dawn of the Scourge teaser for Sat 10/24 (still no named units/exact times)"},
-  {name:"Mega Crate Mini (Thu Oct 22)", when:"Oct 22, 2026", windows:"Morning 10AM–1PM ET + Evening 8–11PM ET · FOAD Sep 30 schedule · Phill: extra candy during GONK-O-WEEN"},
-  {name:"Dawn of the Scourge / Scourge Event (GONK-O-WEEN weekend 4)", when:"Oct 24–25, 2026", windows:"Sat 4:00 PM ET – Sun 4:00 PM ET · FOAD Oct 23 post + v1.36.0 · 24h event · Scourge variant + Scourgedex (90 = Scourge Prime paint) + Hive Mind · 2× Credits/Pickaxe/Crafting Speed · v1.36.1 hotfix · After Nov 1 Scourge every Friday · Phill Oct 25: epic finale teaser for next weekend"}
+  {name:"Mega Crate Mini (Thu Sep 3)", when:"Sep 3, 2026", windows:"Morning 10AM\u20131PM ET + Evening 8\u201311PM ET \u00b7 FOAD updated schedule"},
+  {name:"D-O Event rerun", when:"Sep 5\u20136, 2026", windows:"24h from Sat 4PM ET \u00b7 FOAD Sep 2"},
+  {name:"Mega Crate Mini (Thu Sep 10)", when:"Sep 10, 2026", windows:"Morning 10AM\u20131PM ET + Evening 8\u201311PM ET \u00b7 FOAD Sep 3 schedule"},
+  {name:"Protocol Droid Event", when:"Sep 12\u201314, 2026", windows:"Sat 4PM ET\u2013Mon 3AM ET \u00b7 +11h FOAD extension (timer bug) \u00b7 World Mission revamp \u00b7 Protocol Droids"},
+  {name:"Mega Crate Mini (Thu Sep 17)", when:"Sep 17, 2026", windows:"Morning 10AM\u20131PM ET + Evening 8\u201311PM ET \u00b7 FOAD Sep 3 schedule"},
+  {name:"Protocol / World Mission Event rerun", when:"Sep 19\u201320, 2026", windows:"24h from Sat 4PM ET \u00b7 v1.30.2 \u00b7 Variant Weekend moved to Sep 26"},
+  {name:"Mega Crate Mini (Thu Sep 24)", when:"Sep 24, 2026", windows:"Morning 10AM\u20131PM ET + Evening 8\u201311PM ET \u00b7 FOAD Sep 3 schedule"},
+  {name:"Kyber Droids", when:"Sep 26\u201327, 2026", windows:"Sat 4PM ET \u2013 Sun 4PM ET \u00b7 24h \u00b7 v1.32.0 \u00b7 Kyber variant + boosts"},
+  {name:"Mega Crate Mini (Thu Oct 1)", when:"Oct 1, 2026", windows:"Morning 10AM\u20131PM ET + Evening 8\u201311PM ET \u00b7 FOAD Sep 30 \u00b7 Kyber BPs, Stellar replaced Galactic"},
+  {name:"Pumpkin Smash (GONK-O-WEEN weekend 1)", when:"Oct 3\u20134, 2026", windows:"Sat 4:00 PM ET \u2013 Sun 4:00 PM ET \u00b7 Chopper + costume \u00b7 Phill: surges +1/+2/+3, costume at 75 \u00b7 Treats continue through the month"},
+  {name:"Mega Crate Mini (Thu Oct 8)", when:"Oct 8, 2026", windows:"Morning 10AM\u20131PM ET + Evening 8\u201311PM ET \u00b7 FOAD Sep 30 schedule \u00b7 Phill Oct 7: extra candy"},
+  {name:"Iconic Gonk Event (WG-22, GONK-O-WEEN weekend 2)", when:"Oct 10\u201311, 2026", windows:"Sat 4:00 PM ET \u2013 Sun 4:00 PM ET \u00b7 FOAD v1.34.0 \u00b7 WG-22 (2\u00d7 Flawless) + new Gonks \u00b7 Phill Oct 10\u201311"},
+  {name:"Mega Crate Mini (Thu Oct 15)", when:"Oct 15, 2026", windows:"Morning 10AM\u20131PM ET + Evening 8\u201311PM ET \u00b7 FOAD Sep 30 schedule \u00b7 FOAD Oct 16 confirmed both windows ran (bug fixed before evening) \u00b7 Phill: extra candy"},
+  {name:"Iconic Gonk / Gonk Army Rerun (Sat, GONK-O-WEEN weekend 3)", when:"Oct 17, 2026", windows:"Sat 10:00 AM ET \u2013 10:00 PM ET \u00b7 FOAD Oct 12 EVENT TIME CHANGE + v1.35.0 \u00b7 WG-22 (2\u00d7 Flawless) + Treats/Crafting Boost/Nova \u00b7 2\u00d7 Credits/Pickaxe/Crafting Speed \u00b7 FOAD Oct 18 teaser for next weekend"},
+  {name:"Iconic Gonk / Gonk Army Rerun (Sun, GONK-O-WEEN weekend 3)", when:"Oct 18, 2026", windows:"Sun 10:00 AM ET \u2013 10:00 PM ET \u00b7 FOAD Oct 12 EVENT TIME CHANGE + v1.35.0 + Oct 18 last-chance \u00b7 Same rewards/boosts as Sat \u00b7 FOAD Oct 18 + Phill Oct 18\u201319 + FOAD Oct 21: Dawn of the Scourge teaser for Sat 10/24 (still no named units/exact times)"},
+  {name:"Mega Crate Mini (Thu Oct 22)", when:"Oct 22, 2026", windows:"Morning 10AM\u20131PM ET + Evening 8\u201311PM ET \u00b7 FOAD Sep 30 schedule \u00b7 Phill: extra candy during GONK-O-WEEN"},
+  {name:"Dawn of the Scourge / Scourge Event (GONK-O-WEEN weekend 4)", when:"Oct 24\u201325, 2026", windows:"Sat 4:00 PM ET \u2013 Sun 4:00 PM ET \u00b7 FOAD Oct 23 post + v1.36.0 \u00b7 24h event \u00b7 Scourge variant + Scourgedex (90 = Scourge Prime paint) + Hive Mind \u00b7 2\u00d7 Credits/Pickaxe/Crafting Speed \u00b7 v1.36.1 hotfix \u00b7 After Nov 1 Scourge every Friday \u00b7 Phill Oct 25: epic finale teaser for next weekend"}
 ];
 let FOAD_EVENTS = [
-  {name:"GONK-O-WEEN", start:"2026-10-03T16:00:00-04:00", end:"2026-11-01T16:00:00-04:00", rewards:["Treats (trick-or-treat at bases and Jawa homes, plus weekend events)","Costumes: C-3PO, R2-D2, BB-8, CB-23, IG-11 Marshal, Mr. Bones","Ghoulish Gonk base paint (includes a DJ R-3X costume)","Bat, Witch, and Candy Corn hats","Ghostly and Bat Droid VFX","Chopper's Costume + Pumpkin base paint now in event shop (v1.36.0)"], bonuses:[], how:"FOAD Oct 3 (post + v1.33.0) · Oct 3 4:00 PM ET – Nov 1 4:00 PM ET · 4 weekend events · leftover Treats until Nov 7 · Weekend 1 Pumpkin Smash done · Weekend 2 Iconic Gonk (WG-22) done · Weekend 3 Gonk Army rerun done (Sat 10/17 + Sun 10/18 10AM–10PM ET) · Weekend 4 Dawn of the Scourge done (Sat Oct 24 4PM–Sun Oct 25 4PM ET) · FOAD Oct 23 + v1.36.0 · Scourge missions live since Oct 19 · After Nov 1 Scourge returns every Friday · Chopper costume + Pumpkin paint in shop · Phill Oct 25 teaser: epic finale next weekend (Oct 31–Nov 1) to end Gonk-O-Ween (no FOAD timed windows/named units yet) · Community guide (droidtycoonhelper.com, game files) lists possible Scourge Boss Fight Sat Oct 31 4PM–Sun Nov 1 4PM ET · Daily check Oct 27: no new FOAD posts or official times"},
-  {name:"Mega Crate Mini Event (morning)", start:"2026-10-29T10:00:00-04:00", end:"2026-10-29T13:00:00-04:00", rewards:["Kyber blueprints","Nova Crystals","Chopper mega crate loot","Treats / extra candy while GONK-O-WEEN is live (Phill Oct 7–8)"], bonuses:["2× upgrade chips"], how:"Next weekly Thursday morning · 10AM–1PM ET · FOAD Sep 30, confirmed Oct 2 · Kyber BPs spawn, Stellar replaced Galactic · Phill: extra candy during GONK-O-WEEN Mega Crates"},
-  {name:"Mega Crate Mini Event (evening)", start:"2026-10-29T20:00:00-04:00", end:"2026-10-29T23:00:00-04:00", rewards:["Kyber blueprints","Nova Crystals","Chopper mega crate loot","Treats / extra candy while GONK-O-WEEN is live (Phill Oct 7–8)"], bonuses:["2× upgrade chips"], how:"Next weekly Thursday evening · 8PM–11PM ET · FOAD Sep 30, confirmed Oct 2 · Kyber BPs spawn, Stellar replaced Galactic · Phill: extra candy during GONK-O-WEEN Mega Crates"}
+  {"name": "Scourge Event", "status": "live", "start": "2026-10-24T16:00:00-04:00", "end": "2026-11-01T16:00:00-04:00", "note": "Hive Mind active. Scourge spawns every 5 min during weekend. After Nov 1 returns every Friday at Droidsmith Outpost. Scourgedex: surrender Scourge droids (90 = Scourge Prime paint). World Missions give Scourge Crate + Protocol Crate through end of Gonk-O-Ween.", "rewards": ["Scourge Crate", "Protocol Crate", "Scourge Prime paint (90 entries)"], "bonuses": ["Hive Mind credit bonus", "Scourge counts as any variant for rebirths"]},
+  {"name": "GONK-O-WEEN", "start": "2026-10-03T16:00:00-04:00", "end": "2026-11-01T16:00:00-04:00", "rewards": ["Treats (trick-or-treat at bases and Jawa homes, plus weekend events)", "Costumes: C-3PO, R2-D2, BB-8, CB-23, IG-11 Marshal, Mr. Bones", "Ghoulish Gonk base paint (includes a DJ R-3X costume)", "Bat, Witch, and Candy Corn hats", "Ghostly and Bat Droid VFX", "Chopper's Costume + Pumpkin base paint now in event shop (v1.36.0)"], "bonuses": [], "how": "FOAD Oct 3 (post + v1.33.0) · Oct 3 4:00 PM ET – Nov 1 4:00 PM ET · 4 weekend events · leftover Treats until Nov 7 · Weekend 1 Pumpkin Smash done · Weekend 2 Iconic Gonk (WG-22) done · Weekend 3 Gonk Army rerun done (Sat 10/17 + Sun 10/18 10AM–10PM ET) · Weekend 4 Dawn of the Scourge done (Sat Oct 24 4PM–Sun Oct 25 4PM ET) · FOAD Oct 23 + v1.36.0 · Scourge missions live since Oct 19 · After Nov 1 Scourge returns every Friday · Chopper costume + Pumpkin paint in shop · Phill Oct 25 teaser: epic finale next weekend (Oct 31–Nov 1) to end Gonk-O-Ween · LinIsCrazy Oct 25: Scourge BOSS FIGHT coming next weekend (FOAD RT) · Community guide (droidtycoonhelper.com, game files) lists possible Scourge Boss Fight Sat Oct 31 4PM–Sun Nov 1 4PM ET (details not out) · Daily check Oct 28: no new FOAD posts or official times"},
+  {"name": "Mega Crate Mini Event (morning)", "start": "2026-10-29T10:00:00-04:00", "end": "2026-10-29T13:00:00-04:00", "rewards": ["Kyber blueprints", "Nova Crystals", "Chopper mega crate loot", "Treats / extra candy while GONK-O-WEEN is live (Phill Oct 7–8)"], "bonuses": ["2× upgrade chips"], "how": "Next weekly Thursday morning · 10AM–1PM ET · FOAD Sep 30, confirmed Oct 2 · Kyber BPs spawn, Stellar replaced Galactic · Phill: extra candy during GONK-O-WEEN Mega Crates"},
+  {"name": "Mega Crate Mini Event (evening)", "start": "2026-10-29T20:00:00-04:00", "end": "2026-10-29T23:00:00-04:00", "rewards": ["Kyber blueprints", "Nova Crystals", "Chopper mega crate loot", "Treats / extra candy while GONK-O-WEEN is live (Phill Oct 7–8)"], "bonuses": ["2× upgrade chips"], "how": "Next weekly Thursday evening · 8PM–11PM ET · FOAD Sep 30, confirmed Oct 2 · Kyber BPs spawn, Stellar replaced Galactic · Phill: extra candy during GONK-O-WEEN Mega Crates"}
 ];
 const EVENTS = FOAD_EVENTS;
 const EVENTS_KEY = "droidex-events-cache";
 let FOAD_RECURRING = [
-  {name:"Mega Crate Mini Event (morning)", weekday:4, startHourET:10, durationHours:3, rewards:["Kyber blueprints","Nova Crystals","Chopper mega crate loot","Treats / extra candy while GONK-O-WEEN is live (Phill Oct 7)"], bonuses:["2× upgrade chips"], how:"Weekly Thursday morning · FOAD Sep 30, confirmed Oct 2 · 10AM–1PM ET · Kyber BPs, Stellar replaced Galactic · Phill Oct 7: extra candy during GONK-O-WEEN"},
-  {name:"Mega Crate Mini Event (evening)", weekday:4, startHourET:20, durationHours:3, rewards:["Kyber blueprints","Nova Crystals","Chopper mega crate loot","Treats / extra candy while GONK-O-WEEN is live (Phill Oct 7)"], bonuses:["2× upgrade chips"], how:"Weekly Thursday evening · FOAD Sep 30, confirmed Oct 2 · 8PM–11PM ET · Kyber BPs, Stellar replaced Galactic · Phill Oct 7: extra candy during GONK-O-WEEN"},
-  {name:"Dance Party Mini Event", weekday:2, startHourET:10, durationHours:3, rewards:["Kyber / Stellar / Galactic / Beskar blueprints (wheel)"], bonuses:[], how:"Every Tuesday morning · Sandcrawler · FOAD Sep 28 · 10AM–1PM ET · Kyber track added"},
-  {name:"Dance Party Mini Event", weekday:2, startHourET:20, durationHours:3, rewards:["Kyber / Stellar / Galactic / Beskar blueprints (wheel)"], bonuses:[], how:"Every Tuesday evening · Sandcrawler · FOAD Sep 28 · 8PM–11PM ET · Kyber track added"}
+  {"name": "Mega Crate Mini Event (morning)", "weekday": 4, "startHourET": 10, "durationHours": 3, "rewards": ["Kyber blueprints", "Nova Crystals", "Chopper mega crate loot", "Treats / extra candy while GONK-O-WEEN is live (Phill Oct 7)"], "bonuses": ["2× upgrade chips"], "how": "Weekly Thursday morning · FOAD Sep 30, confirmed Oct 2 · 10AM–1PM ET · Kyber BPs, Stellar replaced Galactic · Phill Oct 7: extra candy during GONK-O-WEEN"},
+  {"name": "Mega Crate Mini Event (evening)", "weekday": 4, "startHourET": 20, "durationHours": 3, "rewards": ["Kyber blueprints", "Nova Crystals", "Chopper mega crate loot", "Treats / extra candy while GONK-O-WEEN is live (Phill Oct 7)"], "bonuses": ["2× upgrade chips"], "how": "Weekly Thursday evening · FOAD Sep 30, confirmed Oct 2 · 8PM–11PM ET · Kyber BPs, Stellar replaced Galactic · Phill Oct 7: extra candy during GONK-O-WEEN"},
+  {"name": "Dance Party Mini Event", "weekday": 2, "startHourET": 10, "durationHours": 3, "rewards": ["Kyber / Stellar / Galactic / Beskar blueprints (wheel)"], "bonuses": [], "how": "Every Tuesday morning · Sandcrawler · FOAD Sep 28 · 10AM–1PM ET · Kyber track added"},
+  {"name": "Dance Party Mini Event", "weekday": 2, "startHourET": 20, "durationHours": 3, "rewards": ["Kyber / Stellar / Galactic / Beskar blueprints (wheel)"], "bonuses": [], "how": "Every Tuesday evening · Sandcrawler · FOAD Sep 28 · 8PM–11PM ET · Kyber track added"}
 ];
 function pad2(n){ return String(n).padStart(2,"0"); }
 function expandRecurring(now){
