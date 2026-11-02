@@ -1629,10 +1629,14 @@ function choosePadName(n){
   if (varBox){
     if (n && isIconic(n)) varBox.innerHTML = `<input id="padVar" type="hidden" value="Basic"><div class="meta">Iconic · +15% income when parked</div>`;
     else {
-      let html = `<div class="meta" style="margin:10px 0 6px">Variant</div><select id="padVar" class="deck-field">`;
-      VARIANTS.forEach(v => { html += `<option value="${v}">${v}</option>`; });
-      html += `<option value="${SCOURGE}">${SCOURGE}</option>`;
-      html += `</select>`;
+      let html = `<div class="meta" style="margin:10px 0 6px">Variant</div>`;
+      html += `<div class="vars" style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:6px">`;
+      const allV = VARIANTS.concat([SCOURGE]);
+      allV.forEach((v,i) => {
+        html += `<label class="chk" style="justify-content:center;padding:6px 4px;font-size:11px"><input type="radio" name="padVarRadio" value="${v}" onchange="document.querySelectorAll('#padVarBox .chk').forEach(el=>el.classList.remove('on'));this.parentElement.classList.add('on')">${SHORT[v]||v}</label>`;
+        if (i===4) html += `</div><div class="vars" style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px">`;
+      });
+      html += `</div><input id="padVar" type="hidden" value="Basic">`;
       varBox.innerHTML = html;
     }
   }
@@ -1669,12 +1673,19 @@ function openPad(id){
   html += `<div id="padVarBox">`;
   if (cur.name && isIconic(cur.name)) html += `<input id="padVar" type="hidden" value="Basic"><div class="meta" style="margin-top:8px">Iconic · +15% income when parked</div>`;
   else {
-    html += `<div class="meta" style="margin:10px 0 6px">Variant</div><select id="padVar" class="deck-field">`;
-    VARIANTS.forEach(v => { html += `<option value="${v}" ${v===(cur.variant||"Basic")?"selected":""}>${v}</option>`; });
-    html += `<option value="${SCOURGE}" ${SCOURGE===(cur.variant||"")?"selected":""}>${SCOURGE}</option>`;
-    html += `</select>`;
+    const curV = cur.variant || "Basic";
+    html += `<div class="meta" style="margin:10px 0 6px">Variant</div>`;
+    html += `<div class="vars" style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:6px">`;
+    const allV = VARIANTS.concat([SCOURGE]);
+    allV.forEach((v,i) => {
+      const on = v===curV;
+      html += `<label class="chk ${on?"on":""}" style="justify-content:center;padding:6px 4px;font-size:11px"><input type="radio" name="padVarRadio" value="${v}" ${on?"checked":""} onchange="document.querySelectorAll('#padVarBox .chk').forEach(el=>el.classList.remove('on'));this.parentElement.classList.add('on')">${SHORT[v]||v}</label>`;
+      if (i===4) html += `</div><div class="vars" style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px">`;
+    });
+    html += `</div>`;
+    html += `<input id="padVar" type="hidden" value="${esc(curV)}">`;
   }
-  html += `</div><div class="row" style="margin-top:12px"><button onclick="closeModal()">Cancel</button><button class="danger" onclick="setPad('${id}','','');closeModal()">Clear</button><button onclick="setPad('${id}',document.getElementById('padName').value,document.getElementById('padVar').value);closeModal()">Park</button></div></div>`;
+  html += `</div><div class="row" style="margin-top:12px"><button onclick="closeModal()">Cancel</button><button class="danger" onclick="setPad('${id}','','');closeModal()">Clear</button><button onclick="setPad('${id}',document.getElementById('padName').value,(document.querySelector('input[name=padVarRadio]:checked')||{value:'Basic'}).value);closeModal()">Park</button></div></div>`;
   box.innerHTML = html;
 }
 function renderDecks(){
