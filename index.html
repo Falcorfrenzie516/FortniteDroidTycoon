@@ -932,7 +932,7 @@ const COSMETICS = [
 
 const CREDITS = ["10K","150K","975K","2.95M","5.35M","9.85M","14.5M","36M","89M","220M","550M","1.36B","3.40B","8.45B","21B","52B","130B","325B","810B","2T","3T","4.5T","6T","9T","13.5T","21T","32T","45T","68T","100T","150T","230T","345T","520T","778T","1.19Qa","2.5Qa","4.5Qa","8Qa","15Qa"];
 const NOVA = {12:11,13:16,14:22,15:29,16:37,17:46,18:56,19:67,20:79,21:92,22:106,23:121,24:137,25:154,26:172,27:191,28:211,29:232,30:254,31:277,32:301,33:326,34:352,35:379,36:407,37:436,38:466,39:497,40:529};
-const TIER_I = {Basic:0,Gold:1,Diamond:2,Rainbow:3,Beskar:4,Galactic:5,Stellar:6,Kyber:7};
+const TIER_I = {Basic:0,Gold:1,Diamond:2,Rainbow:3,Beskar:4,Galactic:5,Stellar:6,Kyber:7,Scourge:8};
 const CYCLES = {
   1:[
     [["CB","Basic"],["Pit","Basic"],["DRK-1 Probe","Basic"]],
@@ -1631,6 +1631,7 @@ function choosePadName(n){
     else {
       let html = `<div class="meta" style="margin:10px 0 6px">Variant</div><select id="padVar" class="deck-field">`;
       VARIANTS.forEach(v => { html += `<option value="${v}">${v}</option>`; });
+      html += `<option value="${SCOURGE}">${SCOURGE}</option>`;
       html += `</select>`;
       varBox.innerHTML = html;
     }
@@ -1670,6 +1671,7 @@ function openPad(id){
   else {
     html += `<div class="meta" style="margin:10px 0 6px">Variant</div><select id="padVar" class="deck-field">`;
     VARIANTS.forEach(v => { html += `<option value="${v}" ${v===(cur.variant||"Basic")?"selected":""}>${v}</option>`; });
+    html += `<option value="${SCOURGE}" ${SCOURGE===(cur.variant||"")?"selected":""}>${SCOURGE}</option>`;
     html += `</select>`;
   }
   html += `</div><div class="row" style="margin-top:12px"><button onclick="closeModal()">Cancel</button><button class="danger" onclick="setPad('${id}','','');closeModal()">Clear</button><button onclick="setPad('${id}',document.getElementById('padName').value,document.getElementById('padVar').value);closeModal()">Park</button></div></div>`;
@@ -2501,7 +2503,7 @@ function setRbSetting(field, value){
 }
 
 function hash(s){ let h=0; for(let i=0;i<s.length;i++) h=s.charCodeAt(i)+((h<<5)-h); return Math.abs(h); }
-const SHORT = {Basic:"DEF",Gold:"GLD",Diamond:"DIA",Rainbow:"RBW",Beskar:"BSK",Galactic:"GLC",Stellar:"STL",Kyber:"KYB","Kyber Green":"GRN","Kyber Blue":"BLU","Kyber Purple":"PRP"};
+const SHORT = {Basic:"DEF",Gold:"GLD",Diamond:"DIA",Rainbow:"RBW",Beskar:"BSK",Galactic:"GLC",Stellar:"STL",Kyber:"KYB","Kyber Green":"GRN","Kyber Blue":"BLU","Kyber Purple":"PRP",Scourge:"SCG"};
 const VNAME = {Basic:"Default",Gold:"Gold",Diamond:"Diamond",Rainbow:"Rainbow",Beskar:"Beskar",Galactic:"Galactic",Stellar:"Stellar",Kyber:"Kyber","Kyber Green":"Green","Kyber Blue":"Blue","Kyber Purple":"Purple"};
 function vName(v){ return VNAME[v] || v; }
 function vTheme(v){
