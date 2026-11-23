@@ -696,7 +696,7 @@
   <div class="stats">
     <div class="stat"><i class="fill" id="fillNames"></i><b id="sNames">0</b><span>Droids</span></div>
     <div class="stat"><i class="fill" id="fillVars"></i><b id="sVars">0</b><span>Variants</span></div>
-    <div class="stat"><i class="fill" id="fillFuse"></i><b id="sFuse">0/17</b><span>Fusion</span></div>
+    <div class="stat"><i class="fill" id="fillFuse"></i><b id="sFuse">0/28</b><span>Fusion</span></div>
     <div class="stat"><i class="fill" id="fillDone"></i><b id="sDone">0</b><span>Completed</span></div>
     <div class="stat"><i class="fill" id="fillFlaw"></i><b id="sFlaw">0</b><span>Flawless</span></div>
   </div>
@@ -777,7 +777,18 @@ let FUSIONS = [
   ["LOW-MO","Mythic","Worker",["A-LT","A-LT","Loadlifter"]],
   ["AXI-POD","Mythic","Astromech",["RIC","BDX Explorer","R7"]],
   ["SRV-0","Mythic","Battle",["RIC-1200","B1 Heavy","B1 Heavy"]],
-  ["X-ONK","Mythic","Battle",["KX","KX","Gonk"]]
+  ["X-ONK","Mythic","Battle",["KX","KX","Gonk"]],
+  ["LFT-3R","Common","Battle",["Gonk","Imperial Probe","Imperial Probe"]],
+  ["ION Probe","Common","Worker",["Mouse","Mouse","ID10"]],
+  ["Quad Sentry","Common","Astromech",["R5","R5","ID10"]],
+  ["STRD-3","Epic","Worker",["MPH","Senate Hovercam","Senate Hovercam"]],
+  ["BI-Bit","Epic","Astromech",["EGL","R9","R9"]],
+  ["HV-EE","Legendary","Astromech",["JO9-4MN","BB9","BB9"]],
+  ["TOR-Q","Legendary","Battle",["B2-RP","KT","KT"]],
+  ["AX-L","Mythic","Battle",["IG","IG","MPH"]],
+  ["MO-TRO","Mythic","Astromech",["ECG","A-LT","A-LT"]],
+  ["KL-NK","Mythic","Protocol",["RIC","PZ","PZ"]],
+  ["SKM-MR","Mythic","Astromech",["Snow Mouse","A-LT","A-LT"]]
 ];
 let RATE = {
   "Gonk":[4,8,16,32,48,96,128],"Mouse":[2,4,8,16,24,48,64],"Pit":[2,4,8,16,24,48,64],
@@ -878,16 +889,16 @@ let ICONICS = [
 ];
 
 const DROIDEX_ORDER = [
-  "Mouse","Pit","Gonk","CB","R3","R5","R8","Imperial Probe","B1 Battle","DRK-1 Probe","ID10",
+  "Mouse","Pit","Gonk","CB","R3","R5","R8","Imperial Probe","B1 Battle","DRK-1 Probe","ID10","LFT-3R","ION Probe","Quad Sentry",
   "BDX Explorer","ARG","Senate Hovercam","BU-4D","Bal-Core","ROLL-R","WHL-EX","EG-58","2BB","A-LT",
   "R4","R9","ZRO-TEC","B1 Security","NAV-EX","VECT-Arm","HOV-R","BTL-R","SA-5",
   "Groundmech","LO","AMP Walker","SEN-TRI","Opti-Pod","Gunrunner","N-UL","EGL","KT","BB","R2","R6",
   "TRAK-R","ORB-Walker","Util-Tec","SCRP-R","MPH","B1 Heavy","B2 Super","B2 Heavy","Strike-Orb",
-  "Haul-R","LNG-Shot","ARM-CORE","OPT-AR","LOM",
+  "Haul-R","LNG-Shot","ARM-CORE","OPT-AR","STRD-3","BI-Bit","LOM",
   "Proto-Roller","Mecha-Droid","Mono-WLKR","RO-TOR","FUS-3","JO9-4MN","PLNK","BB9","R7","QIK-BIT",
-  "B2-RP","Cyclo-Grav","Opti-STRK","ORB-XL","PZ",
+  "B2-RP","Cyclo-Grav","Opti-STRK","ORB-XL","HV-EE","TOR-Q","PZ",
   "Snow Mouse","RIC","Loadlifter","LEP","RIC-1200","RIV-3T","LUG-G","LOW-MO","DRFT-R","CYCLENS",
-  "MO-TRAK","TRI-TEK","AXI-POD","ECG","IG","KX","SRV-0","X-ONK","TDA",
+  "MO-TRAK","TRI-TEK","AXI-POD","ECG","IG","KX","SRV-0","X-ONK","AX-L","MO-TRO","KL-NK","SKM-MR","TDA",
   "DJ R-3X","D-O","BB-8","CB-23","R2-D2","Chopper","Mister Bones","IG-11 Marshal","WG-22","C-3PO","Scourge Prime"
 ];
 function catalogOf(n){
@@ -919,7 +930,7 @@ const COSMETICS = [
   ["Base paint","Super Galactic","Craft 60 unique Galactic droids","60 Galactic names"],
   ["Base paint","Stellar","Craft 30 unique Stellar droids","30 Stellar names"],
   ["Base paint","Super Stellar","Craft 60 unique Stellar droids","60 Stellar names"],
-  ["Base paint","Fusion Paint","Discover all 17 fusion droids","17 fusion names"],
+  ["Base paint","Fusion Paint","Discover all 28 fusion droids","28 fusion names"],
   ["Base paint","Protocol Paint","v1.30 Protocol update","Patch"],
   ["Base paint","World Mission Paint","v1.30 World Mission revamp","Patch"],
   ["Base paint","Ringmaster paints","Race the world ring courses","Wide rings, then thin rings"],
@@ -2557,7 +2568,7 @@ function updateStats(){
   const done = DROIDS.filter(([n])=>droidDone(n)).length + FUSIONS.filter(([n])=>fuseDone(n)).length + ICONICS.filter(([n])=>iconDone(n)).length;
   document.getElementById("sNames").textContent = names + "/" + totalNames;
   document.getElementById("sVars").textContent = vars;
-  document.getElementById("sFuse").textContent = fuse + "/17";
+  document.getElementById("sFuse").textContent = fuse + "/28";
   document.getElementById("sDone").textContent = done;
   const maxVars = (DROIDS.length + FUSIONS.length) * 7;
   const maxDone = DROIDS.length + FUSIONS.length + ICONICS.length;
@@ -3609,28 +3620,43 @@ let FOAD_HISTORY = [
     "name": "Scourge Event (variant window)",
     "when": "Oct 24–Nov 1, 2026",
     "windows": "Sat Oct 24 4PM ET – Sun Nov 1 4PM ET · Hive Mind · Scourgedex · After Nov 1 returns every Friday at Droidsmith Outpost · v1.37.0 flawless chance on Scourge builds"
+  },
+  {
+    "name": "Mega Crate Mini (Thu Nov 5)",
+    "when": "Nov 5, 2026",
+    "windows": "Morning 10AM–1PM ET + Evening 8–11PM ET · FOAD Sep 30 schedule · After GONK-O-WEEN · Kyber BPs, Stellar replaced Galactic"
+  },
+  {
+    "name": "Gonk-O-Ween Treat Shop",
+    "when": "Oct 3–Nov 7, 2026",
+    "windows": "Open through Nov 7 4:00 PM ET (start of Boosted Weekend) · FOAD Oct 30 v1.37.0 + Scourge Prime post · Remaining Treats converted to Nova · Costumes, paints, hats, VFX, Scourge crates available until close"
+  },
+  {
+    "name": "Boosted Weekend",
+    "when": "Nov 7–8, 2026",
+    "windows": "Sat Nov 7 4:00 PM ET – Sun Nov 8 4:00 PM ET · FOAD Nov 6 · 2× Credits/Upgrade Chips/Pickaxe Level · Active playtime timer spawns currency crates every 60 min (Event Pass 3× + 30 min) · Treat Shop closed at start · No new iconic/named units"
+  },
+  {
+    "name": "Mega Crate Mini (Thu Nov 12)",
+    "when": "Nov 12, 2026",
+    "windows": "Morning 10AM–1PM ET + Evening 8–11PM ET · FOAD Sep 30 schedule · After GONK-O-WEEN · Kyber BPs, Stellar replaced Galactic"
+  },
+  {
+    "name": "Scourge Prime Boss Fight (final return)",
+    "when": "Nov 14–15, 2026",
+    "windows": "Sat Nov 14 4:00 PM ET – Sun Nov 15 4:00 PM ET · FOAD Nov 9 · Final weekend return · Defeat to claim as Iconic / set at Protocol station for Hive Mind · 2× Pickaxe/Credits/Upgrade Chips · FOAD Nov 14 live confirmation · Gone for good after"
+  },
+  {
+    "name": "Mega Crate Mini (Thu Nov 19)",
+    "when": "Nov 19, 2026",
+    "windows": "Morning 10AM–1PM ET + Evening 8–11PM ET · FOAD Sep 30 schedule · After GONK-O-WEEN · Kyber BPs, Stellar replaced Galactic"
   }
 ];
 let FOAD_EVENTS = [
   {
-    "name": "Gonk-O-Ween Treat Shop",
-    "start": "2026-10-03T16:00:00-04:00",
-    "end": "2026-11-07T16:00:00-05:00",
-    "note": "Shop remains open after Gonk-O-Ween ends (Nov 1 4PM ET). FOAD v1.37.0: Treat Shop remains until the start of next week's event on Nov 7. Remaining Treats convert to Nova Crystals. Last chance for costumes, paints, hats, VFX, Scourge crates.",
-    "rewards": [
-      "Costumes: C-3PO, R2-D2, BB-8, CB-23, IG-11 Marshal, Mr. Bones, Chopper",
-      "Ghoulish Gonk / Pumpkin base paints",
-      "Bat, Witch, Candy Corn, Werewolf hats",
-      "Ghostly and Bat Droid VFX",
-      "Scourge Blueprint Crate, Nova Crystals, Upgrade Chips"
-    ],
-    "bonuses": [],
-    "how": "FOAD Oct 30 v1.37.0 + Scourge Prime post: Shop open until Nov 7 4PM ET (start of next week's event). Treats no longer earned after Scourge Boss Fight ended Nov 1 4PM ET. Leftover Treats convert to Nova."
-  },
-  {
     "name": "Mega Crate Mini Event (morning)",
-    "start": "2026-11-05T10:00:00-05:00",
-    "end": "2026-11-05T13:00:00-05:00",
+    "start": "2026-11-26T10:00:00-05:00",
+    "end": "2026-11-26T13:00:00-05:00",
     "rewards": [
       "Kyber blueprints",
       "Nova Crystals",
@@ -3643,8 +3669,8 @@ let FOAD_EVENTS = [
   },
   {
     "name": "Mega Crate Mini Event (evening)",
-    "start": "2026-11-05T20:00:00-05:00",
-    "end": "2026-11-05T23:00:00-05:00",
+    "start": "2026-11-26T20:00:00-05:00",
+    "end": "2026-11-26T23:00:00-05:00",
     "rewards": [
       "Kyber blueprints",
       "Nova Crystals",
@@ -3656,13 +3682,70 @@ let FOAD_EVENTS = [
     "how": "Next weekly Thursday evening · 8PM–11PM ET · FOAD Sep 30, confirmed Oct 2 · Kyber BPs spawn, Stellar replaced Galactic · After GONK-O-WEEN"
   },
   {
-    "name": "Next Weekend Event (details TBA)",
-    "start": "2026-11-07T16:00:00-05:00",
-    "end": "2026-11-08T16:00:00-05:00",
-    "note": "FOAD v1.37.0: next week's event starts Nov 7 (Treat Shop closes at start). Community game-file extract (droidtycoonhelper.com) lists a Boosted Weekend window Sat Nov 7 4PM–Sun Nov 8 4PM ET; exact name, rewards, and boosts not announced by FOAD. Confirm in-game / watch FOAD.",
-    "rewards": [],
-    "bonuses": [],
-    "how": "Teaser only · FOAD Oct 30: shop until start of next week's event on Nov 7 · No official FOAD timed window or named units yet · Community extract: Boosted Weekend (not official)"
+    "name": "Life Day Event",
+    "start": "2026-11-21T16:00:00-05:00",
+    "end": "2026-11-22T16:00:00-05:00",
+    "rewards": [
+      "Life Day Hat",
+      "Life Day Aura",
+      "Life Day Base Paint",
+      "Crafting Boost Token",
+      "Nova Crystals",
+      "Life Orbs / Tree of Life conveyor boost"
+    ],
+    "bonuses": [
+      "2× Upgrade Chips",
+      "2× Credits",
+      "2× Pickaxe Level"
+    ],
+    "how": "FOAD Nov 19: LIFE DAY IS COMING · Sat Nov 21 and Sat Nov 28 (24 hours each) starting 4 PM ET · Find Life Orbs, charge them, bring back to start Lighting Ceremony · Tree of Life · FOAD Nov 18 teaser confirmed · Fortnite island: Sat 4PM–4PM · FOAD v1.40.0 Nov 20 confirms Sat Nov 21 4PM–Sun Nov 22 4PM ET window"
+  },
+  {
+    "name": "Life Day Event (2nd weekend)",
+    "start": "2026-11-28T16:00:00-05:00",
+    "end": "2026-11-29T16:00:00-05:00",
+    "rewards": [
+      "Life Day Hat",
+      "Life Day Aura",
+      "Life Day Base Paint",
+      "Crafting Boost Token",
+      "Nova Crystals",
+      "Life Orbs / Tree of Life conveyor boost"
+    ],
+    "bonuses": [
+      "2× Upgrade Chips",
+      "2× Credits",
+      "2× Pickaxe Level"
+    ],
+    "how": "FOAD Nov 19: Sat Nov 28 (24 hours) starting 4 PM ET · Same as first weekend · Find Life Orbs, charge them, bring back to start Lighting Ceremony"
+  },
+  {
+    "name": "Mega Crate Mini Event (morning)",
+    "start": "2026-12-03T10:00:00-05:00",
+    "end": "2026-12-03T13:00:00-05:00",
+    "rewards": [
+      "Kyber blueprints",
+      "Nova Crystals",
+      "Chopper mega crate loot"
+    ],
+    "bonuses": [
+      "2× upgrade chips"
+    ],
+    "how": "Next weekly Thursday morning · 10AM–1PM ET · FOAD Sep 30, confirmed Oct 2 · Kyber BPs spawn, Stellar replaced Galactic · After GONK-O-WEEN"
+  },
+  {
+    "name": "Mega Crate Mini Event (evening)",
+    "start": "2026-12-03T20:00:00-05:00",
+    "end": "2026-12-03T23:00:00-05:00",
+    "rewards": [
+      "Kyber blueprints",
+      "Nova Crystals",
+      "Chopper mega crate loot"
+    ],
+    "bonuses": [
+      "2× upgrade chips"
+    ],
+    "how": "Next weekly Thursday evening · 8PM–11PM ET · FOAD Sep 30, confirmed Oct 2 · Kyber BPs spawn, Stellar replaced Galactic · After GONK-O-WEEN"
   }
 ];
 const EVENTS = FOAD_EVENTS;
@@ -3726,14 +3809,18 @@ let FOAD_RECURRING = [
     "startHourET": 0,
     "durationHours": 24,
     "rewards": [
-      "Scourge blueprints",
-      "Scourgedex submissions",
-      "Scourge Prime available"
+      "Scourge blueprints (natural conveyor spawns)",
+      "Scourgedex submissions (daily permanent; unlimited resets on Fri)",
+      "Scourge Crates from World Missions",
+      "500 Nova + +1 perm Hive Mind per full Scourgedex reset"
     ],
     "bonuses": [
-      "Hive Mind active while Scourge on"
+      "World Mission cooldowns 30→15 min",
+      "World Missions become Scourged",
+      "Unlimited Scourgedex progression loop",
+      "Hive Mind active"
     ],
-    "how": "FOAD v1.36.0 / v1.37.0 / Nov 1: After November 1, Scourge returns to the Droidsmith Outpost every Friday for Scourgedex submissions. Exact window from community game-file extracts ~24h (e.g. Thu evening–Fri evening ET); confirm in-game."
+    "how": "FOAD Nov 2: Scourgedex hand-ins available EVERY DAY permanently (currencies + Blueprint Boxes). Fridays offer additional rewards + unlimited progression loop: WM CD reduced to 15 min, World Missions Scourged (Scourge Crates), natural Scourge spawns on conveyor. Full Scourgedex reset at Scourge Prime outskirts: 500 Nova + +1 permanent Hive Mind (first-time exclusive rewards not repeatable). Exact Friday window ~24h from community extracts; confirm in-game."
   }
 ];
 
