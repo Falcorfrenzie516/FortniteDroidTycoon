@@ -204,7 +204,14 @@
   .tabs button[data-tab="saves"] .fill { background:linear-gradient(90deg,#334155,#94a3b8); }
   .tabs button[data-tab="alarms"] .fill { background:linear-gradient(90deg,#a16207,#fbbf24); }
   .tabs button[data-tab="decks"] .fill { background:linear-gradient(90deg,#6d28d9,#c4b5fd); }
-  .hint { background:rgba(12,10,24,.72); border:1px solid var(--line); border-radius:16px; padding:12px 14px; color:var(--muted); font-size:13px; line-height:1.45; margin-bottom:12px; }
+  .hint button, .hint .deck-field {
+    background:rgba(12,10,24,.78); border:1px solid var(--line); border-radius:14px;
+    color:var(--muted); padding:8px 12px; font-size:11px; font-weight:700;
+    font-family:Orbitron,sans-serif; letter-spacing:.08em; text-transform:uppercase;
+    cursor:pointer;
+  }
+  .hint button:hover { color:#fff; border-color:#c4b5fd; }
+  .hint button.danger { color:#fb7185; border-color:#7f1d3a; }
   .rarity-h { position:sticky; top:0; z-index:10; margin:14px 0 8px; font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); background:rgba(5,3,12,.92); padding:6px 2px; font-family:Orbitron,sans-serif; }
   .deck-total { text-align:center; padding:16px 10px; border-color:#c4b5fd; background:radial-gradient(circle at 50% 0%, #2a1848, #0c0818 70%); }
   .money-dash { margin:0 0 10px; }
