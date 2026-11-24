@@ -2286,19 +2286,17 @@ function completeAll(n){
   keys.forEach(v => { state.d[dKey(n,v)] = !allOn; });
   save(); render();
 }
-function bulkColor(color, on){
+function bulkVariant(variant, on){
   on = on !== false;
   const visible = [];
   DROIDS.forEach(([n]) => { if (showCard(n)) visible.push({n, kind:"d"}); });
   FUSIONS.forEach(([n]) => { if (showCard(n)) visible.push({n, kind:"f"}); });
   visible.forEach(({n, kind}) => {
     if (kind==="d") {
-      if (on) state.d[dKey(n, color)] = true;
-      else delete state.d[dKey(n, color)];
-      if (on) state.d[dKey(n, "Kyber")] = true;
+      if (on) state.d[dKey(n, variant)] = true;
+      else delete state.d[dKey(n, variant)];
     } else {
-      state.f[n+"|"+color] = on;
-      if (on) state.f[n+"|Kyber"] = true;
+      state.f[n+"|"+variant] = on;
     }
   });
   save(); render();
@@ -3066,14 +3064,18 @@ function render(){
     catch(e){ html += `<div class="hint">Fusion planner hit an error: ${e}. Other tabs should still work.</div>`; }
   }
   if (tab==="droidex") {
-    html += `<div class="hint" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-      <span>Bulk color:</span>
-      <button onclick="bulkColor('Kyber Green')">Check all Green</button>
-      <button onclick="bulkColor('Kyber Blue')">Check all Blue</button>
-      <button onclick="bulkColor('Kyber Purple')">Check all Purple</button>
-      <button class="danger" onclick="bulkColor('Kyber Green',false)">Uncheck Green</button>
-      <button class="danger" onclick="bulkColor('Kyber Blue',false)">Uncheck Blue</button>
-      <button class="danger" onclick="bulkColor('Kyber Purple',false)">Uncheck Purple</button>
+    html += `<div class="hint" style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+      <span>Bulk variant:</span>
+      <button onclick="bulkVariant('Basic')">Check all Default</button>
+      <button onclick="bulkVariant('Gold')">Check all Gold</button>
+      <button onclick="bulkVariant('Diamond')">Check all Diamond</button>
+      <button onclick="bulkVariant('Rainbow')">Check all Rainbow</button>
+      <button onclick="bulkVariant('Beskar')">Check all Beskar</button>
+      <button onclick="bulkVariant('Galactic')">Check all Galactic</button>
+      <button onclick="bulkVariant('Stellar')">Check all Stellar</button>
+      <button onclick="bulkVariant('Kyber')">Check all Kyber</button>
+      <button class="danger" onclick="bulkVariant('Basic',false)">Uncheck Default</button>
+      <button class="danger" onclick="bulkVariant('Gold',false)">Uncheck Gold</button>
     </div>`;
     html += renderVariantBonuses();
     const order = ["Common","Rare","Epic","Legendary","Mythic"];
