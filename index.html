@@ -2286,11 +2286,12 @@ function completeAll(n){
   keys.forEach(v => { state.d[dKey(n,v)] = !allOn; });
   save(); render();
 }
-function bulkVariant(variant, on){
+function bulkVariant(variant, on, includeFusion){
   on = on !== false;
+  includeFusion = !!includeFusion;
   const visible = [];
   DROIDS.forEach(([n]) => { if (showCard(n)) visible.push({n, kind:"d"}); });
-  FUSIONS.forEach(([n]) => { if (showCard(n)) visible.push({n, kind:"f"}); });
+  if (includeFusion) FUSIONS.forEach(([n]) => { if (showCard(n)) visible.push({n, kind:"f"}); });
   visible.forEach(({n, kind}) => {
     if (kind==="d") {
       if (on) state.d[dKey(n, variant)] = true;
@@ -3065,7 +3066,7 @@ function render(){
   }
   if (tab==="droidex") {
     html += `<div class="hint" style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
-      <span>Bulk variant:</span>
+      <span>Bulk variant (no fusion):</span>
       <button onclick="bulkVariant('Basic')">Check all Default</button>
       <button onclick="bulkVariant('Gold')">Check all Gold</button>
       <button onclick="bulkVariant('Diamond')">Check all Diamond</button>
@@ -3076,6 +3077,12 @@ function render(){
       <button onclick="bulkVariant('Kyber')">Check all Kyber</button>
       <button class="danger" onclick="bulkVariant('Basic',false)">Uncheck Default</button>
       <button class="danger" onclick="bulkVariant('Gold',false)">Uncheck Gold</button>
+    </div>
+    <div class="hint" style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:4px">
+      <span>Bulk fusion only:</span>
+      <button onclick="bulkVariant('Basic',true,true)">Check fusion Default</button>
+      <button onclick="bulkVariant('Gold',true,true)">Check fusion Gold</button>
+      <button class="danger" onclick="bulkVariant('Basic',false,true)">Uncheck fusion Default</button>
     </div>`;
     html += renderVariantBonuses();
     const order = ["Common","Rare","Epic","Legendary","Mythic"];
