@@ -711,6 +711,16 @@
       <option value="Battle">Battle</option>
       <option value="Protocol">Protocol</option>
     </select>
+    <select id="colorFilter" title="Filter by Kyber color">
+      <option value="all">All colors</option>
+      <option value="Kyber Green">Has Green</option>
+      <option value="Kyber Blue">Has Blue</option>
+      <option value="Kyber Purple">Has Purple</option>
+      <option value="missing-green">Missing Green</option>
+      <option value="missing-blue">Missing Blue</option>
+      <option value="missing-purple">Missing Purple</option>
+      <option value="missing-any">Missing any color</option>
+    </select>
     <select id="savePick" title="Switch profile" onchange="switchSave(this.value)"></select>
   </div>
   <nav class="tabs">
@@ -2276,6 +2286,23 @@ function completeAll(n){
   keys.forEach(v => { state.d[dKey(n,v)] = !allOn; });
   save(); render();
 }
+function bulkColor(color, on){
+  on = on !== false;
+  const visible = [];
+  DROIDS.forEach(([n]) => { if (showCard(n)) visible.push({n, kind:"d"}); });
+  FUSIONS.forEach(([n]) => { if (showCard(n)) visible.push({n, kind:"f"}); });
+  visible.forEach(({n, kind}) => {
+    if (kind==="d") {
+      if (on) state.d[dKey(n, color)] = true;
+      else delete state.d[dKey(n, color)];
+      if (on) state.d[dKey(n, "Kyber")] = true;
+    } else {
+      state.f[n+"|"+color] = on;
+      if (on) state.f[n+"|Kyber"] = true;
+    }
+  });
+  save(); render();
+}
 function markTier(n,v,on){
   if (on) state.d[dKey(n,v)] = true;
   else delete state.d[dKey(n,v)];
@@ -2601,11 +2628,24 @@ function norm(s){ return String(s||"").toLowerCase().replace(/[^a-z0-9]+/g," ").
 function showCard(name, typ, extra){
   const q = norm(document.getElementById("q").value);
   const t = document.getElementById("filter").value;
+  const cf = (document.getElementById("colorFilter")||{}).value || "all";
   if (q) {
     const blob = norm([name, typ, extra||""].join(" "));
     if (!blob.includes(q) && !norm(name).includes(q)) return false;
   }
   if (t!=="all" && typ!==t) return false;
+  if (cf!=="all") {
+    const hasG = has(name,"Kyber Green") || fuseHas(name,"Kyber Green");
+    const hasB = has(name,"Kyber Blue") || fuseHas(name,"Kyber Blue");
+    const hasP = has(name,"Kyber Purple") || fuseHas(name,"Kyber Purple");
+    if (cf==="Kyber Green" && !hasG) return false;
+    if (cf==="Kyber Blue" && !hasB) return false;
+    if (cf==="Kyber Purple" && !hasP) return false;
+    if (cf==="missing-green" && hasG) return false;
+    if (cf==="missing-blue" && hasB) return false;
+    if (cf==="missing-purple" && hasP) return false;
+    if (cf==="missing-any" && hasG && hasB && hasP) return false;
+  }
   return true;
 }
 
@@ -3026,6 +3066,15 @@ function render(){
     catch(e){ html += `<div class="hint">Fusion planner hit an error: ${e}. Other tabs should still work.</div>`; }
   }
   if (tab==="droidex") {
+    html += `<div class="hint" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+      <span>Bulk color:</span>
+      <button onclick="bulkColor('Kyber Green')">Check all Green</button>
+      <button onclick="bulkColor('Kyber Blue')">Check all Blue</button>
+      <button onclick="bulkColor('Kyber Purple')">Check all Purple</button>
+      <button class="danger" onclick="bulkColor('Kyber Green',false)">Uncheck Green</button>
+      <button class="danger" onclick="bulkColor('Kyber Blue',false)">Uncheck Blue</button>
+      <button class="danger" onclick="bulkColor('Kyber Purple',false)">Uncheck Purple</button>
+    </div>`;
     html += renderVariantBonuses();
     const order = ["Common","Rare","Epic","Legendary","Mythic"];
     let shown=0;
@@ -3279,6 +3328,7 @@ document.getElementById("q").addEventListener("focus", e => {
   render();
 });
 document.getElementById("filter").addEventListener("change", render);
+document.getElementById("colorFilter").addEventListener("change", render);
 document.getElementById("loadFile").addEventListener("change", e => {
   const file = e.target.files && e.target.files[0];
   e.target.value = "";
@@ -3650,6 +3700,11 @@ let FOAD_HISTORY = [
     "name": "Mega Crate Mini (Thu Nov 19)",
     "when": "Nov 19, 2026",
     "windows": "Morning 10AM–1PM ET + Evening 8–11PM ET · FOAD Sep 30 schedule · After GONK-O-WEEN · Kyber BPs, Stellar replaced Galactic"
+  },
+  {
+    "name": "Life Day Event",
+    "when": "Nov 21–22, 2026",
+    "windows": "Sat Nov 21 4:00 PM ET – Sun Nov 22 4:00 PM ET · FOAD Nov 19 + v1.40.0 Nov 20 · Life Orbs / Tree of Life · Hat/Aura/Base Paint/Crafting Boost Token/Nova · 2× Chips/Credits/Pickaxe · FOAD Nov 22 reply: Rerun next weekend"
   }
 ];
 let FOAD_EVENTS = [
@@ -3680,25 +3735,6 @@ let FOAD_EVENTS = [
       "2× upgrade chips"
     ],
     "how": "Next weekly Thursday evening · 8PM–11PM ET · FOAD Sep 30, confirmed Oct 2 · Kyber BPs spawn, Stellar replaced Galactic · After GONK-O-WEEN"
-  },
-  {
-    "name": "Life Day Event",
-    "start": "2026-11-21T16:00:00-05:00",
-    "end": "2026-11-22T16:00:00-05:00",
-    "rewards": [
-      "Life Day Hat",
-      "Life Day Aura",
-      "Life Day Base Paint",
-      "Crafting Boost Token",
-      "Nova Crystals",
-      "Life Orbs / Tree of Life conveyor boost"
-    ],
-    "bonuses": [
-      "2× Upgrade Chips",
-      "2× Credits",
-      "2× Pickaxe Level"
-    ],
-    "how": "FOAD Nov 19: LIFE DAY IS COMING · Sat Nov 21 and Sat Nov 28 (24 hours each) starting 4 PM ET · Find Life Orbs, charge them, bring back to start Lighting Ceremony · Tree of Life · FOAD Nov 18 teaser confirmed · Fortnite island: Sat 4PM–4PM · FOAD v1.40.0 Nov 20 confirms Sat Nov 21 4PM–Sun Nov 22 4PM ET window"
   },
   {
     "name": "Life Day Event (2nd weekend)",
