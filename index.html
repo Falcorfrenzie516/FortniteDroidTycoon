@@ -3078,30 +3078,29 @@ function render(){
     catch(e){ html += `<div class="hint">Fusion planner hit an error: ${e}. Other tabs should still work.</div>`; }
   }
   if (tab==="droidex") {
-    html += `<div class="hint" style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
-      <span>Bulk variant (no fusion):</span>
-      <button onclick="bulkVariant('Basic')">Check all Default</button>
-      <button onclick="bulkVariant('Gold')">Check all Gold</button>
-      <button onclick="bulkVariant('Diamond')">Check all Diamond</button>
-      <button onclick="bulkVariant('Rainbow')">Check all Rainbow</button>
-      <button onclick="bulkVariant('Beskar')">Check all Beskar</button>
-      <button onclick="bulkVariant('Galactic')">Check all Galactic</button>
-      <button onclick="bulkVariant('Stellar')">Check all Stellar</button>
-      <button onclick="bulkVariant('Kyber')">Check all Kyber</button>
-      <button onclick="bulkVariant('Kyber Green')">Check all Green Kyber</button>
-      <button onclick="bulkVariant('Kyber Blue')">Check all Blue Kyber</button>
-      <button onclick="bulkVariant('Kyber Purple')">Check all Purple Kyber</button>
-      <button class="danger" onclick="bulkVariant('Basic',false)">Uncheck Default</button>
-      <button class="danger" onclick="bulkVariant('Gold',false)">Uncheck Gold</button>
-      <button class="danger" onclick="bulkVariant('Kyber',false)">Uncheck Kyber</button>
-    </div>
-    <div class="hint" style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:4px">
-      <span>Bulk fusion only:</span>
-      <button onclick="bulkVariant('Basic',true,true)">Check fusion Default</button>
-      <button onclick="bulkVariant('Gold',true,true)">Check fusion Gold</button>
-      <button onclick="bulkVariant('Kyber',true,true)">Check fusion Kyber</button>
-      <button class="danger" onclick="bulkVariant('Basic',false,true)">Uncheck fusion Default</button>
-    </div>`;
+    html += `<details class="hint" style="margin-bottom:10px">
+      <summary style="cursor:pointer;font-weight:700;letter-spacing:.08em;text-transform:uppercase">Bulk variant checks</summary>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:8px">
+        <span>No fusion:</span>
+        <button onclick="bulkVariant('Basic')">Check all Default</button>
+        <button onclick="bulkVariant('Gold')">Check all Gold</button>
+        <button onclick="bulkVariant('Diamond')">Check all Diamond</button>
+        <button onclick="bulkVariant('Rainbow')">Check all Rainbow</button>
+        <button onclick="bulkVariant('Beskar')">Check all Beskar</button>
+        <button onclick="bulkVariant('Galactic')">Check all Galactic</button>
+        <button onclick="bulkVariant('Stellar')">Check all Stellar</button>
+        <button onclick="bulkVariant('Kyber')">Check all Kyber</button>
+        <button onclick="bulkVariant('Kyber Green')">Check all Green Kyber</button>
+        <button onclick="bulkVariant('Kyber Blue')">Check all Blue Kyber</button>
+        <button onclick="bulkVariant('Kyber Purple')">Check all Purple Kyber</button>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:6px">
+        <span>Fusion only:</span>
+        <button onclick="bulkVariant('Basic',true,true)">Check fusion Default</button>
+        <button onclick="bulkVariant('Gold',true,true)">Check fusion Gold</button>
+        <button onclick="bulkVariant('Kyber',true,true)">Check fusion Kyber</button>
+      </div>
+    </details>`;
     html += renderVariantBonuses();
     const order = ["Common","Rare","Epic","Legendary","Mythic"];
     let shown=0;
