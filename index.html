@@ -771,7 +771,7 @@ const KYBER_COLORS = ["Kyber Green","Kyber Blue","Kyber Purple"];
 const SCOURGE = "Scourge"; // special variant; tracked separately, counts as any tier for rebirths
 let DROIDS = [
   ["Mouse","Worker","Common"],["Pit","Worker","Common"],["Gonk","Worker","Common"],
-  ["KT","Worker","Epic"],["MPH","Worker","Epic"],["JO9-4MN","Worker","Legendary"],["ECG","Worker","Mythic"],
+  ["KT","Worker","Epic"],["MPH","Worker","Epic"],["JO9-4MN","Worker","Legendary"],["ECG","Astromech","Mythic"],
   ["EG-58","Worker","Rare"],["EGL","Worker","Epic"],["PLNK","Worker","Legendary"],
   ["CB","Astromech","Common"],["R3","Astromech","Common"],["R5","Astromech","Common"],["R8","Astromech","Common"],
   ["Imperial Probe","Battle","Common"],["B1 Battle","Battle","Common"],["DRK-1 Probe","Battle","Common"],["ID10","Battle","Common"],
@@ -1865,7 +1865,7 @@ function padButton(p, deck){
     const typed = p.kind==="Worker"||p.kind==="Astromech"||p.kind==="Battle"||p.kind==="Protocol";
     const match = typed && classOf(s.name)===p.kind;
     const tone = p.mission ? "mission" : (p.kind==="Companion"||p.floor==="chip" ? "companion" : (!typed ? "lounge" : (match ? "match" : "offtype")));
-    const lab = p.mission ? ("M"+p.n+" "+(isIconic(s.name)?"★ ":"")+s.name) : p.floor==="companion" ? ((p.n===1?"Main ":"Sec ")+(isIconic(s.name)?"★ ":"")+s.name) : (isIconic(s.name)?"★ "+s.name:s.name);
+    const lab = p.mission ? ((isIconic(s.name)?"★ ":"")+s.name) : p.floor==="companion" ? ((p.n===1?"Main ":"Sec ")+(isIconic(s.name)?"★ ":"")+s.name) : (isIconic(s.name)?"★ "+s.name:s.name);
     const vv = isIconic(s.name) ? "Iconic" : (s.variant||"Basic");
     const vlab = isIconic(s.name) ? "ICN" : (SHORT[vv]||vv);
     return `<button class="pad filled ${tone} ${mission} ${padNeedClass(s)}" data-pad="${p.id}" ${drag}>${picWrap(s.name,p.kind,isIconic(s.name)?"Iconic":rarityOf(s.name)||"Common")}<span class="pad-var ${vTheme(vv)}">${vlab}</span><span class="pad-lab">${lab}</span></button>`;
