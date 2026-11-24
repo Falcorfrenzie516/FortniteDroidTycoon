@@ -195,6 +195,7 @@
   .tabs button span { position:relative; z-index:1; }
   .tabs button.on { color:#fff; background:rgba(196,181,253,.12); border-color:#c4b5fd; }
   .tabs button[data-tab="droidex"] .fill { background:linear-gradient(90deg,#0e7490,#67e8f9); }
+  .tabs button[data-tab="scourge"] .fill { background:linear-gradient(90deg,#7f1d1d,#fecaca); }
   .tabs button[data-tab="fusion"] .fill { background:linear-gradient(90deg,#0f766e,#2dd4bf); }
   .tabs button[data-tab="fusion"].on { border-color:#facc15; color:#fde047; background:rgba(250,204,21,.12); }
   .tabs button[data-tab="srb"] .fill { background:linear-gradient(90deg,#c2410c,#fb923c); }
@@ -734,6 +735,7 @@
     <div class="tabrow row1">
       <button data-tab="fusion"><i class="fill" id="tabFill-fusion"></i><span>Fusion</span></button>
       <button class="on" data-tab="droidex"><i class="fill" id="tabFill-droidex"></i><span>Droidex</span></button>
+      <button data-tab="scourge"><i class="fill" id="tabFill-scourge"></i><span>ScourgeDex</span></button>
       <button data-tab="decks"><i class="fill" id="tabFill-decks"></i><span>Base</span></button>
       <button data-tab="srb"><i class="fill" id="tabFill-srb"></i><span>Super Rebirth</span></button>
       <button data-tab="done"><i class="fill" id="tabFill-done"></i><span>Done</span></button>
@@ -2077,7 +2079,7 @@ function readSavedState(){
   }
 }
 let state = readSavedState();
-const TABS = ["droidex","fusion","decks","srb","done","cosmetics","nova","saves","alarms"];
+const TABS = ["droidex","scourge","fusion","decks","srb","done","cosmetics","nova","saves","alarms"];
 let tab = localStorage.getItem(KEY+"-tab") || "droidex";
 if (TABS.indexOf(tab)<0) tab = "droidex";
 let srbCycle = Number(state.rb.cycle || 1);
@@ -2285,6 +2287,16 @@ function toggle(n,v){
   state.d[dKey(n,v)] = on;
   if (KYBER_COLORS.includes(v) && on) state.d[dKey(n,"Kyber")] = true;
   if (v==="Kyber" && !on) KYBER_COLORS.forEach(c => { state.d[dKey(n,c)] = false; });
+  save(); render();
+}
+function toggleScourge(name, isFusion){
+  if (isFusion) {
+    const on = !fuseHas(name, SCOURGE);
+    state.f[name+"|"+SCOURGE] = on;
+  } else {
+    const on = !has(name, SCOURGE);
+    state.d[dKey(name, SCOURGE)] = on;
+  }
   save(); render();
 }
 function completeAll(n){
@@ -3122,6 +3134,29 @@ function render(){
       html += `</div>`;
     }
     if (!shown) html += `<div class="empty">Nothing left here. Check Done, or clear search.</div>`;
+  }
+  if (tab==="scourge") {
+    const scourgePool = DROIDS.length + FUSIONS.length;
+    const scourgeHave = DROIDS.filter(([n]) => has(n, SCOURGE)).length + FUSIONS.filter(([n]) => fuseHas(n, SCOURGE)).length;
+    html += `<div class="card" style="border-color:#7f1d1d;background:rgba(127,29,29,.08)"><div class="name">ScourgeDex</div><div class="meta" style="margin:6px 0">Surrendered Scourge versions: <b>${scourgeHave} / ${scourgePool}</b>. Scourge counts as any variant for rebirths. Hive Mind: more Scourge in base = more credits for all of them.</div><div class="fill" style="height:6px;background:#2b2550;border-radius:3px;overflow:hidden"><i style="display:block;height:100%;width:${scourgePool?Math.min(100,scourgeHave/scourgePool*100):0}%;background:#fecaca"></i></div></div>`;
+    const order = ["Common","Rare","Epic","Legendary","Mythic"];
+    let shown=0;
+    order.forEach(r => {
+      const rows = orderedByRarity(r).filter(x => {
+        if (x.kind==="d") return showCard(x.name,x.type,r);
+        if (x.kind==="f") return showCard(x.name,x.type,(x.ings||[]).join(" ")+" fusion");
+        return false;
+      });
+      if (!rows.length) return;
+      html += `<div class="rarity-h ${r}">${r}</div><div class="mini-grid">`;
+      rows.forEach(x => {
+        const on = x.kind==="f" ? fuseHas(x.name, SCOURGE) : has(x.name, SCOURGE);
+        html += `<button class="mini ${on?"done":""}" onclick="toggleScourge('${esc(x.name)}',${x.kind==="f"})">${picWrap(x.name,x.type,r)}<span>${x.name}</span></button>`;
+        shown++;
+      });
+      html += `</div>`;
+    });
+    if (!shown) html += `<div class="empty">No droids match the filter.</div>`;
   }
   if (tab==="decks") {
     html += renderDecks();
