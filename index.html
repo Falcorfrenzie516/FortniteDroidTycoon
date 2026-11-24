@@ -489,7 +489,19 @@
   .mini-tile.t-worker .mini-meta { color:#5eead4; }
   .mini-tile.t-astromech .mini-meta { color:#d8b4fe; }
   .mini-tile.t-battle .mini-meta { color:#fca5a5; }
-  .mini-tile.t-protocol .mini-meta { color:#fcd34d; }
+  .mini-tile.scourge-tile {
+    background:rgba(20,8,28,.55);
+    border:1px solid rgba(196,181,253,.35);
+    box-shadow:0 0 12px rgba(168,85,247,.12);
+    backdrop-filter:blur(4px);
+  }
+  .mini-tile.scourge-tile.done {
+    border-color:#fecaca;
+    box-shadow:0 0 16px rgba(254,202,202,.35);
+    background:rgba(80,20,30,.45);
+  }
+  .mini-tile.scourge-tile .mini-name { color:#f5d0fe; }
+  .mini-tile.scourge-tile .mini-meta { color:#c4b5fd; font-size:9px; }
   .mini-tile.picked { outline:2px solid #2dd4bf; box-shadow:0 0 12px rgba(45,212,191,.45); }
   .mini-tile.dim { opacity:.4; }
   .fuse-slot { display:flex; gap:8px; align-items:center; margin:0 0 8px; }
@@ -3151,7 +3163,7 @@ function render(){
       html += `<div class="rarity-h ${r}">${r}</div><div class="mini-grid">`;
       rows.forEach(x => {
         const on = x.kind==="f" ? fuseHas(x.name, SCOURGE) : has(x.name, SCOURGE);
-        html += `<button class="mini ${on?"done":""}" onclick="toggleScourge('${esc(x.name)}',${x.kind==="f"})">${picWrap(x.name,x.type,r)}<span>${x.name}</span></button>`;
+        html += `<button class="mini-tile scourge-tile ${on?"done":""}" onclick="toggleScourge('${esc(x.name)}',${x.kind==="f"})">${picWrap(x.name,x.type,r)}<span class="mini-name">${x.name}</span><span class="mini-meta">${on?"Scourge":"Tap to mark"}</span></button>`;
         shown++;
       });
       html += `</div>`;
